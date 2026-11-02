@@ -1,40 +1,19 @@
-# Only user-approved adaptations. All algorithm values come from the pinned
 # ETHZ exploration.yaml and the official flat_exploration/mav_inspector launch.
 upstream_profile: interface_nbvp_rotors/resource/exploration.yaml
 planning_bounds: porth_full_scene_conservative
 camera_parameters: simulation_calibration
 map_source: wavemap
-# 2026-10-31 explicit approval: match native Wavemap; retain unknown checks,
 # source RRT/gain/extension/iteration conditions and all JEPA/Guard parameters.
 map_resolution_m: 0.1
-# User strategy: cruise through startup unknown space; near an obstacle use
-# NBV only to select a turn, then continuously cruise in the new direction.
-# No endpoint/observation wait, body-known gate or travel-distance cap.
 startup_unknown_policy: obstacle_triggered
 obstacle_response: turn_then_cruise
 obstacle_plan_distance_m: 3.0
-# 2026-11-01 user requested four times the current driving speed.
-# Source horizontal guidance is 0.12 m/s; requested cap becomes 0.48 m/s.
 horizontal_speed_multiplier: 4.0
-# User approved task constraint on actual source-tree branches, 2026-10-31.
-# Legacy key name: each completed avoidance turn updates the native reference
-# to the new cruise direction. Source sampled view yaw/gain stay native but the
-# reactive execution uses geometry heading; it does not execute the view yaw.
 forward_task_constraint: initial_heading
-# Approved by the user on 2026-10-30 after run 20261030T064446Z-67d66a1b:
-# 256 samples exceeded the unchanged 0.16 s solve deadline (median ~0.215 s).
-# 128 is the existing local controller/config/jepa_mppi.yaml sample count.
 jepa_mppi_overrides:
   sample_count: 64
   deadline_seconds: 0.36
   maximum_plan_age_seconds: 0.60
   planner_latency_compensation_seconds: 0.36
-# User requested continued retesting in response to the proposed 128 -> 64
-# experiment on 2026-10-30. 64 is JepaMppiConfig's source default. Keep every
-# other MPPI values. On 2026-10-31 the user explicitly approved ONLY the three
-# timing overrides above after .1 m NBV succeeded and all 52 observed solve
-# results exceeded .16 s (median .269, P95 .330, max .346 s).
-# 2026-11-01: the user additionally approved ONLY plan age .40 -> .60 after
-# .48 m/s target testing showed gaps between valid asynchronous solve results.
 jepa_override_approval: '2026-10-30: sample_count 64; 2026-10-31: deadline .36, maximum plan age .40 and latency compensation .36; 2026-11-01: explicit approval ONLY maximum plan age .40 -> .60 after measured plan-availability gaps, retaining deadline .36, latency .36, 64 samples and all gains/Guard/terminal expiries'
 jepa_override_evidence_run: 20261101T132233Z-e81ce9d6
