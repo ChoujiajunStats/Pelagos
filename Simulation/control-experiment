@@ -23,7 +23,7 @@ if [[ "${1:-}" == --check ]]; then
   exit 0
 fi
 printf '%s\n' '将启动新的 Codex 实验控制会话：宿主机权限，按需审批。' \
-  '实验约束与已有故障记录位于 Simulation/EXPERIMENT_HANDOVER.md。'
+  '使用说明位于 Simulation/README.md。'
 exec codex --no-daemon --sandbox danger-full-access --ask-for-approval on-request \
   --cd "$project_dir" \
-  '请先读取 Simulation/EXPERIMENT_HANDOVER.md 和 Simulation/README.md，然后接管本机仿真实验，复现并调通路径点导航与 NBVPlanner / JEPA-MPPI 探索闭环。用户已授权本项目仿真容器的构建、启动、暂停、停止和日志读取；参数调整仍需与用户商量，源仓库接口修正需要记录出处。'
+  '请先读取 Simulation/README.md，然后接管本机仿真实验，复现并调通路径点导航与 NBVPlanner / JEPA-MPPI 探索闭环。用户已授权本项目仿真容器的构建、启动、暂停、停止和日志读取；参数调整仍需与用户商量，源仓库接口修正需要记录出处。'
