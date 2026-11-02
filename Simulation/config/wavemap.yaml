@@ -19,8 +19,6 @@
     occupied_probability: 0.70
     depth_edge_absolute_m: 0.15
     depth_edge_relative: 0.05
-    # 2026-11-01 approved: retain original finite far measurements for native
-    # free-space beams. The display/evaluation depth keeps its 12 m contract.
     depth_topic: /stereo/mapping_depth
     odom_topic: /odometry/estimated
     world_frame: world
