@@ -24,4 +24,3 @@ export PELAGOS_PORTH_ASSETS=/path/to/porth_sump9_v1
 
 RViz：**Explore** 开始，**Pause** 暂停，**Manual** 手动，**Auto** 选择自主控制但不开始任务，**Plan Preview** 仅预览。停止：`./Simulation/sim stop`。
 
-RViz 布局参考 GBPlanner（[许可证](rviz_panel/GBPLANNER_LICENSE)）。
