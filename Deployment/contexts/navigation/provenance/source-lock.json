@@ -1,0 +1,17 @@
+{
+  "wavemap": {
+    "repository": "https://github.com/ethz-asl/wavemap",
+    "commit": "db4f2fffdc1da1bec042d51bfff58029c0c9c827",
+    "core_modified": false
+  },
+  "crop_port": {
+    "source": "interfaces/ros1/wavemap_ros/src/map_operations/crop_map_operation.cc",
+    "sha256": "e2ae96f8a7b82780a48417bc91eb134bff988381ac58c7e9ac631566900f307f",
+    "adaptation": "ROS 2 TF lookup outside the native operation; steady-clock scheduling; original block AABB erase semantics"
+  },
+  "wavestar": {
+    "repository": "https://github.com/ethz-asl/wavestar",
+    "commit": "8880f3259b515ad680a813e2e2eb5fe40bbe9e44",
+    "source_modified": false
+  }
+}

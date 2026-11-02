@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "integration_repository": "https://github.com/ChoujiajunStats/stonefish_slam_ws",
+  "integration_branch": "experiment/mppi-estimated-feedback",
+  "integration_commit": "4606e1d7d69a0e94686afa53618637b20d347a85",
+  "integration_author": "Xiaoyang-Yu-CS",
+  "imported_source_sha256": {
+    "controller/config/defaults.yaml": "5d835605531769a4fa3b14f70a1c5dcd01809361743ee2c017341e15ffa548bf",
+    "controller/config/jepa_mppi.yaml": "3826bba79715897c743fc10565f35028fce25863f029bce1a38e6faadb1d0719",
+    "controller/package.xml": "741fff2fbab8d5ca5bece56e4aef2849a9f4065503bfe3b7d21eb1813f133fa1",
+    "controller/setup.py": "8fad727252fb84109be04ee475b582688ca5de29e77b589b4117c7d6da4038d7",
+    "controller/uw_controller/checkpoint.py": "53ec7e5189dcf1b4e450cc3c3d40d13aa2331140e953e1d4f925ad7fd61b7803",
+    "controller/uw_controller/core.py": "c2388730a750e4e0384d42f4312ff815204a84296d899801f816e4fd8d955e6d",
+    "controller/uw_controller/node.py": "f206af0b99a56d5ef9dc580346b6945222539d6b08277702cd6a51cf5072d67a",
+    "controller/checkpoints/stage2_zhat_response_potential_full4096_four_modal_e5.pt": "e4e09e92f5ae00a6183c6f698ad32d9bcf671705d93d6b81e44e14d43f67974d"
+  },
+  "algorithm_repository": "https://github.com/Xiaoyang-Yu-CS/dev-jepa-water",
+  "algorithm_commit": "40aa6353d12a01084ff65977047987d80e10239c",
+  "algorithm_source_status": "VERIFIED",
+  "checkpoint_sha256": "e4e09e92f5ae00a6183c6f698ad32d9bcf671705d93d6b81e44e14d43f67974d",
+  "algorithm_archive_sha256": "0ee1370d0ccad041e1b33aa0cee52eda2e2872b057bbe5470eac5ecd816756df",
+  "runtime_images": {
+    "actuators": "sha256:3485f8c20ac5a3cf7fb7ee4e838e1350f2cfb9adbcc0ee61c9c73aecd368543b",
+    "torch_runtime": "sha256:9f6c564c7bd1670ecf57bd4ddd93d93003c3158e81e3b17bc0daeff2f271532f"
+  },
+  "algorithm_archive_scope": [
+    "src/disaware_learning/disaware_learning",
+    "src/disaware_learning/config"
+  ]
+}

@@ -1,0 +1,20 @@
+std_msgs/Header header
+string operation
+geometry_msgs/Pose body
+geometry_msgs/Pose camera
+sensor_msgs/PointCloud2 cloud
+geometry_msgs/Pose[] path
+octomap_msgs/Octomap map
+uint64 source_revision
+bool include_map
+---
+bool valid
+string reason
+uint64 map_revision
+geometry_msgs/Pose[] path
+geometry_msgs/Point[] occupied
+float64[] sizes
+string diagnostics_json
+string map_source
+uint64 source_revision
+bool depth_fusion_enabled

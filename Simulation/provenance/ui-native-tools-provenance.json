@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-02T03:19:35.379393+00:00",
+  "authorization": {
+    "source": "User explicit request relayed by root on2026-11-02Asia/Shanghai",
+    "request": "将rviz改成全英文界面，ui不要了，写一个rviz自带的几个按钮就行",
+    "scope": "Native RViz toolbar controls, English labels/locale, remove custom dock and standalone UI. No navigation/controller/Guard policy or numeric changes."
+  },
+  "implementation": {
+    "plugins": [
+      {
+        "name": "pelagos_rviz/Explore",
+        "type": "pelagos_rviz::ExploreTool",
+        "base": "rviz_common::Tool"
+      },
+      {
+        "name": "pelagos_rviz/Plan Preview",
+        "type": "pelagos_rviz::PreviewTool",
+        "base": "rviz_common::Tool"
+      },
+      {
+        "name": "pelagos_rviz/Manual",
+        "type": "pelagos_rviz::ManualTool",
+        "base": "rviz_common::Tool"
+      },
+      {
+        "name": "pelagos_rviz/Auto",
+        "type": "pelagos_rviz::AutoTool",
+        "base": "rviz_common::Tool"
+      },
+      {
+        "name": "pelagos_rviz/Pause",
+        "type": "pelagos_rviz::PauseTool",
+        "base": "rviz_common::Tool"
+      }
+    ],
+    "standard_rviz_panels": [
+      "rviz_common/Displays",
+      "rviz_common/Views",
+      "rviz_common/Selection",
+      "rviz_common/Tool Properties"
+    ],
+    "toolbar": [
+      "rviz_default_plugins/Interact",
+      "rviz_default_plugins/MoveCamera",
+      "rviz_default_plugins/Select",
+      "rviz_default_plugins/FocusCamera",
+      "rviz_default_plugins/Measure",
+      "pelagos_rviz/Explore",
+      "pelagos_rviz/Plan Preview",
+      "pelagos_rviz/Manual",
+      "pelagos_rviz/Auto",
+      "pelagos_rviz/Pause"
+    ],
+    "native_integration": "rviz_common::Tool lifecycle/onInitialize/activate,ToolManager::refreshTool and standard toolbar actions; pluginlib exports Tool instances. No custom rviz_common::Panel is exported or configured.",
+    "ownership_visible": "Manual (selected) / Auto (selected) mean selected control ownership only. They do not imply that the task is running or that Guard is armed.",
+    "action_lifecycle": "One-shot actions restore the default RViz mouse tool; standard Interact/MoveCamera/Select/FocusCamera/Measure remain.",
+    "english": "Display, view and Tool labels are English. RViz launches with LANG=LC_ALL=C.UTF-8 and LANGUAGE=en. Localized coordinator reasons are logged only; visible feedback uses fixed English action/outcome strings, including accepted/rejected Chinese-input regression cases.",
+    "appearance": "Existingwhitebackground/bluepaths andmapdisplay settings retained; no new custom panel or page.",
+    "removed": [
+      "MissionPanel source/header andPanelpluginexport",
+      "StandaloneQtmissioneditor/window (legacyPythonentry redirects toRViz)",
+      "DockconfigurationforPelagosMissionControl",
+      "Unconsumed2DGoalPosewaypointtool anddraftdisplay after editor removal"
+    ],
+    "compatibility": "./Simulation/sim ui and dockercommand.sh ui redirect to nativeRViz. CoreCLI navigationroutes/manual/auto/explore/pause/preview remain. No standaloneUI isstarted by pipeline.",
+    "viewer_exit_policy": "Unchanged:nonzeroRViz failure leaves essential processes/evidence alive; normalRViz exit follows existing supervisor behavior.",
+    "guard_task_feedback": {
+      "status_bar_and_native_action_tooltip": "Fixed English Control owner / Guard state / Task state. FAULT takes precedence over old request acknowledgements, with Task: Stopped.",
+      "known_faults": "state_clock_mismatch -> state/clock mismatch; estimator_LOST prefix -> localization lost; original_request_expired including terminal prefix -> request expired.",
+      "localized_or_unknown_raw_reason": "Display safety fault; never expose arbitrary raw localized text. Original control-status artifacts remain authoritative.",
+      "normal_task_states": [
+        "Running when enabled and Guard ARMED",
+        "Waiting when enabled and Guard is not ARMED",
+        "Paused when disabled",
+        "Planning only in preview-only sessions",
+        "Offline/UNKNOWN when coordinator status is stale"
+      ],
+      "native_ui_integration": "Update the registered native QAction icon text, tooltip and status tip after toolbar_ready_. Keep the stable Tool name, preserving the native Remove Tool menu. No new panel, dialog or Reset button."
+    }
+  },
+  "protocol_contract": {
+    "publish_topic": "/pelagos/mission/request",
+    "subscribe_topics": [
+      "/pelagos/planner/status",
+      "/pelagos/mission/response"
+    ],
+    "request_fields": [
+      "request_id",
+      "run_id",
+      "epoch=1",
+      "issued_steady_ns",
+      "action"
+    ],
+    "timestamp": "Actual C++steady_clock nanoseconds at publication,samehostwalllease clock as priorpanel; originalbridge250msissued-agevalidation retained.",
+    "Explore": "IfManual/switching,send exactlyone select_autonomy,wait for matchingacceptedresponse ANDfreshactualAutostatus published after request with no pendingmode;then send exactlyone start_exploration. No blindARM or repeatedstart.",
+    "Manual": "CancelqueuedExplore andrequestselect_manual; bridgepauses/revokes andselectssource. Doesnotarmjoystick.",
+    "Auto": "Selectautonomousownershiponly;doesnotstartmotion.",
+    "Pause": "Cancelpendingstartworkflow andrequestpause evenwhilewaitingforanotherresponse; lateolderresponses cannotresume. Cachedrunmaybepause-targetedwhenstatusisstale,bridgeenforcescurrentrun.",
+    "PlanPreview": "Only plan_preview whilehealthy/paused; no start/goal/ARM/actuatorpublication. Planning-onlysession supported.",
+    "freshness": "One-secondUIcoordinatorfreshness retainedfromoldpanel,checkedagainstagereceivedandpublishedwall; actualprotocol/Guarddeadlinesremain authoritative. Exploreownership requiresstatus.wall_ns>ownership-requestissued_ns.",
+    "session_isolation": "Responsesmustmatchrequest_idandrun_id; newrun cancelsqueuedintent; wrongrun/late/duplicateacks ignored.",
+    "timeout": "Existingfive-secondUIconfirmationtimeoutdropsqueuedintentwithoutautomaticretry.",
+    "direct_authority_or_motion_publishers": false
+  },
+  "primary_source_interfaces": {
+    "rviz_project": "https://github.com/ros2/rviz",
+    "interface_evidence": {
+      "packages": "ros-jazzy-rviz-common\t14.1.23-1noble.20260903.022201\nros-jazzy-rviz-default-plugins\t14.1.23-1noble.20260905.033533\n",
+      "headers": [
+        {
+          "path": "/opt/ros/jazzy/include/rviz_common/rviz_common/tool.hpp",
+          "sha256": "650ba8b590e3b71879058512cd189858ec86297610804ad9f53b258aeefafc3d"
+        },
+        {
+          "path": "/opt/ros/jazzy/include/rviz_common/rviz_common/tool_manager.hpp",
+          "sha256": "1872d2a0cc886facf174c3684e146aecc1eed19107299bc81389f08af9f4de3b"
+        },
+        {
+          "path": "/opt/ros/jazzy/include/rviz_common/rviz_common/display_context.hpp",
+          "sha256": "c0910a68596cb5a21fb177bc64090f90a17d9825b9d6b26469ffefd73086db59"
+        }
+      ]
+    },
+    "interface_source": "Installed ROS Jazzy headers were read from the project image; matching14.1.23 implementation was inspected at the upstream URLs in lifecycle_fixes.",
+    "local_mission_source": "Simulation/adapters/nbv_bridge.py::mission_request (read-only to thissubtask; root-owned)",
+    "prior_layout": "GBPlannercave_exploration/ui.rviz fixedcommitf9904bb69392d2d46b2cbe939762f967a65daa14;groups/views retained,customPanelcode removed; licensefile retained."
+  },
+  "validation": {
+    "mission_flow": {
+      "scenarios": 15,
+      "result": "PASS",
+      "source": {
+        "path": "Simulation/rviz_panel/tests/check_mission_flow.cpp",
+        "sha256": "10511c7e5637fbd8844385650b575cb4ebcfb435e71cea2ad2cf217121a287ad",
+        "bytes": 5149
+      },
+      "log": {
+        "path": "Simulation/build/rviz-native-tools/mission-feedback-check.log",
+        "sha256": "e9f2d2b8a0f05b4c5d83416c9963c15e9a73970d22c9e4b09b64b1e626693ecf",
+        "bytes": 102
+      },
+      "covers": [
+        "Manual->matchedselectionack->freshactualAuto->singleStart",
+        "Pause/Manualcancelqueuedstartandignorelateacks",
+        "Previewonlyno-motionaction",
+        "freshness,timeout,newrunandwrongresponseisolation",
+        "planning-onlyrestrictions",
+        "ChineseacceptedandrejectedreasoninputsproduceEnglish-onlyvisiblemessages",
+        "Guard FAULT after an accepted start shows FAULT/Stopped and suppresses old acceptance text while ownership remains selected",
+        "Localized unknown guard reason produces only fixed English safety-fault feedback",
+        "Running/Paused/Offline states are distinguished"
+      ]
+    },
+    "installed_plugin_loading": {
+      "plugins_loaded": 5,
+      "result": "PASS",
+      "log": {
+        "path": "Simulation/build/rviz-native-tools/plugin-load-check-final.log",
+        "bytes": 302,
+        "sha256": "aa7b71355d05ad0609b0063326bfd3184af651611d36e951a2401938245fb289"
+      },
+      "method": "QApplicationoffscreen+pluginlibClassLoader loadedallfiveactualinstalledToolclasses;noonInitializeorcommandpublication."
+    },
+    "static_checks": [
+      "PythonASTparseforcompatibilityentry/pipeline/CLI",
+      "bash-nfordockercommandentry",
+      "RVizYAMLloadswithnoHanlabels",
+      "OnlystandardRVizpanelsconfigured",
+      "Fivepluginsallbase_class_type=rviz_common::Tool",
+      "UnusedSetGoalremoved"
+    ],
+    "build": {
+      "command": "./Simulation/sim build",
+      "result": "complete",
+      "log": {
+        "path": "Simulation/build/rviz-native-tools/image-build-guard-feedback.log",
+        "sha256": "fd14ecd564e75a1327c05ef3b128e8f1400654633531a15639656813c3d5e553",
+        "bytes": 13675
+      },
+      "image_manifest_list": "sha256:41978a32ff2915300592fb47c56f7700f4a417ac318f462dd778ce615968b332",
+      "image_config": "sha256:1fbf8f9fcc98c4e058a07d006dce010037704f1881fb20324c36d02adc35689c"
+    },
+    "scope_limit": "Actual RViz startup, rendering, toolbar registration, event loop and clean exit were tested. No autonomous trial or mission-button request was sent by this subtask; the pure protocol state machine covers action ordering/cancellation.",
+    "actual_rviz_initialization": {
+      "result": "PASS",
+      "ros_domain": 213,
+      "duration_seconds": 12.012242426004377,
+      "alive_through_test": true,
+      "exit_code": 0,
+      "full_configuration": "Simulation/config/pelagos.rviz",
+      "rendering": "Actual display and GPU OpenGL4.6; screenshot inspected with all five English toolbar tools and no custom mission panel.",
+      "scope": "RViz only. No Stonefish, planner, controller or actuator processes; no mission requests.",
+      "driver": {
+        "path": "Simulation/build/rviz-native-tools/check_actual_init.py",
+        "sha256": "7c9bfa4c3baf7f9162a3f9e64f1133c28d8ae10d0c9afa30675f5b98d429b72c",
+        "bytes": 2252
+      },
+      "result_artifact": {
+        "path": "Simulation/build/rviz-native-tools/actual-init-result.json",
+        "sha256": "2fc4e8d7f3760a7a09e43084076fb13e54ad186db485c06b80b3ef60d181e92b",
+        "bytes": 1366
+      },
+      "log": {
+        "path": "Simulation/build/rviz-native-tools/actual-init-fixed.log",
+        "sha256": "fc643f2f38a3687276bd1d5005d991695565f07acc3ebc8e1561277bf4f3a530",
+        "bytes": 490
+      },
+      "screenshot": {
+        "path": "Simulation/build/rviz-native-tools/actual-rviz-toolbar.png",
+        "sha256": "5b2cd7a56c964979ce1e900683c5d1cb3cae2596cc8cbe23e5963f5b0ab1a1f8",
+        "bytes": 1789481
+      },
+      "test_instrumentation": "SIGSEGV backtrace preload used only by the isolated test; no preload is configured in production startup.",
+      "image_manifest_list": "sha256:b29260c04d30c6dff84656065677513de0b0a1cc666ca49c75bbb5d76329330f"
+    },
+    "feedback_update_scope": "Existing live viewer was not restarted. This feedback revision passed all15 protocol/feedback cases and main-image compilation; root will load the new image in a later session. Earlier full12s initialization/clean-exit evidence applies to lifecycle-fix imageb29260c0, whose startup/shutdown protections are retained."
+  },
+  "source_files": [
+    {
+      "path": "Simulation/rviz_panel/CMakeLists.txt",
+      "bytes": 786,
+      "sha256": "896e0db20ffb800bd6e25fc6c715ee1f74d2bbd4c14803d08ee2db58ccddf7bd"
+    },
+    {
+      "path": "Simulation/rviz_panel/GBPLANNER_LICENSE",
+      "bytes": 1529,
+      "sha256": "91a384190a8ce3569578c53f947469281a3a34c4cea1ddd72feb89ba9a14e641"
+    },
+    {
+      "path": "Simulation/rviz_panel/PROVENANCE.md",
+      "bytes": 1562,
+      "sha256": "1511182469d039216e9b2ad7c131a99ffe6329415a61c12c4c02a5908d1d4fbb"
+    },
+    {
+      "path": "Simulation/rviz_panel/include/pelagos_rviz/mission_flow.hpp",
+      "bytes": 6934,
+      "sha256": "67e307eae346d05b14b1ecb220884b3c3f9dcfe52de2c0f3fb3976f11c4a73a5"
+    },
+    {
+      "path": "Simulation/rviz_panel/include/pelagos_rviz/mission_tools.hpp",
+      "bytes": 972,
+      "sha256": "883a635fa0d3bd94135cbdd68c0298c5e86d3892d1bda0545a7c864992d08951"
+    },
+    {
+      "path": "Simulation/rviz_panel/package.xml",
+      "bytes": 525,
+      "sha256": "d43a8591aa7ce43be474082d9601a719750d23ebdb01c826d887ce4ace64eb0d"
+    },
+    {
+      "path": "Simulation/rviz_panel/plugins.xml",
+      "bytes": 992,
+      "sha256": "cbd99729346d2f6d40fd6d41b9c8f32fca63907bdf0d8d8cc1ae12962ffb5988"
+    },
+    {
+      "path": "Simulation/rviz_panel/src/mission_tools.cpp",
+      "bytes": 8195,
+      "sha256": "bdba604835fd1f66be134cae6e113d91bc564bbb398fff5ced7338a38f1efc55"
+    },
+    {
+      "path": "Simulation/rviz_panel/tests/check_mission_flow.cpp",
+      "bytes": 5149,
+      "sha256": "10511c7e5637fbd8844385650b575cb4ebcfb435e71cea2ad2cf217121a287ad"
+    },
+    {
+      "path": "Simulation/config/pelagos.rviz",
+      "bytes": 11013,
+      "sha256": "0c5b08aacf8608f88ed81f407456b004e02978857ae644b36e4d07507bf49174"
+    },
+    {
+      "path": "Simulation/adapters/mission_ui.py",
+      "bytes": 550,
+      "sha256": "94188e119665ac932e2ce1e9720103b1952db28935c88aabb8d3823cc179b7d9"
+    },
+    {
+      "path": "Simulation/tools/run_pipeline.py",
+      "bytes": 8000,
+      "sha256": "378c9eb3c3d5f56fd614ea92002b897f211005a5ce15af1acedcd69b65fd9e73"
+    },
+    {
+      "path": "Simulation/sim",
+      "bytes": 19580,
+      "sha256": "3f68740273d679cbf9d219e7a67660a76f610d99cd2223109b3ec380c02a238a"
+    },
+    {
+      "path": "Simulation/docker/command.sh",
+      "bytes": 1943,
+      "sha256": "66d29a9a99e337be82c2a109268f609d3e9a02e29c40d85d89ece41290ecdd5f"
+    }
+  ],
+  "unchanged_by_this_subtask": [
+    "Simulation/adapters/nbv_bridge.py",
+    "Simulation/config/nbv.yaml",
+    "Navigation/controllergainsandlimits",
+    "Guardauthorization/leases/watchdogs",
+    "Mappingprojection/relay/nativeplanner",
+    "SourceRRT/yaw/gain/collisionchecks",
+    "CoremissionCLIrouteprotocol",
+    "RVizexit/supervisorsemantics"
+  ],
+  "lifecycle_fixes": {
+    "initialization_fault": {
+      "observed": "Original image crashed during actual RViz configuration loading, despite constructor-only plugin loading passing.",
+      "native_trace": {
+        "path": "Simulation/build/rviz-native-tools/actual-init-crash.log",
+        "sha256": "d4f89def81acbe1b01187f6a197d5841625286d3aadc46bde2a83698a82d75e5",
+        "bytes": 2216
+      },
+      "call_path": [
+        "QAction::setIcon",
+        "VisualizationFrame::refreshTool",
+        "ToolManager::toolRefreshed",
+        "MissionTool::refresh",
+        "MissionTool::onInitialize",
+        "ToolManager::addTool"
+      ],
+      "cause": "ToolManager calls initialize before emitting toolAdded. VisualizationFrame has no QAction entry yet; its refreshTool dereferences that missing action.",
+      "fix": "Connect to this Tool’s toolAdded event, then enable refresh in the next Qt event-loop turn. Earlier timer refreshes and activation are rejected by toolbar_ready_.",
+      "upstream_references": [
+        {
+          "url": "https://raw.githubusercontent.com/ros2/rviz/14.1.23/rviz_common/src/rviz_common/tool_manager.cpp",
+          "interface": "ToolManager::addTool, initialize before toolAdded; refreshTool emits toolRefreshed."
+        },
+        {
+          "url": "https://raw.githubusercontent.com/ros2/rviz/14.1.23/rviz_common/src/rviz_common/visualization_frame.cpp",
+          "interface": "VisualizationFrame::addTool creates the QAction; refreshTool dereferences tool_to_action_map_[tool]."
+        }
+      ]
+    },
+    "shutdown_fault": {
+      "observed": "After the initialization fix, the window rendered for12s but SIGTERM invalidated the ROS context before the Qt timer stopped, producing RCLError and exit134.",
+      "evidence": {
+        "path": "Simulation/build/rviz-native-tools/shutdown-failure-actual-init-fixed.log",
+        "sha256": "0b47c168523c8bab60fd84bc4b3f6d25debd962b2fb3a04ba8334e46a11a2641",
+        "bytes": 743
+      },
+      "fix": "Stop the timer when its node context is invalid; catch the check/spin_some shutdown race; reject publication with an invalid context.",
+      "verified": "The final actual RViz-only test survived12s and exited0 after SIGTERM."
+    }
+  },
+  "historical_builds": [
+    {
+      "command": "./Simulation/sim build",
+      "result": "complete",
+      "log": {
+        "path": "Simulation/build/rviz-native-tools/image-build-lifecycle-fix.log",
+        "sha256": "ae767b321f661e134010041439fd17c238c139567e7af51916b5b78e35c61c7d",
+        "bytes": 13586
+      },
+      "image_manifest_list": "sha256:b29260c04d30c6dff84656065677513de0b0a1cc666ca49c75bbb5d76329330f",
+      "image_config": "sha256:d629c011be0bf203aa74add8bf365b727332f2f1819b667c2e65c12acc3826d7"
+    }
+  ],
+  "render_only_display_deduplication": {
+    "authorization": "Root explicitly authorized removing only the three duplicate Sensors display instances; no source frequencies or planner/map parameters.",
+    "change": "Removed the YAML alias entries for NBVpath,NBVOctoMap,Wavemapoccupied from Sensors and estimation evidence. Unique original layers remain in PlannerViz/Mapping.",
+    "config": {
+      "path": "Simulation/config/pelagos.rviz",
+      "bytes": 11013,
+      "sha256": "0c5b08aacf8608f88ed81f407456b004e02978857ae644b36e4d07507bf49174"
+    },
+    "uniqueness_check": {
+      "path": "Simulation/build/rviz-native-tools/render-display-uniqueness.json",
+      "bytes": 824,
+      "sha256": "059cd870eae45ed529188cd384d5a11345454507693b9564c7b76eb4ce99b08d"
+    },
+    "enabled_instances_after": {
+      "/pelagos/planner/path": 1,
+      "/pelagos/planner/map": 1,
+      "/mapping/occupied_cells": 1
+    },
+    "full_map_geometry_retained": true,
+    "numeric_render_map_planner_values_changed": false,
+    "current_live_viewer_restarted_or_reloaded_by_this_subtask": false,
+    "build_needed": "No binary change. The workspace-mounted config will be used when root reloads/reopens RViz.",
+    "application_status": "Next viewer launch/config load only. The currently running RViz was not restarted or reloaded."
+  },
+  "render_resource_audit": {
+    "old_run": "Simulation/runs/20261102T030254Z-ff077951",
+    "current_run_untouched": "Simulation/runs/20261102T031510Z-29de60ff",
+    "old_failure": {
+      "log": {
+        "path": "Simulation/runs/20261102T030254Z-ff077951/logs/rviz.log",
+        "bytes": 913,
+        "sha256": "a005b91e8c43091f56c36256b7854ac5cc1311638b2c583715c29a3b353f250d"
+      },
+      "exception": "Ogre::InternalErrorException:Cannot create GL index buffer,GLHardwareIndexBuffer.cpp,line45",
+      "process_exit_reported_by_root": -6,
+      "no_allocation_backtrace_or_GL_error_code_saved": true
+    },
+    "gpu_current_snapshot": {
+      "command": [
+        "nvidia-smi",
+        "--query-gpu=timestamp,name,memory.total,memory.used,memory.free,utilization.gpu",
+        "--format=csv"
+      ],
+      "exit_code": 0,
+      "output": "timestamp, name, memory.total [MiB], memory.used [MiB], memory.free [MiB], utilization.gpu [%]\n2026/11/02 11:19:35.294, NVIDIA GeForce RTX 5090, 32607 MiB, 4374 MiB, 27702 MiB, 96 %\n",
+      "limit": "Current snapshot has abundant free VRAM; it does not measure memory at the old failure and cannot prove or rule out transient context/resource exhaustion then."
+    },
+    "kernel_current_boot_check": {
+      "since_local": "2026-11-02 10:55:00",
+      "journal_returncode": 0,
+      "matching_NVRM_Xid_OOM_lines": [],
+      "limit": "This is the currently readable kernel journal window, not a complete driver trace of the failed GL allocation."
+    },
+    "saved_old_map_size": {
+      "occupied_leaves": 226728,
+      "octomap_occupied_cells": 311927,
+      "octomap_free_cells": 943928,
+      "octomap_bytes": 2168720,
+      "memory_bytes": 6266312,
+      "source_stamp_ns": 580830000000
+    },
+    "confirmed_render_pressure": [
+      "The previous config enabled two separate instances of each map/path topic; YAML aliases do not share one RViz Display instance.",
+      "Wavemap emits full CUBE_LIST MarkerArray snapshots with DELETEALL before ADD at configured5Hz; RViz rebuilds point-cloud renderables for new marker data.",
+      "Camera-history LINE_LIST geometry intentionally grows with accumulated traveled distance; trajectory history is decimated at20000poses. No unbounded MarkerID leak is established: publishers use stable IDs and/or DELETEALL."
+    ],
+    "root_cause_limits": [
+      "No saved GL allocation backtrace identifies which display triggered the index-buffer failure.",
+      "Installed Ogre headers identify1.12.10. Its named exception follows zero buffer handle from glGenBuffersARB,before storage initialization; the log alone is not proof of VRAM capacity exhaustion.",
+      "Jazzy CUBE_LIST uses PointsMarker/PointCloud,whose renderables setuseIndexes=false. Voxel drawing pressure is real but is not direct proof that the failing index buffer belonged to the voxel renderer.",
+      "Removing DELETEALL alone would not eliminate vertex-buffer churn:PointsMarker also clears renderables on every new message. This audit does not propose changing mapper code or frequencies."
+    ],
+    "upstream_primary_sources": [
+      {
+        "url": "https://raw.githubusercontent.com/OGRECave/ogre/v1.12.10/RenderSystems/GL/src/OgreGLHardwareIndexBuffer.cpp",
+        "interface": "GLHardwareIndexBuffer constructor:zero generated handle throws named exception."
+      },
+      {
+        "url": "https://raw.githubusercontent.com/ros2/rviz/14.1.23/rviz_default_plugins/src/rviz_default_plugins/displays/marker/markers/points_marker.cpp",
+        "interface": "CUBE_LIST goes through PointsMarker;newdata clears point cloud before re-adding."
+      },
+      {
+        "url": "https://raw.githubusercontent.com/ros2/rviz/14.1.23/rviz_rendering/src/rviz_rendering/objects/point_cloud.cpp",
+        "interface": "clear detaches/deletes current renderables."
+      },
+      {
+        "url": "https://raw.githubusercontent.com/ros2/rviz/14.1.23/rviz_rendering/src/rviz_rendering/objects/point_cloud_renderable.cpp",
+        "interface": "PointCloudRenderable uses non-indexed rendering."
+      }
+    ]
+  },
+  "viewer_reload_guidance": {
+    "pipeline_source": {
+      "path": "Simulation/tools/run_pipeline.py",
+      "bytes": 8000,
+      "sha256": "378c9eb3c3d5f56fd614ea92002b897f211005a5ce15af1acedcd69b65fd9e73"
+    },
+    "pipeline_mtime_utc": "2026-11-02T02:26:58.568835+00:00",
+    "run_start_comparison": {
+      "20261102T030254Z-ff077951": {
+        "run_started_utc": "2026-11-02T03:02:54+00:00",
+        "pipeline_mtime_before_run_start_seconds": 2155.431165
+      },
+      "20261102T031510Z-29de60ff": {
+        "run_started_utc": "2026-11-02T03:15:10+00:00",
+        "pipeline_mtime_before_run_start_seconds": 2891.431165
+      }
+    },
+    "observed_existing_policy": "Current source continues after nonzero RViz exit and ends the pipeline after normal RViz exit0; unchanged by this subtask. Mtime precedes both run starts.",
+    "safest_no_process_restart": "In the existing RViz use File > Open Config to reload /pelagos/Simulation/config/pelagos.rviz; do not close the window normally.",
+    "if_root_chooses_viewer_process_restart": [
+      "docker exec pelagos-stonefish pkill -KILL -x rviz2",
+      "./Simulation/sim rviz"
+    ],
+    "restart_caution": "Only root/operator should execute these after confirming the running supervisor retains the nonzero-viewer-exit policy. No such command was executed here. Do not use simstop or close the supervised RViz normally for a viewer-only restart.",
+    "causal_limit": "The preserved nonzero-viewer-exit branch means an RViz abort alone should not terminate the supervisor. Stonefish exit0 requires separate lifecycle evidence; source mtime alone does not prove the order of process exits.",
+    "current_operator_decision": "Root explicitly keeps the current healthy run and viewer unchanged; no reload/restart now."
+  }
+}

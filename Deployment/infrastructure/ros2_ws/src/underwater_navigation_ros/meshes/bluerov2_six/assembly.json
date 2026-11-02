@@ -1,0 +1,136 @@
+{
+  "hull": "bluerov2_lod.obj",
+  "thrusters": [
+    {
+      "name": "FrontRight",
+      "mesh": "ccw_lod.obj",
+      "xyz": [
+        0.1355,
+        0.1,
+        0.0725
+      ],
+      "rpy": [
+        0.0,
+        0.0,
+        -0.7853981634
+      ],
+      "kind": "horizontal"
+    },
+    {
+      "name": "FrontLeft",
+      "mesh": "ccw_lod.obj",
+      "xyz": [
+        0.1355,
+        -0.1,
+        0.0725
+      ],
+      "rpy": [
+        0.0,
+        0.0,
+        0.7853981634
+      ],
+      "kind": "horizontal"
+    },
+    {
+      "name": "BackRight",
+      "mesh": "cw_lod.obj",
+      "xyz": [
+        -0.1475,
+        0.1,
+        0.0725
+      ],
+      "rpy": [
+        0.0,
+        0.0,
+        -2.3561944902
+      ],
+      "kind": "horizontal"
+    },
+    {
+      "name": "BackLeft",
+      "mesh": "cw_lod.obj",
+      "xyz": [
+        -0.1475,
+        -0.1,
+        0.0725
+      ],
+      "rpy": [
+        0.0,
+        0.0,
+        2.3561944902
+      ],
+      "kind": "horizontal"
+    },
+    {
+      "name": "VerticalLeft",
+      "mesh": "ccw_lod.obj",
+      "xyz": [
+        0.0025,
+        -0.1105,
+        -0.005
+      ],
+      "rpy": [
+        0.0,
+        -1.5707963268,
+        0.0
+      ],
+      "kind": "vertical"
+    },
+    {
+      "name": "VerticalRight",
+      "mesh": "cw_lod.obj",
+      "xyz": [
+        0.0025,
+        0.1105,
+        -0.005
+      ],
+      "rpy": [
+        0.0,
+        -1.5707963268,
+        0.0
+      ],
+      "kind": "vertical"
+    }
+  ],
+  "scale_m": 1.0,
+  "source": "/home/kenton/Desktop/IsaacSim4uwRL/assets/bluerov2",
+  "source_sha256": {
+    "bluerov2.obj": "8ea488fbcf91df8a27ebb2082031f15f7a12c869576dab369584df8ef7b81d9c",
+    "ccw.obj": "855c9004dd8bbb56bd3de07402a1f7d2222b85c29897942c6dc94b8722c03c4e",
+    "cw.obj": "ca806a538dcc31941f14e6b49f7492723e06ba710848071a4bf45e8008a8af20",
+    "br2.png": "39e695ffaa8ffafc152f6471e6ea96fc1136f68e64877a56a903d788b3590f8c"
+  },
+  "note": "Source USD is eight-thruster Heavy. Omit HeavyFrame and its four vertical propellers; use two vertical positions from the source six-thruster note. Horizontal positions follow the supplied hull mesh/active SCN coordinate convention. Visual only; no physics or control changes.",
+  "visual_lod": [
+    {
+      "source": "bluerov2.obj",
+      "lod": "bluerov2_lod.obj",
+      "source_triangles": 78450,
+      "lod_triangles": 18000,
+      "bbox_max_difference_m": 0.00024200000000001998,
+      "lod_to_source_max_distance_m": 0.002921335941889202,
+      "lod_to_source_p95_distance_m": 0.00023812950595533236,
+      "note": "Forward surface and bounding-box checks only; not a symmetric Hausdorff bound. UVs reprojected; visual only."
+    },
+    {
+      "source": "cw.obj",
+      "lod": "cw_lod.obj",
+      "source_triangles": 6135,
+      "lod_triangles": 799,
+      "bbox_max_difference_m": 0.0005535000000000019,
+      "lod_to_source_max_distance_m": 0.0005585690672490454,
+      "lod_to_source_p95_distance_m": 7.035040990889905e-05,
+      "note": "Forward surface and bounding-box checks only; not a symmetric Hausdorff bound. UVs reprojected; visual only."
+    },
+    {
+      "source": "ccw.obj",
+      "lod": "ccw_lod.obj",
+      "source_triangles": 6359,
+      "lod_triangles": 800,
+      "bbox_max_difference_m": 0.00017700000000000354,
+      "lod_to_source_max_distance_m": 0.0016848054928134148,
+      "lod_to_source_p95_distance_m": 7.261347231238756e-05,
+      "note": "Forward surface and bounding-box checks only; not a symmetric Hausdorff bound. UVs reprojected; visual only."
+    }
+  ]
+}

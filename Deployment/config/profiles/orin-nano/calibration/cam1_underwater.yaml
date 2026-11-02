@@ -1,0 +1,16 @@
+%YAML:1.0
+---
+model_type: PINHOLE
+camera_name: zedx_right_raw_underwater
+image_width: 960
+image_height: 600
+distortion_parameters:
+   k1: 0.372022241139
+   k2: 0.010685454782
+   p1: 0.001736982695
+   p2: 0.003535373907
+projection_parameters:
+   fx: 491.755561842114
+   fy: 491.732207791923
+   cx: 489.257875870984
+   cy: 300.917595145297

@@ -1,0 +1,7 @@
+newmtl hull
+Ka 0.5 0.5 0.5
+Kd 1 1 1
+Ks 0.1 0.1 0.1
+Ns 24
+d 1
+map_Kd br2.png

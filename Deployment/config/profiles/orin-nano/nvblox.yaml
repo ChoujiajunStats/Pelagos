@@ -1,0 +1,34 @@
+/**:
+  ros__parameters:
+    global_frame: world
+    pose_frame: cam0_rect_optical
+    voxel_size: 0.1
+    num_cameras: 1
+    use_tf_transforms: true
+    use_topic_transforms: false
+    mapping_type: static_tsdf
+    use_depth: true
+    use_color: false
+    use_lidar: false
+    input_qos: SENSOR_DATA
+    maximum_input_queue_length: 10
+    integrate_depth_rate_hz: 40.0
+    update_mesh_rate_hz: 5.0
+    update_esdf_rate_hz: 5.0
+    publish_layer_rate_hz: 2.0
+    publish_debug_vis_rate_hz: 0.0
+    esdf_mode: 3d
+    publish_esdf_distance_slice: false
+    decay_tsdf_rate_hz: 0.0
+    map_clearing_radius_m: -1.0
+    map_clearing_frame_id: cam0_rect_optical
+    esdf_slice_bounds_visualization_attachment_frame_id: cam0_rect_optical
+    workspace_height_bounds_visualization_attachment_frame_id: cam0_rect_optical
+    print_rates_to_console: true
+    print_timings_to_console: true
+    print_delays_to_console: true
+    print_queue_drops_to_console: true
+    print_statistics_on_console_period_ms: 10000
+    static_mapper:
+      projective_integrator_max_integration_distance_m: 12.0
+      projective_integrator_truncation_distance_vox: 4.0

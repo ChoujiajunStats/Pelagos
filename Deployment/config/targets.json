@@ -1,0 +1,16 @@
+{
+  "robot_ssh": "nvidia@192.168.1.202",
+  "robot_root": "/home/nvidia/Dapeng_Deployment",
+  "override_environment": [
+    "DAPENG_REMOTE_ROOT",
+    "DAPENG_ROBOT_SSH",
+    "DAPENG_JETSON",
+    "DAPENG_JEPA_PYTHON",
+    "DAPENG_ZED_WS"
+  ],
+  "ros_distribution": "humble",
+  "robot_ubuntu": "22.04",
+  "bridge_address": "192.168.1.7:8887",
+  "host_model_python_default": "venv-jepa/bin/python",
+  "camera_sdk_required": "ZED SDK 5.4.1; external installer, not bundled"
+}

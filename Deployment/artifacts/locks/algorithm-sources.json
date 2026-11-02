@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "repositories": [
+    {
+      "name": "OKVIS2",
+      "origin": "https://github.com/ethz-mrl/okvis2.git",
+      "commit": "a2ea00688cd10988aae7bd52ab7935ce9a657ec0",
+      "relative_path": "TP/Localization/okvis2",
+      "submodules": [
+        {
+          "path": "external/DBoW2",
+          "commit": "3924753db6145f12618e7de09b7e6b258db93c6e"
+        },
+        {
+          "path": "external/brisk",
+          "commit": "1ef8b42a5c2fdd0e0c976f3ab7b179806381f570"
+        },
+        {
+          "path": "external/ceres-solver",
+          "commit": "85331393dc0dff09f6fb9903ab0c4bfa3e134b01"
+        },
+        {
+          "path": "external/googletest",
+          "commit": "58d77fa8070e8cec2dc1ed015d66b454c8d78850"
+        },
+        {
+          "path": "external/opengv",
+          "commit": "91f4b19c73450833a40e463ad3648aae80b3a7f3"
+        },
+        {
+          "path": "external/opengv/python/pybind11",
+          "commit": "9a19306fbf30642ca331d0ec88e7da54a96860f9"
+        },
+        {
+          "path": "external/opengv/python/pybind11/tools/clang",
+          "commit": "6a00cbc4a9b8e68b71caf7f774b3f9c753ae84d5"
+        }
+      ]
+    },
+    {
+      "name": "wavemap",
+      "origin": "https://github.com/ethz-asl/wavemap.git",
+      "commit": "db4f2fffdc1da1bec042d51bfff58029c0c9c827",
+      "relative_path": "TP/Mapping/wavemap"
+    },
+    {
+      "name": "Lite Any Stereo V2",
+      "origin": "https://github.com/TomTomTommi/LiteAnyStereo.git",
+      "commit": "8c97bd4c4da3712c2ac60003a23201dfdb5935f4",
+      "relative_path": "TP/Stereo/LiteAnyStereoV2"
+    }
+  ]
+}

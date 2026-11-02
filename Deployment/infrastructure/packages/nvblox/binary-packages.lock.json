@@ -1,0 +1,59 @@
+{
+  "repository": "https://isaac.download.nvidia.com/isaac-ros/release-3",
+  "distribution": "jammy",
+  "component": "release-3.0",
+  "architecture": "arm64",
+  "packages_index_sha256": "7b562d31ba5cbdcbddbfa67c484aa7709019d208fe550feee491c815f32eba54",
+  "packages": [
+    {
+      "Package": "ros-humble-nvblox-msgs",
+      "Version": "3.2.5-0jammy",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.17), libgcc-s1 (>= 3.3.1), libpython3.10 (>= 3.10.0), libstdc++6 (>= 11), ros-humble-fastcdr, ros-humble-geometry-msgs, ros-humble-rosidl-default-runtime, ros-humble-std-msgs",
+      "Filename": "pool/release-3.0/r/ros-humble-nvblox-msgs/ros-humble-nvblox-msgs_3.2.5-0jammy_arm64.deb",
+      "Size": "136416",
+      "SHA256": "30245ae8c2744524458d9dbc2905e7c3063ebf81eda2953c8980c299131f4be9",
+      "local_path": "debs/arm64/ros-humble-nvblox-msgs_3.2.5-0jammy_arm64.deb"
+    },
+    {
+      "Package": "ros-humble-nvblox-ros",
+      "Version": "3.2.5-0jammy",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.34), libconsole-bridge1.0 (>= 1.0.1+dfsg2), libgcc-s1 (>= 3.3.1), libgflags2.2 (>= 2.2.2), libgoogle-glog0v5 (>= 0.5.0+really0.4.0), libstdc++6 (>= 11), ros-humble-cv-bridge, ros-humble-geometry-msgs, ros-humble-isaac-ros-common, ros-humble-isaac-ros-gxf, ros-humble-isaac-ros-managed-nitros, ros-humble-isaac-ros-nitros-camera-info-type, ros-humble-isaac-ros-nitros-image-type, ros-humble-libstatistics-collector, ros-humble-message-filters, ros-humble-nav-msgs, ros-humble-nvblox-msgs, ros-humble-nvblox-ros-common, ros-humble-nvblox-ros-python-utils, ros-humble-nvblox-rviz-plugin, ros-humble-rclcpp, ros-humble-rclcpp-components, ros-humble-rosbag2-cpp, ros-humble-sensor-msgs, ros-humble-std-msgs, ros-humble-std-srvs, ros-humble-tf2-eigen, ros-humble-tf2-ros, ros-humble-visualization-msgs",
+      "Filename": "pool/release-3.0/r/ros-humble-nvblox-ros/ros-humble-nvblox-ros_3.2.5-0jammy_arm64.deb",
+      "Size": "23998048",
+      "SHA256": "eb8a912b4b6017e491067d407961eb93419f59da9e6e5f36308e262ba3783755",
+      "local_path": "debs/arm64/ros-humble-nvblox-ros_3.2.5-0jammy_arm64.deb"
+    },
+    {
+      "Package": "ros-humble-nvblox-ros-common",
+      "Version": "3.2.5-0jammy",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.17), libstdc++6 (>= 4.2.1), ros-humble-rclcpp",
+      "Filename": "pool/release-3.0/r/ros-humble-nvblox-ros-common/ros-humble-nvblox-ros-common_3.2.5-0jammy_arm64.deb",
+      "Size": "11974",
+      "SHA256": "9d0d53c6c0b87bd48d7e0175021476562f690f6f381bc85f194e8bce71123f06",
+      "local_path": "debs/arm64/ros-humble-nvblox-ros-common_3.2.5-0jammy_arm64.deb"
+    },
+    {
+      "Package": "ros-humble-nvblox-ros-python-utils",
+      "Version": "3.2.5-0jammy",
+      "Architecture": "arm64",
+      "Filename": "pool/release-3.0/r/ros-humble-nvblox-ros-python-utils/ros-humble-nvblox-ros-python-utils_3.2.5-0jammy_arm64.deb",
+      "Size": "7400",
+      "SHA256": "e9f667f71aa47bd2753d06c6868f921a1dca38ce947fb7c663af0e7d26beb7f5",
+      "local_path": "debs/arm64/ros-humble-nvblox-ros-python-utils_3.2.5-0jammy_arm64.deb"
+    },
+    {
+      "Package": "ros-humble-nvblox-rviz-plugin",
+      "Version": "3.2.5-0jammy",
+      "Architecture": "arm64",
+      "Depends": "libc6 (>= 2.34), libconsole-bridge1.0 (>= 1.0.1+dfsg2), libgcc-s1 (>= 3.3.1), libqt5core5a (>= 5.5.0), libstdc++6 (>= 11), ros-humble-rviz-ogre-vendor, ros-humble-nvblox-msgs, ros-humble-pluginlib, ros-humble-rviz-common, ros-humble-rviz-rendering",
+      "Filename": "pool/release-3.0/r/ros-humble-nvblox-rviz-plugin/ros-humble-nvblox-rviz-plugin_3.2.5-0jammy_arm64.deb",
+      "Size": "166942",
+      "SHA256": "d39c3bf6db5b5e40f435216df9745c36c83f1b18d66525812a61e5020b206399",
+      "local_path": "debs/arm64/ros-humble-nvblox-rviz-plugin_3.2.5-0jammy_arm64.deb"
+    }
+  ],
+  "scope": "Five nvblox runtime packages only; ROS, CUDA, JetPack, Isaac NITROS/GXF and OS dependencies are not an offline dependency closure."
+}

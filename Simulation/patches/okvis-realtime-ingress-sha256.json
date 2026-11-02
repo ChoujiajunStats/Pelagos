@@ -1,0 +1,17 @@
+{
+  "purpose": "ROS ingress/visual-work scheduling and real trajectory mutual exclusion only; no algorithm/rate/stamp changes.",
+  "files": {
+    "okvis_ros2/include/okvis/ros2/Publisher.hpp": {
+      "before_sha256": "d4ce36df8c7645743286b486fadc7818e2cc55a9c9b9e613b5a84751ec642860",
+      "after_sha256": "2d418f8752736ba6f3a977704470f18fbaf7a8c72e5e2a87589312f328259650"
+    },
+    "okvis_ros2/src/Publisher.cpp": {
+      "before_sha256": "853501b02ebd76fa3234a48affb1f9e3f59f0c9e79078c29d07443f3da6ebc7e",
+      "after_sha256": "8346062bef5cb6e5b9b85775cc947c77ed3b2f539e2ec70381ea6f088b8a322e"
+    },
+    "okvis_ros2/src/okvis_node_subscriber.cpp": {
+      "before_sha256": "5b87b779cd369923e5fa83df5b0995370e655a1eed07fee08528d360564e7a31",
+      "after_sha256": "840d75f96be85c40d0720f0f2e7ae2a72146d64803bb45eea6cdcd7ac0e834b8"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "frame": "world",
+  "body_frame": "body",
+  "camera_frame": "cam0_rect_optical",
+  "unknown_policy": "UNKNOWN is not FREE",
+  "topics": {
+    "/okvis/okvis_odometry": {
+      "type": "nav_msgs/msg/Odometry",
+      "semantics": "world to body; body-frame velocity"
+    },
+    "/odometry/estimated": {
+      "type": "nav_msgs/msg/Odometry",
+      "semantics": "world to rectified camera; applied extrinsics"
+    },
+    "/stereo/depth": {
+      "type": "sensor_msgs/msg/Image",
+      "encoding": "32FC1",
+      "unit": "m",
+      "definition": "CAMERA_OPTICAL_Z"
+    },
+    "/planning/goal": {
+      "type": "geometry_msgs/msg/PoseStamped"
+    },
+    "/planning/path": {
+      "type": "nav_msgs/msg/Path"
+    }
+  },
+  "control_default": "shadow; no automatic mission execution"
+}

@@ -1,0 +1,482 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-01T12:37:32.236431+00:00",
+  "scope": {
+    "review": "Independent read-only LAS2 publication, mapper helper/wiring and upstream range-contract review.",
+    "only_file_written_by_this_task": "Simulation/build/wavemap-nbv/far-ray-provenance.json",
+    "source_config_tests_or_docs_modified_by_review": false
+  },
+  "approval": {
+    "proposal": {
+      "path": "Simulation/build/wavemap-nbv/far-ray-proposal.json",
+      "sha256": "b5fef2f3f81f186ae6cde872fe091573d0d1b03f6392b1e5385ac64b5743ab6c"
+    },
+    "date": "2026-11-01",
+    "user_reply": "同意，修正远距射线后先对照再规划",
+    "authorized_behavior": "Retain actual finite positive far mapping depths including beyond12m on separate mapping image; keep original .3..12m display/valid contract, native mapper max_range8m, source unknown/collision/gain rules and planner/controller settings unchanged.",
+    "proposal_status_at_read": "approved_implemented_pending_native_replay_and_live",
+    "status_note": "Proposal pending labels predate the completed image build and native A/B recorded below."
+  },
+  "upstream_lock": {
+    "path": "Deployment/artifacts/locks/algorithm-sources.json",
+    "sha256": "e0c0dc439711d55008eba4a843c653b0870501d2e59213030eab53db7a596c98"
+  },
+  "upstream_sources": [
+    {
+      "name": "wavemap",
+      "origin": "https://github.com/ethz-asl/wavemap.git",
+      "commit": "db4f2fffdc1da1bec042d51bfff58029c0c9c827",
+      "relative_path": "TP/Mapping/wavemap",
+      "commit_verification": "Pinned identity from algorithm-sources lock. Local source snapshots have no usable .git checkout for Wavemap/LAS2; actual interface file SHA256 values below identify audited content."
+    },
+    {
+      "name": "Lite Any Stereo V2",
+      "origin": "https://github.com/TomTomTommi/LiteAnyStereo.git",
+      "commit": "8c97bd4c4da3712c2ac60003a23201dfdb5935f4",
+      "relative_path": "TP/Stereo/LiteAnyStereoV2",
+      "commit_verification": "Pinned identity from algorithm-sources lock. Local source snapshots have no usable .git checkout for Wavemap/LAS2; actual interface file SHA256 values below identify audited content."
+    }
+  ],
+  "wavemap_declared_version": "2.2.1",
+  "interfaces": {
+    "las2_mapping_depth": {
+      "source": "Deployment/contexts/depth/core/metric_depth.py:mapping_depth",
+      "formula": "np.divide(fx*baseline_m, float32 disparity, out=float32 depth, where=finite positive disparity).",
+      "measurement_validity": "Finite positive disparity; derived depth must remain finite and >=.30m. Zero/negative/NaN/Inf disparity, overflowed depth and subminimum depth remain NaN. No upper cutoff or endpoint clamp.",
+      "original_display_contract": "metric_depth retains default .30..12.0m validity and original /stereo/valid mask; tests cover default and custom bounds."
+    },
+    "publication": {
+      "source": "Deployment/contexts/depth/adapters/las2_node.py:publish_depths and image_message",
+      "mapping_topic": "/stereo/mapping_depth",
+      "display_topic": "/stereo/depth",
+      "disparity_topic": "/stereo/disparity",
+      "header": "Both depth images use independent deep copies of the same rectified acquisition header, including exact sec/nanosec and calibrated camera frame after the existing image-time offset. Neither inference completion nor wall time replaces it.",
+      "payload": "Calibrated shape, 32FC1, float32 packed bytes, step=width*4, little-endian flag on the current little-endian platform. Both depths come from the same actual inferred disparity."
+    },
+    "mapper": {
+      "shared_helper": "Deployment/infrastructure/ros2_ws/src/underwater_wavemap_ros/include/underwater_wavemap_ros/depth_measurements.hpp",
+      "sanitize": "Retain actual finite value >=min_range; rejected measurements become0. No far-value saturation/clipping.",
+      "filter": "Same production four-neighbor edge rule abs(z-other) > .15+.05*min(z,other), applied after sanitize at pixel_stride2.",
+      "invalid_ray_guard": "ValidDepthContinuousRay rejects out-of-bounds and nonfinite/nonpositive nearest sampled pixels before upstream computeUpdate. Active ContinuousRayConfig uses kNearestNeighbor, matching the guard.",
+      "range_model": "Unchanged HashedChunkedWaveletIntegrator + native PinholeCameraProjector + ContinuousRay sigma.1/free.2/occupied.4, configured optical-Z update interval .3..8m.",
+      "wiring": "Simulation/config/wavemap.yaml chooses /stereo/mapping_depth. configure_wavemap deep-copies and preserves depth_topic while freezing calibration. prepare_scene and run_pipeline load that resulting run yaml. Node default remains /stereo/depth, so use the configured pipeline for the separate mapping path."
+    },
+    "upstream_range_contract": {
+      "declaration": "ProjectiveIntegratorConfig::max_range limits map updates; farther actual measurements are free-space beams. For cameras, evaluated range is optical Z, not radial distance.",
+      "cell_evaluation": "ProjectiveIntegrator::computeUpdate rejects evaluated centers outside min/max before delegating to the measurement model. ContinuousRay compares actual measured distance and preserves its surface uncertainty band (3sigma front,6sigma back).",
+      "coarse_support_limit": "RangeImageIntersector rejects AABBs entirely outside range. The chunked coarse-to-fine integrator may apply a center-sampled free update to an entire coarse node that straddles8m. Therefore max_range8m is not a voxel-exact spatial crop. No extra clip/crop or upstream algorithm change was introduced.",
+      "observed_native_limit": "Uniform12m synthetic case with configured max_range8m contains16,384 projected observed cell centers beyond8m, maximum9.55m; all occupied counts remain0 in that synthetic case."
+    }
+  },
+  "unchanged_mapper_parameters_compared_to_capture": {
+    "min_cell_width_m": 0.1,
+    "tree_height": 6,
+    "min_range_m": 0.3,
+    "max_range_m": 8.0,
+    "pixel_stride": 2,
+    "integration_rate_hz": 10.0,
+    "integration_threads": 4,
+    "publish_rate_hz": 5.0,
+    "prune_period_s": 10.0,
+    "max_pose_gap_s": 0.1,
+    "pose_wait_timeout_s": 0.3,
+    "range_sigma_m": 0.1,
+    "scaling_free": 0.2,
+    "scaling_occupied": 0.4,
+    "occupied_probability": 0.7,
+    "depth_edge_absolute_m": 0.15,
+    "depth_edge_relative": 0.05,
+    "odom_topic": "/odometry/estimated",
+    "world_frame": "world",
+    "camera_frame": "cam0_rect_optical"
+  },
+  "topic_change": {
+    "before": "/stereo/depth",
+    "after": "/stereo/mapping_depth"
+  },
+  "source_files_sha256": {
+    "Deployment/contexts/depth/core/metric_depth.py": "7c486ea0d1256969580d9df2fc5832d98f044626fefb037dc19f87d0f00a75f9",
+    "Deployment/contexts/depth/adapters/las2_node.py": "cf4df125fa229b837e258d8fcf8b0a5fe5aa06542c3399c5b1d323b51715b7c1",
+    "Deployment/infrastructure/ros2_ws/src/underwater_wavemap_ros/include/underwater_wavemap_ros/depth_measurements.hpp": "10b2562c02a471bef476f647b1854400d8f31aeeda63f90b2bc7b1a52658d1bb",
+    "Deployment/infrastructure/ros2_ws/src/underwater_wavemap_ros/src/wavemap_node.cpp": "38892a3fe431118eb0d074e127ada424c5b4949aaa9e4af1ae9d82835714e53f",
+    "Deployment/infrastructure/ros2_ws/src/underwater_wavemap_ros/src/replay_far_rays.cpp": "8a9f8544648e4db34fc1a1a6f5121820563260d5aa77fd8d8e38a9bed5c8e755",
+    "Deployment/infrastructure/ros2_ws/src/underwater_wavemap_ros/CMakeLists.txt": "4909755c8d316fdadb8e7818ccda6f32f2336b216700caf88dd9054bd0aef24a",
+    "Simulation/config/wavemap.yaml": "2211d8d556ac4c779a61c3ba58d8fbb6a54a6c261daa4eb3bc138e7c8fb44db3",
+    "Simulation/adapters/mapping_config.py": "9a911e2ca023feadcf125680cfd88ce4a759b79f8fc261e3dbf9b9e5e717bb0b",
+    "Simulation/tools/prepare_scene.py": "65e9869f22b4ed51290c867ad37b8f8933f846361400e0e4339d3bdf802db364",
+    "Simulation/tools/run_pipeline.py": "ee775d0f9979a5c390e9ca1dd87ff81ecaf30b3223de9f964de19a1ce24407ca",
+    "Simulation/docker/Dockerfile": "55da6102e0a099b54d8e14bb375ce426cc5af9029f6bdf6394dab9a788cb35f2",
+    "Simulation/config/nbv.yaml": "05723f5e5fe14165e506d3091435a684d95aa0556be4f9ed5d41eb09d03c70e9"
+  },
+  "upstream_interface_files_sha256": {
+    "TP/Mapping/wavemap/library/cpp/CMakeLists.txt": "4b564fac8710fad876b56e5e15f0cafdca912624cd099989df9e1eb497d5ca97",
+    "TP/Mapping/wavemap/library/cpp/include/wavemap/core/integrator/projective/projective_integrator.h": "54c624b4463a256dc6a89fd2facff2df215399db6633385f30daa334c4177a38",
+    "TP/Mapping/wavemap/library/cpp/include/wavemap/core/integrator/projective/impl/projective_integrator_inl.h": "1c35ee467de55086d2b8d8a1e8ed238abeae22bf2bd20fd9757513dac5920161",
+    "TP/Mapping/wavemap/library/cpp/include/wavemap/core/integrator/measurement_model/continuous_ray.h": "1aa0724972a2771821e69565825917f44c074efe340f780bb8de38589d7d4968",
+    "TP/Mapping/wavemap/library/cpp/include/wavemap/core/integrator/measurement_model/impl/continuous_ray_inl.h": "4038580317a8c2a2115179e624744dce7d39afbb5540f62544823bfe55ab50e2",
+    "TP/Mapping/wavemap/library/cpp/include/wavemap/core/integrator/projective/coarse_to_fine/impl/range_image_intersector_inl.h": "e7e18892a59fde250b9a7f9ed8df94efa3250396d58b6c31eb485893d27787b1",
+    "TP/Mapping/wavemap/library/cpp/include/wavemap/core/integrator/projective/coarse_to_fine/impl/hashed_chunked_wavelet_integrator_inl.h": "892431bcf062ecbce56a101cb20e6a70ecdcad837dcce206d507fe4b2817580e",
+    "TP/Mapping/wavemap/library/cpp/src/core/integrator/projective/coarse_to_fine/hashed_chunked_wavelet_integrator.cc": "2d1c5a9585e6a3533f41f5d00114a8b876bdbcb61fa856f412396f7f4ad31dfa",
+    "TP/Mapping/wavemap/library/cpp/include/wavemap/core/integrator/projection_model/impl/pinhole_camera_projector_inl.h": "62fda6c546774dc7bc7b2fe2e10ccfa8224b6295aef137b332d244cc06ae2f25",
+    "TP/Stereo/LiteAnyStereoV2/core/utils/utils.py": "5de20d1002b49b836cf7381ca52b3b62d6ce17eac98a4bbf05b0fddc06e19cb0"
+  },
+  "test_sources_sha256": {
+    "Deployment/contexts/depth/tests/unit/test_mapping_depth.py": "625a82a8af8723d3416813ecfdeef2f2c48a54c1c8b13f8b38d6039fb6aa0647",
+    "Deployment/contexts/depth/tests/unit/verify_las2_io.py": "4f34787e459d6f8f8879495c161207b34b01211f5a4501525d14129ee36199d0"
+  },
+  "review_findings": {
+    "blocking_issues_found": [],
+    "reviewed_contracts": [
+      "Uncapped actual finite far values including >12m",
+      "Original display metric depth and validity cap retained",
+      "Invalid disparity/subminimum/nonfinite derived depth rejected",
+      "Same scalar acquisition header, camera frame, shape and packing",
+      "Same source measurement model, edge thresholds and native update range",
+      "Config routes separate mapping topic"
+    ],
+    "material_limits": [
+      "Retained far neighbors expand the valid-neighbor set of the unchanged edge filter and can reject adjacent in-range pixels. A/B coverage/occupancy changes are not purely additive.",
+      "All-invalid synthetic proves no map update for that entire input; it is not a pixel-perfect spatial-support guarantee for mixed valid/invalid coarse voxels.",
+      "Low-disparity finite far predictions may be inaccurate; retention restores source measurement semantics, not ground-truth free-space certification.",
+      "Native coarse cells can extend across the nominal8m update boundary.",
+      "The captured-input A/B begins with empty maps and preserves acquisition throttling, but does not replay all historical live-map inputs, ROS queues or intermediate publication scheduling."
+    ]
+  },
+  "validation": {
+    "depth_and_io_tests": {
+      "artifact": {
+        "path": "Simulation/build/wavemap-nbv/far-depth-tests.log",
+        "sha256": "7cd69b73ca491117c43888e034924577db3dbb586893bbf3d23b5e66504ed873"
+      },
+      "result": "OK",
+      "passed": 15,
+      "groups": [
+        {
+          "module": "Deployment.contexts.depth.tests.unit.test_mapping_depth",
+          "count": 6
+        },
+        {
+          "module": "Deployment.contexts.depth.tests.unit.verify_las2_io",
+          "count": 9
+        }
+      ]
+    },
+    "header_syntax_check": {
+      "result": "PASS",
+      "evidence": "Parent task reports standalone header syntax check passed; no separate persisted syntax log supplied. Completed native package compilation below independently builds both consumers of this header."
+    },
+    "build": {
+      "status": "complete",
+      "artifact": {
+        "path": "Simulation/build/wavemap-nbv/image-build-far-rays.log",
+        "sha256": "019e491a8d19bd0ef1c2847bc20c32fd0d127dde71fdfbc830e132946810d18a"
+      },
+      "images": [
+        {
+          "tag": "pelagos-stonefish:local",
+          "image_id": "sha256:2e1b40267d9c5d1fef44c26b4ac39de910da1a96b407be0edf38719743e86910",
+          "repo_digests": [
+            "pelagos-stonefish@sha256:2e1b40267d9c5d1fef44c26b4ac39de910da1a96b407be0edf38719743e86910"
+          ],
+          "created": "2026-11-01T20:35:51.574256449+08:00",
+          "manifest": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:2e1b40267d9c5d1fef44c26b4ac39de910da1a96b407be0edf38719743e86910",
+            "size": 857
+          }
+        },
+        {
+          "tag": "pelagos-nbvplanner:local",
+          "image_id": "sha256:f9a356ecd0b5ecb456796a397453faa38f576ef4462ac537ad26e43bb64ba273",
+          "repo_digests": [
+            "pelagos-nbvplanner@sha256:f9a356ecd0b5ecb456796a397453faa38f576ef4462ac537ad26e43bb64ba273"
+          ],
+          "created": "2026-11-01T20:24:31.623378916+08:00",
+          "manifest": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:f9a356ecd0b5ecb456796a397453faa38f576ef4462ac537ad26e43bb64ba273",
+            "size": 856
+          }
+        }
+      ],
+      "note": "Completed build log records underwater_wavemap_ros compilation and final Stonefish image export; this is build verification, not live topic validation."
+    },
+    "same_timestamp_batch": {
+      "manifest": {
+        "path": "Simulation/runs/20261101T122444Z-959ce4ad/far-ray-capture/manifest.json",
+        "sha256": "9d6edaa8cd7a3b01d80b5f1363a573cb08c477d6faeb1e8ada69f00204117045"
+      },
+      "known_manifest_sha256": "9d6edaa8cd7a3b01d80b5f1363a573cb08c477d6faeb1e8ada69f00204117045",
+      "captured_frames": 10,
+      "frame_stamp_range_ns": [
+        410620000000,
+        411080000000
+      ],
+      "full_resolution": [
+        640,
+        480
+      ],
+      "raw_float32_le_files": 20,
+      "raw_file_bytes": 24576000,
+      "all_file_hashes_and_sizes_verified": true,
+      "maximum_pose_bracket_gap_ns": 40000000,
+      "pose_matching": "Acquisition-time linear position + quaternion SLERP between actual native optical-camera poses; no extrapolation or GT.",
+      "health_at_capture_start_end": [
+        true,
+        true
+      ]
+    },
+    "native_same_frame_ab": {
+      "artifact": {
+        "path": "Simulation/runs/20261101T122444Z-959ce4ad/far-ray-replay.json",
+        "sha256": "b3fb9e4af99cb5339f1732a402393f2c2f697d230bd52c29d6723861f0e4896b"
+      },
+      "log": {
+        "path": "Simulation/build/wavemap-nbv/far-ray-replay.log",
+        "sha256": "bf256751ec24f8cbaf24407ccef35286c1d4e9492e783461e8573c48ae9053d9"
+      },
+      "status": "completed_map_only",
+      "ground_truth_used": false,
+      "captured_frames": 10,
+      "fused_frames_per_arm": 5,
+      "frames_throttled": 5,
+      "maximum_display_vs_recomputed_overlap_error_m": 0.0,
+      "baseline_map": {
+        "free_native_cells": "53088",
+        "occupied_native_cells": "16505",
+        "observed_wavemap_leaves": "59863"
+      },
+      "candidate_map": {
+        "free_native_cells": "147338",
+        "occupied_native_cells": "16462",
+        "observed_wavemap_leaves": "113232"
+      },
+      "native_cell_delta": {
+        "free_to_free": "52938",
+        "free_to_occupied": "1",
+        "free_to_unknown": "149",
+        "occupied_to_free": "24",
+        "occupied_to_occupied": "16461",
+        "occupied_to_unknown": "20",
+        "unknown_to_free": "94376",
+        "unknown_to_occupied": "0",
+        "unknown_to_unknown": "0",
+        "union_observed_native_cells": "163969",
+        "baseline_reference_camera_support": {
+          "observed_cell_centers_beyond_max_optical_depth_of_reference_camera": "7",
+          "maximum_observed_cell_center_optical_depth_m": "8.0012342129865921",
+          "occupied_centers_within_one_voxel_of_max_depth": "651"
+        },
+        "candidate_reference_camera_support": {
+          "observed_cell_centers_beyond_max_optical_depth_of_reference_camera": "390",
+          "maximum_observed_cell_center_optical_depth_m": "8.0482131020063132",
+          "occupied_centers_within_one_voxel_of_max_depth": "626"
+        },
+        "range_support_limit": "Real maps combine multiple camera poses; beyond-range support relative to the last camera is descriptive, not evidence of that camera updating outside range. Synthetic identity-pose cases isolate native coarse-cell support."
+      },
+      "forward_free_exits": [
+        0,
+        0
+      ],
+      "synthetic_contract_checks": {
+        "uniform_far_12m": {
+          "free_native_cells": "317885",
+          "occupied_native_cells": "0",
+          "observed_wavemap_leaves": "45865",
+          "passed": "true",
+          "observed_centers_beyond_max_optical_depth": "16384",
+          "maximum_observed_center_optical_depth_m": "9.5500000000000007",
+          "strict_zero_beyond_max_is_asserted": "false"
+        },
+        "uniform_just_over_max": {
+          "free_native_cells": "301501",
+          "occupied_native_cells": "0",
+          "observed_wavemap_leaves": "89289",
+          "passed": "true",
+          "observed_centers_beyond_max_optical_depth": "0",
+          "maximum_observed_center_optical_depth_m": "7.9500000000000002",
+          "strict_zero_beyond_max_is_asserted": "false"
+        },
+        "uniform_in_range_4m": {
+          "free_native_cells": "37678",
+          "occupied_native_cells": "19634",
+          "observed_wavemap_leaves": "39308",
+          "passed": "true",
+          "observed_centers_beyond_max_optical_depth": "0",
+          "maximum_observed_center_optical_depth_m": "4.5499999999999998",
+          "strict_zero_beyond_max_is_asserted": "false"
+        },
+        "all_invalid": {
+          "free_native_cells": "0",
+          "occupied_native_cells": "0",
+          "observed_wavemap_leaves": "0",
+          "passed": "true",
+          "observed_centers_beyond_max_optical_depth": "0",
+          "maximum_observed_center_optical_depth_m": "-1",
+          "strict_zero_beyond_max_is_asserted": "false"
+        }
+      },
+      "synthetic_checks_passed": true,
+      "causal_limit": "A/B isolates measurement retention on this bounded real captured batch. Improved map coverage does not establish the cause of every earlier unknown hole or guarantee a subsequent source-RRT branch or controller outcome."
+    },
+    "live_acceptance": {
+      "status": "far_depth_chain_verified_startup_handoff_verified_remaining_forward_view_gate",
+      "run": "20261101T123613Z-37c94312",
+      "image_id": "sha256:2e1b40267d9c5d1fef44c26b4ac39de910da1a96b407be0edf38719743e86910",
+      "live_chain_audit": {
+        "artifact": {
+          "path": "Simulation/runs/20261101T123613Z-37c94312/wavemap-nbv-live-audit.json",
+          "sha256": "2714693e68dc5f9ed2e073b6bbf19c04210ef9c58abcdd771bdf12fddfba2a2c"
+        },
+        "checks_passed": 12,
+        "checks_total": 12,
+        "checks": {
+          "one_projection_publisher": true,
+          "mapper_uses_configured_depth_topic": true,
+          "one_shared_depth_source": true,
+          "nbv_bridge_has_no_depth_subscription": true,
+          "real_fusion_advances": true,
+          "imported_revision_advances": true,
+          "external_map_ready": true,
+          "native_depth_disabled": true,
+          "nonempty_query_map": true,
+          "task_remains_paused": true,
+          "guard_remains_disarmed": true,
+          "resolution_matches_config": true
+        },
+        "mapping_depth_topic": "/stereo/mapping_depth",
+        "header_contract_evidence": "Same acquisition header is tested by the actual publication-method test; the 12 live checks verify publisher/subscriber routing, fusion and map import, not a separate pixelwise/header-pair comparison."
+      },
+      "initial_real_position_preview": {
+        "artifact": {
+          "path": "Simulation/runs/20261101T123613Z-37c94312/planner-preview.json",
+          "sha256": "32df2ef753cbc51c5bbe701dfd7c9920bd403b9898d398d9a58d2e70db4e2446"
+        },
+        "raw_root_unknown_samples": 245,
+        "raw_root_occupied_samples": 0,
+        "source_accepted_nodes": 0,
+        "source_termination": "maximum_failed_iterations",
+        "scope": "Initial near-blind root before finite forward bootstrap; separate from first NBV callback after handoff."
+      },
+      "finite_trial": {
+        "summary": {
+          "path": "Simulation/runs/20261101T123613Z-37c94312/trial-summary.json",
+          "sha256": "ec29a9ae1f2bdd69ed3b8541e125421ad9d3086927b726acfd9c91ad13d7e192"
+        },
+        "observer_record": {
+          "path": "Simulation/runs/20261101T123613Z-37c94312/startup-exploration-trial.json",
+          "sha256": "3f14e5f2ebb62e7a64cce4fce91e3ce36f8c00939e7be9aa1d17e61fed8f6194"
+        },
+        "mission_events": {
+          "path": "Simulation/runs/20261101T123613Z-37c94312/mission-events.jsonl",
+          "sha256": "4c0da928e0bc8a8bfa5c974366928d880efeea8e6d0461c83978084a081ab8bf"
+        },
+        "execution_results": {
+          "path": "Simulation/runs/20261101T123613Z-37c94312/planner-execution-results.jsonl",
+          "sha256": "e5bf1144e83eca3f8bbaf692138c59e808f302a40e552ba70e2155e17702bc16"
+        },
+        "observer_elapsed_s": 9.229310694,
+        "samples": 47,
+        "startup_progress_at_handoff_m": 0.3636521642123691,
+        "raw_root_unknown_at_handoff": 193,
+        "raw_root_occupied_at_handoff": 0,
+        "observed_forward_exit_directions_at_handoff": 1,
+        "native_nbv_path_emitted": false,
+        "native_nbv_edge_tracked": false,
+        "motion_scope": "startup only; no native NBV edge emitted/tracked",
+        "solver_count": 33,
+        "solver_reasons": {
+          "accepted": 32,
+          "no predicted improvement": 1
+        },
+        "timing_s": {
+          "median": 0.23564955400070176,
+          "p95": 0.2664812619914301,
+          "max": 0.27080583799397573
+        },
+        "deadline_exceeded_count": 0
+      },
+      "first_nbv_callback": {
+        "source_termination": "no_eligible_forward_node",
+        "accepted_tree_nodes": 15,
+        "positive_gain_found": true,
+        "selector_ran": true,
+        "eligible_forward_nodes": 0,
+        "all_nodes_share_first_edge": true,
+        "first_edge_forward_progress_m": 0.9978652133,
+        "first_edge_view_dot": -0.2834306292,
+        "first_edge_yaw_degrees": -106.4943,
+        "native_path_points": 0,
+        "interpretation": "Source tree reaches the original15-node condition and positive gain; current first-edge observation yaw fails the pre-existing forward/view condition. This is distinct from the earlier accepted0/maximum_failed_iterations source budget stop."
+      },
+      "post_stop_health": {
+        "artifact": {
+          "path": "Simulation/runs/20261101T123613Z-37c94312/after-far-ray-trial-health.json",
+          "sha256": "fa5f8657df9b93afad46bbb016d4d5d941dbf58498d3f64cf88248dfaf871242"
+        },
+        "wall_ns": 277817970455568,
+        "native_lost_events": 0,
+        "position_error_m": 0.0105413833726424,
+        "landmarks": 232,
+        "guard": "DISARMED",
+        "ready": true,
+        "mapping_localization_lost": false,
+        "integration_hz": 9.88924823,
+        "latest_primary_reported_position_error_m": 0.03056,
+        "latest_primary_reported_integration_hz": 10.07,
+        "latest_report_note": "Latest primary read remained healthy, DISARMED/ready, no Lost. Fixed artifact contains the earlier approximately1cm snapshot; current displayed error is approximately3cm."
+      },
+      "guard_observer_correction": {
+        "immediate_observer_guard": "ARMED",
+        "actual_post_stop_guard": "DISARMED",
+        "actual_post_stop_guard_observed_wall_ns": 277830893292963,
+        "note": "Observer read before async DISARM acknowledgement; subsequent actual status confirms DISARMED. Watcher now waits for acknowledgement on future trials.",
+        "watcher_source": {
+          "path": "Simulation/tools/watch_exploration.py",
+          "sha256": "0582c4611c105e0e2d227cd180ec81a9775eb82286b9128c191e8f37486e2e94"
+        },
+        "control_thresholds_changed": false
+      },
+      "continuous_exploration_or_nbv_controller_success_claimed": false,
+      "conclusion": "Approved far-ray correction completed native A/B and new live pipeline validation. A new, separately proposed angular-sampling adaptation remains unapplied pending user approval; finite motion demonstrated bootstrap only."
+    }
+  },
+  "updated_at_utc": "2026-11-01T12:41:32.571809+00:00",
+  "authorized_far_ray_work_status": "complete_through_native_same_frame_AB_and_new_live_chain_audit; next angular-sampling proposal awaits user approval",
+  "next_proposal": {
+    "artifact": {
+      "path": "Simulation/build/wavemap-nbv/forward-yaw-proposal.json",
+      "sha256": "d427e9505201b8a504c48b44ff1239ce11ba98b91a36f97fa146f12235e67852"
+    },
+    "status": "proposed_not_applied",
+    "applied": false,
+    "approval_pending": true,
+    "upstream_source": "TP/Planner/nbvplanner/nbvplanner/src/rrt.cpp:347",
+    "locked_commit": "5c07657af18f967d7049d187db0607024746a42c",
+    "proposed": {
+      "when": "approved initial_heading forward task only",
+      "source_uniform_yaw_rad": [
+        -3.141592653589793,
+        3.141592653589793
+      ],
+      "candidate_offset_from_initial_heading_rad": [
+        -1.5707963267948966,
+        1.5707963267948966
+      ],
+      "placement": "after original single orientation random draw, before constructing state and computing gain",
+      "mapping": "wrap(initial_heading + 0.5 * original_uniform_yaw)",
+      "additional_random_draws": 0,
+      "preserve": [
+        "position sampling",
+        "source RRT/gain formula",
+        "15/200 conditions",
+        "extension and overshoot",
+        "forward movement and view branch filtering",
+        "occupied/unknown queries",
+        "JEPA/Guard parameters"
+      ]
+    },
+    "tradeoff": "Reduces rearward viewpoint coverage to match the persistent forward task; does not guarantee next tree meets path conditions.",
+    "boundary": "No further dependent implementation or movement authorized by this record; primary may continue when user answers."
+  }
+}

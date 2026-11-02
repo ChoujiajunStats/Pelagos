@@ -1,0 +1,110 @@
+/**:
+  ros__parameters:
+    frames:
+      source_world: world
+      source_body: body
+      odom: odom
+      base: base_link
+      camera: cam0_rect_optical
+      body_to_base_translation_m:
+      - 0.0
+      - 0.0
+      - 0.0
+      body_to_base_quaternion_xyzw:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+    inputs:
+      body_odometry: /okvis/okvis_odometry
+      camera_odometry: /odometry/estimated
+      depth: /stereo/depth
+    mapping:
+      type: hashed_wavelet_octree
+      width: 960
+      height: 600
+      fx: 655.41835425112
+      fy: 655.41835425112
+      cx: 481.3433380126953
+      cy: 299.0089359283447
+      min_range_m: 0.3
+      max_range_m: 12.0
+      min_cell_width_m: 0.1
+      tree_height: 6
+      max_pose_gap_s: 0.1
+      pose_wait_timeout_s: 0.5
+      map_input_path: ''
+      map_output_path: ''
+      calibration_path: ''
+    management:
+      threshold_period_s: 2.0
+      prune_period_s: 10.0
+      crop_period_s: 1.0
+      crop_radius_m: 6.0
+    planning_map:
+      occupancy_threshold_log_odds: 0.0
+      robot_radius_m: 0.35
+      half_extent_m:
+      - 3.0
+      - 3.0
+      - 2.0
+      max_roi_cells: 500000
+      max_mirror_bytes: 67108864
+      max_snapshot_blocks: 128
+      update_period_s: 0.5
+    planner:
+      algorithm: multi_res_theta_star
+      refinement_epsilon: 0.01
+      initialization_min_height: 0
+      max_result_latency_ms: 2000.0
+      max_collision_cells: 2000000
+      max_pose_age_s: 3.0
+      max_snapshot_age_s: 3.0
+      max_depth_age_s: 3.0
+    recording:
+      enabled: true
+      metrics_path: ''
+    visualization:
+      enabled: true
+      require_empty_start: true
+      update_hz: 2.5
+      local_radius_m: 1.5
+      voxel_size_m: 0.1
+      height_relative_to_robot: true
+      height_min_m: -1.0
+      height_max_m: 1.0
+      colormap: rainbow
+      local_alpha: 0.95
+      blue_alpha: 0.35
+      read_budget_ms: 20.0
+      pose_max_age_s: 1.0
+      max_source_leaves: 150000
+      max_local_voxels: 15000
+      max_blue_points: 50000
+      max_candidates: 500000
+      trajectory_min_distance_m: 0.02
+      trajectory_min_period_s: 0.2
+      trajectory_max_interval_s: 1.0
+      trajectory_jump_m: 0.75
+      trajectory_max_points: 5000
+      mode: surface
+      mesh_resolution_m: 0.1
+      update_radius_m: 6.0
+      mesh_read_budget_ms: 12.0
+      max_mesh_blocks_per_update: 2
+      max_mesh_triangles: 120000
+      max_mesh_blocks: 128
+      lighting: true
+      surface_alpha: 1.0
+      highlight_seconds: 3.0
+      keyframe_seconds: 10.0
+      surface_color:
+      - 0.32
+      - 0.43
+      - 0.53
+      new_color:
+      - 0.12
+      - 0.82
+      - 0.86
+      robot_model: false
+      robot_resource: package://underwater_navigation_ros/meshes/bluerov2_lowpoly.obj

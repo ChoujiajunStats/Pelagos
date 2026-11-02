@@ -1,0 +1,78 @@
+%YAML:1.0
+---
+
+# ZED X underwater stereo-inertial deployment configuration.
+# Camera model: calibrated 960x600 RAW gray images (never rectified topics).
+imu: 1
+num_of_cam: 2
+
+imu_topic: "/zedx/zed_node/imu/data_raw"
+image0_topic: "/zedx/zed_node/left/gray/raw/image"
+image1_topic: "/zedx/zed_node/right/gray/raw/image"
+output_path: "/home/nvidia/rov-deployment/VIO/output/zedx_vio_underwater"
+
+cam0_calib: "cam0_underwater.yaml"
+cam1_calib: "cam1_underwater.yaml"
+image_width: 960
+image_height: 600
+
+# Retain the already-tested CPU estimator path for the first integration.
+use_gpu: 0
+use_gpu_acc_flow: 0
+use_gpu_ceres: 0
+
+# Fixed calibration. p_imu = R_imu_cam * p_cam + t_imu_cam.
+estimate_extrinsic: 0
+body_T_cam0: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [0.00615945616449431, 0.00126892408121890, 0.999980225270197, 0.000294449236753082,
+          -0.999977615332116, 0.00262127780480274, 0.00615611382007075, 0.0356466012504271,
+          -0.00261341432866964, -0.999995759358182, 0.00128504132250823, 0.000326049863910492,
+          0., 0., 0., 1.]
+
+body_T_cam1: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [-0.00686413434847892, 0.000436937955310898, 0.999976346092680, 0.000504573849284321,
+          -0.999971777519880, 0.00305122095570854, -0.00686543621422156, -0.0845168477207990,
+          -0.00305414855207283, -0.999995249556669, 0.000415981633271061, 0.000143357533288232,
+          0., 0., 0., 1.]
+
+multiple_thread: 1
+
+# Feature tracker. 30 Hz avoids intentionally dropping calibrated frames.
+max_cnt: 150
+min_dist: 30
+freq: 30
+F_threshold: 1.0
+show_track: 0
+flow_back: 1
+
+# Optimizer.
+max_solver_time: 0.04
+max_num_iterations: 8
+keyframe_parallax: 10.0
+
+# Provisional conservative ZED X IMU noise values. Replace with Allan-variance
+# values when a dedicated long static IMU recording is available.
+acc_n: 0.02
+gyr_n: 0.003
+acc_w: 0.0001
+gyr_w: 0.00004
+g_norm: 9.80665
+
+# Fixed temporal calibration. VINS convention: image stamp + td = IMU time.
+estimate_td: 0
+td: 0.0087
+
+world_frame_id: "vins_world"
+body_frame_id: "zedx_imu_link"
+camera_frame_id: "zedx_left_camera_frame_optical"
+
+# Retained for compatibility if the pose-graph node is enabled separately.
+load_previous_pose_graph: 0
+pose_graph_save_path: "/home/nvidia/rov-deployment/VIO/output/zedx_vio_underwater/pose_graph"
+save_image: 0

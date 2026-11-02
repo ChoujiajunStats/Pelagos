@@ -1,0 +1,58 @@
+{
+  "snapshot_date": "2026-11-02",
+  "note": "Selected recorded checkpoints. Raw run and build evidence stays local and is excluded from Git; archived hashes are not claims about later runtime source.",
+  "files": [
+    {
+      "path": "Simulation/provenance/turn-cruise-bridge-provenance.json",
+      "copied_from": "Simulation/build/wavemap-nbv/turn-cruise-bridge-provenance.json",
+      "sha256": "f991a135d8c1b51edda949400d06e5d6da1a855ecd65d3743c8490f5fd6e5991"
+    },
+    {
+      "path": "Simulation/provenance/turn-cruise-navigation-provenance.json",
+      "copied_from": "Simulation/build/wavemap-nbv/turn-cruise-navigation-provenance.json",
+      "sha256": "e69e7faefb51b70205eb74573864df8ebc379fe142a90da519e6361ffe1b2e51"
+    },
+    {
+      "path": "Simulation/provenance/plan-turn-provenance.json",
+      "copied_from": "Simulation/build/wavemap-nbv/plan-turn-provenance.json",
+      "sha256": "a0b2ec9c835ce9b7fd350c724148dd4cc60762bdeea979b5ee400f4ef9406c65"
+    },
+    {
+      "path": "Simulation/provenance/okvis-ingress-provenance.json",
+      "copied_from": "Simulation/build/wavemap-nbv/okvis-ingress-provenance.json",
+      "sha256": "28d6a4a74e89afd4af32fb471518b4d894639e096c7a526dd213c3d97d5c0370"
+    },
+    {
+      "path": "Simulation/provenance/far-ray-provenance.json",
+      "copied_from": "Simulation/build/wavemap-nbv/far-ray-provenance.json",
+      "sha256": "ba95c6155c84bcc30ecc3b5b1d850732fc14d5d680ed39547c8c11840e1f28d3"
+    },
+    {
+      "path": "Simulation/provenance/map-stale-turn-live-audit.json",
+      "copied_from": "Simulation/build/wavemap-nbv/map-stale-turn-live-audit.json",
+      "sha256": "12730f0d5c027dc2911893a93e747c83a4fe3d44502bccde2c90170e840c8f51"
+    },
+    {
+      "path": "Simulation/provenance/ui-native-tools-provenance.json",
+      "copied_from": "Simulation/build/rviz-native-tools/ui-native-tools-provenance.json",
+      "sha256": "6382bfc6ed1fb3d659a28ecef54b6e34fb91ea7266a5f86a282a45aa9c171099"
+    },
+    {
+      "path": "Simulation/provenance/render-display-uniqueness.json",
+      "copied_from": "Simulation/build/rviz-native-tools/render-display-uniqueness.json",
+      "sha256": "059cd870eae45ed529188cd384d5a11345454507693b9564c7b76eb4ce99b08d"
+    },
+    {
+      "path": "Simulation/provenance/stonefish-workspace-source.json",
+      "copied_from": null,
+      "kind": "publication_source_record",
+      "sha256": "999bf8f17f91ecf0a640414ca6acc4a9054c885fee73045cc1673151d884a9a2"
+    },
+    {
+      "path": "Simulation/provenance/stonefish-workspace-local.patch",
+      "copied_from": null,
+      "kind": "publication_source_record",
+      "sha256": "13d21f62450e4d5cf86e6c2fb8f184487b0e2c5cbba18606c94777c80d9075f0"
+    }
+  ]
+}

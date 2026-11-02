@@ -1,0 +1,19 @@
+# 相机参数与 stereo-geometry.json 的 P_left 一致。
+/**:
+  ros__parameters:
+    width: 960
+    height: 600
+    fx: 655.41835425112
+    fy: 655.41835425112
+    cx: 481.3433380126953
+    cy: 299.0089359283447
+    min_range_m: 0.3
+    max_range_m: 12.0
+    max_pose_gap_s: 0.1
+    min_cell_width_m: 0.1
+    tree_height: 6
+    publish_every_n_frames: 1
+    depth_topic: /stereo/depth
+    odom_topic: /odometry/estimated
+    world_frame: world
+    map_output_path: ''

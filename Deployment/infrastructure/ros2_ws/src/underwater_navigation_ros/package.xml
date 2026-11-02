@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>underwater_navigation_ros</name><version>0.1.0</version>
+  <description>ROS 2 native Wavemap map maintenance and Wavestar 3D path planning.</description>
+  <maintainer email="research@example.invalid">Dapeng Deployment</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend><depend>rcl_interfaces</depend><depend>geometry_msgs</depend><depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend><depend>std_msgs</depend><depend>std_srvs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>diagnostic_msgs</depend><depend>tf2</depend><depend>tf2_ros</depend><depend>tf2_geometry_msgs</depend>
+  <exec_depend>launch_ros</exec_depend><exec_depend>ament_index_python</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

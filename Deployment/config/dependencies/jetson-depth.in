@@ -1,0 +1,5 @@
+# Use JetPack-compatible preinstalled torch/torchvision and system ROS/OpenCV.
+numpy==1.26.4
+timm
+scipy
+PyYAML

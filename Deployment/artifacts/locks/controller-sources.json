@@ -1,0 +1,12 @@
+{
+  "relative_path": "TP/Controller/disaware_learning",
+  "commit": "c555640842d904e9589831b20d8449d791a3c1bb",
+  "checkpoint": {
+    "path": "TP/Controller/disaware_learning/checkpoints/stage2_zhat_response_potential_full4096_four_modal_e5.pt",
+    "sha256": "e4e09e92f5ae00a6183c6f698ad32d9bcf671705d93d6b81e44e14d43f67974d"
+  },
+  "configuration": {
+    "path": "TP/Controller/disaware_learning/config/jepa_mppi_feedback_search.json",
+    "sha256": "56ab5901c28ce245c290cfd6b452f18a07bc9221fb22a39ade5b37c5a43d7660"
+  }
+}

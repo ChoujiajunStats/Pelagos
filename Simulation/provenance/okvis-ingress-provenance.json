@@ -1,0 +1,208 @@
+{
+  "recorded_at_utc": "2026-11-02T03:01:53.802228+00:00",
+  "status": "implemented_and_full_image_built;5source_regressions_and_real_native_SIGINT_SIGTERM_passed;live_freshness_pending_parent_fresh_run",
+  "scope": "Authorized ROS wrapper scheduling/trajectory synchronization interface repair only. No simulation started by this agent. Upstream TP snapshot is unchanged; patch applies only to Docker copied build tree.",
+  "baseline": {
+    "path": "Simulation/build/wavemap-nbv/vio-body-latency-audit.json",
+    "sha256": "ed77260dd4d93c7a051b4473d799ce4e3dc6457e3b9da448dd28701ad5aec22f",
+    "run": "20261102T023622Z-181e7b43",
+    "finding": "Existing30Hz-capped native IMU propagation is called only from ROS imuCallback. ROS spin_some shares the main thread with processFrame and debug-image publishing, so visual processing/join stalls defer real IMU ingestion/prediction. Evidence supports native callback scheduling/producer-stamp lag; no direct per-function profiler yet isolates the single fault stall or proves the entire slowdown cause.",
+    "fault_clock_minus_body_s": 0.26,
+    "guard_limit_s": 0.25
+  },
+  "source_proof": [
+    {
+      "path": "TP/Localization/okvis2/okvis_ros2/src/okvis_node_subscriber.cpp",
+      "lines": "107-130",
+      "fact": "Actual parameter passed to Publisher; main serially spins ROS then processFrame/display/publishImages."
+    },
+    {
+      "path": "TP/Localization/okvis2/okvis_ros2/src/Subscriber.cpp",
+      "lines": "164-179",
+      "fact": "Same callback pushes real IMU into estimator then invokes native realtimePredictAndPublish using original timestamp."
+    },
+    {
+      "path": "TP/Localization/okvis2/okvis_multisensor_processing/src/ThreadedSlam.cpp",
+      "lines": "430-554",
+      "fact": "processFrame synchronously detects/matches and joins prior optimisation; a long call blocks next spin_some even though optimisation/publishing have worker threads."
+    },
+    {
+      "path": "TP/Localization/okvis2/okvis_multisensor_processing/include/okvis/threadsafe/ThreadsafeQueue.hpp",
+      "lines": "156-166/210-219",
+      "fact": "Measurement queues implement push/pop under pthread mutex; existing Realsense node directly feeds queues from sensor callbacks."
+    },
+    {
+      "path": "TP/Localization/okvis2/okvis_ros2/include/okvis/ros2/Publisher.hpp",
+      "lines": "192-198",
+      "fact": "trajectoryLocked_ is atomic_bool, not plain bool. check-then-store in CPP is not atomic mutual exclusion."
+    },
+    {
+      "path": "TP/Localization/okvis2/okvis_common/include/okvis/ViInterface.hpp",
+      "lines": "176-182",
+      "fact": "Trajectory explicitly requires caller synchronization; no internal mutex."
+    },
+    {
+      "path": "TP/Localization/okvis2/okvis_ros2/src/Publisher.cpp",
+      "lines": "145-181/307-312/343-366",
+      "fact": "Propagation/update gate is check-then-store atomic_bool; path getState reads outside that gate. Must cover both getter sites with real short locks."
+    },
+    {
+      "path": "Simulation/adapters/body_state.py",
+      "lines": "37-39/57-74",
+      "fact": "Source body subscription/publisher depth1; state copied and immediately republished with original acquisition stamp, no Python backlog queue or latest-time stamping."
+    }
+  ],
+  "upstream_and_build_copy_hashes": {
+    "okvis_ros2/include/okvis/ros2/Publisher.hpp": {
+      "before_sha256": "d4ce36df8c7645743286b486fadc7818e2cc55a9c9b9e613b5a84751ec642860",
+      "after_sha256": "2d418f8752736ba6f3a977704470f18fbaf7a8c72e5e2a87589312f328259650"
+    },
+    "okvis_ros2/src/Publisher.cpp": {
+      "before_sha256": "853501b02ebd76fa3234a48affb1f9e3f59f0c9e79078c29d07443f3da6ebc7e",
+      "after_sha256": "8346062bef5cb6e5b9b85775cc947c77ed3b2f539e2ec70381ea6f088b8a322e"
+    },
+    "okvis_ros2/src/okvis_node_subscriber.cpp": {
+      "before_sha256": "5b87b779cd369923e5fa83df5b0995370e655a1eed07fee08528d360564e7a31",
+      "after_sha256": "840d75f96be85c40d0720f0f2e7ae2a72146d64803bb45eea6cdcd7ac0e834b8"
+    }
+  },
+  "upstream_unchanged": {
+    "okvis_ros2/include/okvis/ros2/Publisher.hpp": true,
+    "okvis_ros2/src/Publisher.cpp": true,
+    "okvis_ros2/src/okvis_node_subscriber.cpp": true
+  },
+  "implementation": {
+    "ingress": "SingleThreadedExecutor for entire node on dedicated ingress thread. Image/IMU callbacks stay mutually serial; no MultiThreadedExecutor/default-group concurrency.",
+    "main": "Original estimator.processFrame/display/publishImages stay on main thread. No visual pipeline algorithm or budget change.",
+    "trajectory": "Real std::mutex covers addImuMeasurement, optimized update, and both getState sites. IMU uses nonblocking try_lock and retains real samples when busy; graph update uses lock_guard; each path getter uses individual short lock. ROS publications remain outside trajectory mutex.",
+    "lifecycle": "Normal and exceptional visual exits cancel executor, join ingress, then subscriber.shutdown before stack destruction. Callback exception_ptr read only after join. Original atomic shutdown flag retained.",
+    "diagnostics": "At most once every 5 steady seconds: main processFrame max/true-call mean; successful IMU output logs real acquisition stamp, propagation method entry steady clock, actual propagated state stamp, postpublish steady clock. Entry time is not DDS receipt; no log value feeds estimator/control."
+  },
+  "preserved": {
+    "imu_propagated_state_publishing_rate_cap_hz": 30.0,
+    "imu_scene_hz": 100,
+    "normal_rate_quantization": "Source >=1/30 threshold with100Hz inputs normally emits every40ms (25Hz), unchanged.",
+    "parameters": "All camera/IMU, feature700, estimator iteration/thread/time budgets, 3m policy, JEPA, map, Guard settings unchanged.",
+    "timestamps": "Odometry header remains state.timestamp derived from real source IMU acquisition samples. No now-stamp and no ground truth.",
+    "out_of_scope": "Existing graph missing-id path-loop continue is not implicated and left untouched."
+  },
+  "checks": {
+    "source_regressions": {
+      "command": "docker run --rm --network none --user 1000:1000 --entrypoint /bin/bash -v /home/hong/Desktop/Pelagos:/pelagos:ro pelagos-nbvplanner:local -lc \"cd /pelagos && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest Simulation.tests.test_okvis_realtime_patch -v\"",
+      "result": "5 PASS,0 skipped",
+      "runtime_s": 0.725,
+      "coverage": [
+        "Exact copied3-file patch and TP unchanged",
+        "Beforehash source drift rejects before mutation",
+        "Original source rate and actual state/acquisition stamps retained",
+        "Four trajectory operations mutex scoped and ROS publishing outside locks",
+        "Extracted actual ingress block compiled/run with normal, visual exception and callback exception cleanup;120ms visual stall allows callback ingress"
+      ]
+    },
+    "full_image_build": {
+      "command": "./Simulation/sim build",
+      "result": "PASS exit0",
+      "log": "Simulation/build/wavemap-nbv/image-build-okvis-ingress.log",
+      "abi": "FullOKVIS and clients rebuilt together because Publisher layout changes; no partial library replacement.",
+      "image_tag": "pelagos-stonefish:local",
+      "image_id": "sha256:efeb177dd20c332620794ac087c8950bd784b2870f6f48e90345aa1d098c06b2",
+      "created": "2026-11-02T11:01:05.427256023+08:00",
+      "log_sha256": "8eb11d294b5e107fd4a1d98092c651dc8bcab3051a186000d05cb647054d0ae6",
+      "okvis_full_layer_seconds": 339.2,
+      "targets_confirmed": [
+        "okvis_ros2 rebuilt static library",
+        "okvis_node_subscriber rebuilt",
+        "okvis_node_synchronous rebuilt",
+        "downstream interfaces, LAS2, Wavemap and current RViz mission plugin rebuilt"
+      ],
+      "installed_evidence": {
+        "manifest": {
+          "purpose": "ROS ingress/visual-work scheduling and real trajectory mutual exclusion only; no algorithm/rate/stamp changes.",
+          "files": {
+            "okvis_ros2/include/okvis/ros2/Publisher.hpp": {
+              "before_sha256": "d4ce36df8c7645743286b486fadc7818e2cc55a9c9b9e613b5a84751ec642860",
+              "after_sha256": "2d418f8752736ba6f3a977704470f18fbaf7a8c72e5e2a87589312f328259650"
+            },
+            "okvis_ros2/src/Publisher.cpp": {
+              "before_sha256": "853501b02ebd76fa3234a48affb1f9e3f59f0c9e79078c29d07443f3da6ebc7e",
+              "after_sha256": "8346062bef5cb6e5b9b85775cc947c77ed3b2f539e2ec70381ea6f088b8a322e"
+            },
+            "okvis_ros2/src/okvis_node_subscriber.cpp": {
+              "before_sha256": "5b87b779cd369923e5fa83df5b0995370e655a1eed07fee08528d360564e7a31",
+              "after_sha256": "840d75f96be85c40d0720f0f2e7ae2a72146d64803bb45eea6cdcd7ac0e834b8"
+            }
+          }
+        },
+        "installed_sha256": {
+          "lib/okvis/okvis_node_subscriber": "6432d0c53856cb54d000456f04b2e8eb62148fefbe9d56112569bce83573b5e6",
+          "lib/okvis/okvis_node_synchronous": "d43ecfc7c75ea13c07bb255af32e455d52216ec1f7e5eb3bae3a32b5f2f5170f",
+          "lib/libokvis_ros2.a": "2d7e164c4ac6a5cae78a726ca85e7430aa1460dfec1ea98907582b326f073b56"
+        },
+        "subscriber_has_ingress_marker": true,
+        "subscriber_has_original_acquisition_evidence_marker": true,
+        "note": "Upstream install does not export ROS Publisher header; allROS clients were rebuilt from patched build copy and link the rebuilt static library."
+      }
+    },
+    "real_native_lifecycle": {
+      "result": "PASS SIGINT exit0 and SIGTERM exit0 after actual ingress startup +2s",
+      "domain": 213,
+      "inputs": "No camera, IMU, simulation, controller or GPU; original real run config; actual initialized binary2s then SIGINT/SIGTERM separately",
+      "image_id": "sha256:efeb177dd20c332620794ac087c8950bd784b2870f6f48e90345aa1d098c06b2",
+      "config": "Simulation/runs/20261102T023622Z-181e7b43/okvis2.yaml",
+      "config_sha256": "7075989d10e428e89068e3b323751bc3703b9e5fc0118a13164e2b0e90a7a05e",
+      "command": "docker run --rm --network none --user 1000:1000 --entrypoint /bin/bash -v /home/hong/Desktop/Pelagos:/pelagos:ro -v /home/hong/Desktop/Pelagos/Simulation/build/wavemap-nbv:/out pelagos-stonefish:local -lc \"source /opt/ros/jazzy/setup.bash && python3 /pelagos/Simulation/build/wavemap-nbv/check_okvis_lifecycle.py\"",
+      "evidence": "Simulation/build/wavemap-nbv/okvis-ingress-native-lifecycle.json",
+      "cases": [
+        {
+          "signal": "SIGINT",
+          "ready_marker_observed": true,
+          "hold_after_ready_seconds": 2.0,
+          "returncode": 0,
+          "elapsed_seconds": 2.66494087799947,
+          "ros_domain_id": 213,
+          "sensor_inputs": "none; isolated domain/network; no simulation"
+        },
+        {
+          "signal": "SIGTERM",
+          "ready_marker_observed": true,
+          "hold_after_ready_seconds": 2.0,
+          "returncode": 0,
+          "elapsed_seconds": 2.6150864430019283,
+          "ros_domain_id": 213,
+          "sensor_inputs": "none; isolated domain/network; no simulation"
+        }
+      ],
+      "limitation": "Actual initialized binary cleanup/context behavior validated with no sensor input; this does not validate loadedVIO freshness or numerical tracking under motion."
+    },
+    "live_freshness": {
+      "result": "pending parent fresh run",
+      "required_evidence": "Native raw propagated odometry original stamps + ingress receipt/terminal clock pairing, source5s processFrame stats, continuous Guard health through visual load; CPU fixture is not liveVIO validation."
+    }
+  },
+  "artifact_sha256": {
+    "Simulation/patches/okvis-realtime-ingress.patch": "9d7b27702306cda2a0714e5f99e5bd3321d5a04a8e818694218c773b71101e38",
+    "Simulation/patches/okvis-realtime-ingress-sha256.json": "5492281ecc839c1063c3e6add0e48ed2841a5c5003f1c13c5d430163aeb63697",
+    "Simulation/patches/apply-okvis-realtime-ingress.py": "a3969114239d0246ff54534397ac25914359343d636b66cb50abdbc68a423963",
+    "Simulation/docker/Dockerfile": "d4c8ff9f169387a0d477ee2d252b84563f0e4dff0f78d72024737cc591b79b19",
+    "Simulation/tests/test_okvis_realtime_patch.py": "9557d89ce65931453388399676c22c3212cc281f7066219782aaf0659417221e",
+    "Simulation/build/wavemap-nbv/check_okvis_lifecycle.py": "819588ec4dcccf8ecaeefe0b6940db0b76b2b72e087ab8d8d4e9690b1f8c9eae",
+    "Simulation/build/wavemap-nbv/okvis-ingress-patch-tests.log": "6f65375043091bef5ec29b0640c191742ccb2097d7b23ddea9d9858414de6241",
+    "Simulation/build/wavemap-nbv/okvis-ingress-native-lifecycle.json": "44d5ce2b377e124f461cfb89506ca095447a2bc87e888ce3197878d236d5c2b3",
+    "Simulation/build/wavemap-nbv/okvis-ingress-native-lifecycle.log": "4f517bf559533f82616821cdc8b5cf88f487fe408e30d6f221f94b80b9288a75",
+    "Simulation/build/wavemap-nbv/okvis-ingress-image-check.json": "99e0d3024be6645c4476f4c582625ba2b5f5e742fbd82f7f85811f6aa52b6202",
+    "Simulation/build/wavemap-nbv/image-build-okvis-ingress.log": "8eb11d294b5e107fd4a1d98092c651dc8bcab3051a186000d05cb647054d0ae6"
+  },
+  "causal_limits": [
+    "A .26s header lag is real even with107ms receipt-age and tracking quality good; do not relax Guard or relabel state timestamp.",
+    "First queue eviction precedes failure by~147source seconds; many later drops after fault cannot be retroactively assigned as its cause.",
+    "No proof yet that one particular processFrame/display/ROS publish call caused the exact fault stall; new minimal timings or raw-header/receipt/clock trace are needed.",
+    "The existing missingid continue-without-increment path-loop issue is not implicated by this run with continuing visual output and is excluded from this fix."
+  ],
+  "source_repository": {
+    "url": "https://github.com/smartroboticslab/okvis2",
+    "local_path": "TP/Localization/okvis2",
+    "url_evidence": "TP/Localization/okvis2/README.md:161,255",
+    "commit": "Not asserted: local TP snapshot has no .git metadata; exact before/after SHA256 is recorded for each altered build-copy file."
+  },
+  "deployment": "No simulation or control started. Parent must fresh-launch new image to test raw original-source timestamp lag under visual workload. Existing full-run fix is not claimed verified."
+}

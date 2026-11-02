@@ -1,0 +1,20 @@
+[
+  {
+    "name": "OmniPlanner",
+    "origin": "https://github.com/ntnu-arl/gbplanner_ros.git",
+    "commit": "f9904bb69392d2d46b2cbe939762f967a65daa14",
+    "tree": "0ec408544794a1216df9d0b471c859b4079115c1"
+  },
+  {
+    "name": "catkin_simple",
+    "origin": "https://github.com/catkin/catkin_simple.git",
+    "commit": "0e62848b12da76c8cc58a1add42b4f894d1ac21e",
+    "tree": "6f746aab185b8b25d5851a3bede0c0e1f369c7a6"
+  },
+  {
+    "name": "adaptive_obb",
+    "origin": "https://github.com/ntnu-arl/adaptive_obb_ros.git",
+    "commit": "7a6a9f244ec35800808cb4610931f09c1ff8c4a8",
+    "tree": "7ca17b3a6bbebf791c1b1f7937277f88f92d8091"
+  }
+]

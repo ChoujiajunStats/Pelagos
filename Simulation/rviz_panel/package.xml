@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>pelagos_rviz</name>
+  <version>0.1.0</version>
+  <description>Native RViz toolbar tools using Pelagos's existing mission protocol.</description>
+  <maintainer email="pelagos@example.com">Pelagos</maintainer>
+  <license>BSD-3-Clause</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rviz_common</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

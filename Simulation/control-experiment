@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Run this launcher yourself in the desktop terminal to authorize a new session.
+set -euo pipefail
+project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ "${1:-}" == --help ]]; then
+  printf '%s\n' '用法：bash Simulation/control-experiment [--check]' \
+    '从桌面终端启动一个可访问宿主机 Docker 的 Codex 会话，保留按需审批。' \
+    '此脚本不会修改当前聊天会话或全局 Codex 配置。'
+  exit 0
+fi
+if [[ $# -gt 1 || ( $# -eq 1 && "${1:-}" != --check ) ]]; then
+  printf '%s\n' '用法：bash Simulation/control-experiment [--check]' >&2
+  exit 2
+fi
+command -v codex >/dev/null || { printf '%s\n' '未找到 Codex CLI。' >&2; exit 1; }
+command -v docker >/dev/null || { printf '%s\n' '未找到 Docker CLI。' >&2; exit 1; }
+if ! docker info --format '{{.ServerVersion}}'; then
+  printf '%s\n' '当前终端无法访问 Docker；请使用能够运行 ./Simulation/sim 的桌面终端。' >&2
+  exit 1
+fi
+if [[ "${1:-}" == --check ]]; then
+  codex --version
+  exit 0
+fi
+printf '%s\n' '将启动新的 Codex 实验控制会话：宿主机权限，按需审批。' \
+  '实验约束与已有故障记录位于 Simulation/EXPERIMENT_HANDOVER.md。'
+exec codex --no-daemon --sandbox danger-full-access --ask-for-approval on-request \
+  --cd "$project_dir" \
+  '请先读取 Simulation/EXPERIMENT_HANDOVER.md 和 Simulation/README.md，然后接管本机仿真实验，复现并调通路径点导航与 NBVPlanner / JEPA-MPPI 探索闭环。用户已授权本项目仿真容器的构建、启动、暂停、停止和日志读取；参数调整仍需与用户商量，源仓库接口修正需要记录出处。'

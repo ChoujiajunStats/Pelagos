@@ -1,0 +1,1864 @@
+diff --git a/.dockerignore b/.dockerignore
+index ba05c4d..c4bda03 100644
+--- a/.dockerignore
++++ b/.dockerignore
+@@ -3,6 +3,8 @@ build
+ install
+ log
+ .cache
++/thirdparty
++/experiment_results
+ /docs
+ **/*.md
+ !README.md
+diff --git a/.gitignore b/.gitignore
+index a2b870f..a4fd51a 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,6 +2,7 @@ build/
+ install/
+ log/
+ .cache/
++/thirdparty/
+ __pycache__/
+ *.py[cod]
+ *.egg-info/
+@@ -17,6 +18,7 @@ __pycache__/
+ !/README.md
+ 
+ # Generated configurations, local secrets and experiment artifacts
++/experiment_results/
+ config/generated/
+ .env.*
+ !.env.example
+diff --git a/app/package.xml b/app/package.xml
+index 0b35b00..05b9af2 100644
+--- a/app/package.xml
++++ b/app/package.xml
+@@ -10,6 +10,8 @@
+   <exec_depend>launch</exec_depend>
+   <exec_depend>launch_ros</exec_depend>
+   <exec_depend>python3-yaml</exec_depend>
++  <exec_depend>python3-numpy</exec_depend>
++  <exec_depend>rclpy</exec_depend>
+   <exec_depend>uw_robot</exec_depend>
+   <exec_depend>uw_simulations</exec_depend>
+   <exec_depend>uw_ui</exec_depend>
+@@ -28,8 +30,10 @@
+   <exec_depend>uw_navigation</exec_depend>
+   <exec_depend>uw_tasks</exec_depend>
+   <exec_depend>rtabmap_slam</exec_depend>
++  <exec_depend>rtabmap_util</exec_depend>
++  <exec_depend>robot_localization</exec_depend>
+   <exec_depend>uw_runtime</exec_depend>
+   <export>
+     <build_type>ament_python</build_type>
+   </export>
+-</package>
+\ No newline at end of file
++</package>
+diff --git a/app/setup.py b/app/setup.py
+index b3afbb0..80c89b1 100644
+--- a/app/setup.py
++++ b/app/setup.py
+@@ -12,5 +12,5 @@ setup(
+     maintainer="Jiajun Zhou", maintainer_email="ChoujiajunStats@126.com",
+     description="Underwater Stack M0 app module",
+     license="LicenseRef-Not-Yet-Licensed",
+-    entry_points={"console_scripts": ['run = uw_app.runner:main', 'm2_run = uw_app.m2_runner:main', 'm3_run = uw_app.m3_runner:main']},
++    entry_points={"console_scripts": ['run = uw_app.runner:main', 'm2_run = uw_app.m2_runner:main', 'm3_run = uw_app.m3_runner:main', 'imu_run = uw_app.imu_runner:main', 'plume_run = uw_app.plume_runner:main', 'plume_native_run = uw_app.plume_native_runner:main']},
+ )
+diff --git a/app/uw_app/composition/estimation.py b/app/uw_app/composition/estimation.py
+index e70e9bf..d8ad713 100644
+--- a/app/uw_app/composition/estimation.py
++++ b/app/uw_app/composition/estimation.py
+@@ -1,5 +1,5 @@
+ """M2 composition. Normal launch stays DISARMED; benchmark motion is explicit."""
+-import json,shutil,signal
++import json,shutil,signal,time
+ from uw_robot.profiles import load_robot, PROFILES
+ from pathlib import Path
+ import yaml
+@@ -24,6 +24,15 @@ def compose(context,milestone=2):
+     porth=cfg['scene_profile']=='porth_sump9'
+     survey=cfg.get('survey_profile')=='known_route_capture_v1'
+     orb=cfg.get('slam_profile')=='orbslam3_stereo'
++    planner=cfg.get('planner_profile')=='omniplanner_gbplanner3'
++    mapped=cfg.get('planner_map_navigation',False)
++    full=cfg.get('planner_full_survey',False)
++    mapping_prior=full and cfg.get('mapping_pose_source')=='privileged_truth_prior'
++    restore=bool(cfg.get('planner_restore_map'))
++    fusion=cfg.get('state_fusion_profile')=='rtabmap_ekf'
++    vins=cfg.get('estimator_profile')=='vins_fusion_m3'
++    from uw_runtime.localization_policy import localization_policy
++    localization_tuning=localization_policy(cfg)
+     profile=load_robot(Path(share('uw_robot'))/'config',cfg['robot_profile'])
+     for package,file,target in [('uw_robot','config/'+PROFILES[cfg['robot_profile']],'thrusters.yaml'),('uw_guard','config/defaults.yaml','guard-parameters.yaml'),('uw_controller','config/defaults.yaml','controller-parameters.yaml')]:
+         shutil.copy2(Path(share(package))/file,out/target)
+@@ -38,43 +47,150 @@ def compose(context,milestone=2):
+         if survey:
+             from uw_app.survey import prepare as prepare_survey
+             prepare_survey(out,cfg)
++        if full:
++            from uw_app.composition.full_mapping import prepare as prepare_full_mapping
++            prepare_full_mapping(out,cfg)
+     if orb:
+         from uw_robot.description import isolated_visual_urdf
+         (out/'orb-robot.urdf').write_text(isolated_visual_urdf(urdf,ns+'/orb_body'))
++    if mapping_prior:
++        from uw_robot.description import isolated_visual_urdf
++        (out/'mapping-robot.urdf').write_text(isolated_visual_urdf(urdf,ns+'/mapping_body'))
+     (out/'robot.urdf').write_text(urdf);(out/'robot_profile.yaml').write_text(yaml.safe_dump(profile))
+     def node(package,executable,name,params=None,**kw):
+         return Node(package=package,executable=executable,name=name,namespace=ns,output='screen',parameters=[{'use_sim_time':True},params or {}],**kw)
+     truth_state=[('state/odometry','sim/ground_truth/odometry')] if milestone==2 or survey else []
+     state_prefix=ns+'/truth' if milestone==2 or survey else ns
++    controller_params={'run_dir':str(out),'state_frame_prefix':state_prefix}
++    controller_defaults=yaml.safe_load((out/'controller-parameters.yaml').read_text())
++    backend=cfg.get('controller_backend',controller_defaults.get('backend','body_pi'))
++    controller_defaults['backend']=backend
++    if cfg.get('planner_short_demo') or mapped:
++        controller_defaults['wrench_limits'][5]=.08
++    if backend=='tinympc':
++        # The six-thruster hull has low roll inertia and a 0.1 s rotor lag.
++        # Use a bounded roll stabilizer alongside the velocity MPC.
++        controller_defaults.update(attitude_kp=[4.,0.],attitude_kd=[1.,0.],
++            attitude_ki=[.25,0.],attitude_integral_limit=.1)
++        controller_defaults['wrench_limits'][3]=.4
++    (out/'controller-parameters.yaml').write_text(yaml.safe_dump(controller_defaults,sort_keys=False))
++    if backend=='jepa_mppi':
++        from uw_controller.checkpoint import validate_feedback
++        validate_feedback(cfg,state_prefix)
++        settings=yaml.safe_load((Path(share('uw_controller'))/'config/jepa_mppi.yaml').read_text())
++        settings['fluid_density_kg_m3']=json.loads(scene.with_suffix('.assets.json').read_text())['pressure_density_kg_m3']
++        if fusion:settings['state_source']='OPENVINS_RTABMAP_EKF'
++        path=out/'jepa-mppi-settings.yaml';path.write_text(yaml.safe_dump(settings,sort_keys=False))
++        controller_params.update(controller_backend=backend,jepa_settings_path=str(path))
++    elif backend=='tinympc':
++        from uw_controller.checkpoint import validate_feedback
++        validate_feedback(cfg,state_prefix)
++        path=out/'tinympc-settings.yaml'
++        shutil.copy2(Path(share('uw_controller'))/'config/tinympc.yaml',path)
++        controller_params.update(controller_backend=backend,tinympc_settings_path=str(path))
+     if milestone==3:
+         for package in ('navigation','tasks'):shutil.copy2(Path(share('uw_'+package))/'config/defaults.yaml',out/(package+'-parameters.yaml'))
++        if cfg.get('planner_short_demo') or mapped:
++            path=out/'navigation-parameters.yaml';parameters=yaml.safe_load(path.read_text())
++            parameters.update(horizontal_speed_m_s=.06,vertical_speed_m_s=.04,yaw_rate_rad_s=.06)
++            if cfg.get('planner_heading_policy')=='path_tangent':
++                parameters.update(translation_heading_limit_rad=.12,lateral_correction_m_s=.02)
++            if backend=='tinympc':
++                parameters.update(position_tolerance_m=.15,position_gain=.35)
++                if vins:parameters['position_gain']=.12
++            path.write_text(yaml.safe_dump(parameters))
+     if porth:
+         path=out/'tasks-parameters.yaml';parameters=yaml.safe_load(path.read_text())
+         parameters.update(horizontal_goal_abs_m=3.,maximum_timeout_sec=130.)
++        if mapped:
++            from uw_navigation.full_survey import limits
++            horizontal,vertical=limits(cfg)
++            parameters.update(horizontal_goal_abs_m=horizontal,vertical_goal_abs_m=vertical)
+         path.write_text(yaml.safe_dump(parameters))
+     processes=[('stonefish_simulator',node('stonefish_ros2','stonefish_simulator','stonefish_simulator',arguments=[str(upstream/'data'),str(scene),'100.0','960','720','medium'])),
+         ('robot_state_publisher',node('robot_state_publisher','robot_state_publisher','robot_state_publisher',{'robot_description':urdf})),
+         ('debug_truth',node('uw_simulations','m2_debug_truth','m2_debug_truth',{'frame_prefix':ns})),
+         ('perception',node('uw_perception','sensors','m2_sensors',{'run_dir':str(out)})),
+-        ('localization',node('uw_localization','openvins','openvins',{'frame_prefix':ns,'run_id':out.name,'config_path':str(out/'openvins.yaml'),'allow_static_initialization':milestone==3,'normalize_health_image':survey})),
+-        ('guard',node('uw_guard','guard','control_guard',{'run_dir':str(out),'state_frame_prefix':state_prefix,**({'estimated_horizontal_limit_m':4.,'estimated_vertical_limit_m':1.} if porth else {})},remappings=truth_state)),
+-        ('controller',node('uw_controller','body_velocity','body_velocity_controller',{'run_dir':str(out),'state_frame_prefix':state_prefix},remappings=truth_state)),
++        ('localization',node('uw_localization','openvins','openvins',{'frame_prefix':ns,'run_id':out.name,'config_path':str(out/'openvins.yaml'),'allow_static_initialization':milestone==3,'normalize_health_image':survey or full,
++            **({'odometry_frame_id':ns+'/vio_odom','publish_tf':False,'external_tf_authority':'state_ekf'} if fusion else {})},
++            remappings=[('state/odometry','vio/odometry'),('localization/status','vio/status'),('localization/trajectory','vio/trajectory')] if fusion else [])),
++        ('guard',node('uw_guard','guard','control_guard',{'run_dir':str(out),'state_frame_prefix':state_prefix,**({'estimated_horizontal_limit_m':145.,'estimated_vertical_limit_m':11.} if full else {'estimated_horizontal_limit_m':13.,'estimated_vertical_limit_m':5.} if mapped else {'estimated_horizontal_limit_m':4.,'estimated_vertical_limit_m':1.} if porth else {})},remappings=truth_state)),
++        ('controller',node('uw_controller','body_velocity','body_velocity_controller',controller_params,remappings=truth_state)),
+         ('actuator_adapter',node('uw_simulations','actuator_adapter','actuator_adapter',{'run_dir':str(out)})),
+-        ('benchmark',node('uw_benchmark','survey_case' if survey else 'porth_case' if porth else 'm3_case' if milestone==3 else 'm2_case','m3_case' if milestone==3 else 'm2_case',{'run_dir':str(out)}))]
++        ('benchmark',node('uw_benchmark','planner_session' if planner else 'survey_case' if survey else 'porth_case' if porth else 'm3_case' if milestone==3 else 'm2_case','m3_case' if milestone==3 else 'm2_case',{'run_dir':str(out)}))]
++    if vins:
++        from uw_localization.vins_fusion import prepare as prepare_vins
++        settings=prepare_vins(out,ns,profile)
++        uncertainty=dict(position_sigma_m=.2,velocity_sigma_m_s=.03,attitude_sigma_rad=.02,
++            acceleration_sigma_m_s2=.05,gyro_sigma_rad_s=.001,optimization_timeout_sec=.5,minimum_landmarks=15)
++        (out/'vins-state-parameters.yaml').write_text(yaml.safe_dump(uncertainty,sort_keys=False))
++        native=ExecuteProcess(cmd=['bash','-c','source /opt/uw_vins/setup.bash; exec /opt/uw_vins/vins/lib/vins/vins_node "$@"',
++            'uw-vins',settings,'--ros-args','-r','__ns:=/'+ns+'/vins_native','-p','use_sim_time:=true',
++            '-r','/tf:=/'+ns+'/vins_native/tf','-r','/tf_static:=/'+ns+'/vins_native/tf_static'],output='screen',sigterm_timeout='20')
++        processes=[(name,node('uw_localization','vins_state','vins_state',{'run_dir':str(out)}) if name=='localization' else process)
++                   for name,process in processes]
++        processes.append(('vins_native',native))
+     if orb:
+         from uw_localization.orbslam3 import prepare as prepare_orb
+         processes.append(('slam',node('uw_localization','orbslam3','orbslam3',prepare_orb(out,ns,profile,Path(share('uw_localization'))/'config/orbslam3_stereo.yaml'),sigterm_timeout='120',sigkill_timeout='10')))
+-    elif porth:
++    elif porth or planner:
+         from uw_localization.rtabmap import prepare as slam_parameters
+         remaps=[('odom','state/odometry'),('info','slam/info'),('mapGraph','slam/map_graph'),('mapData','slam/map_data'),('cloud_map','slam/cloud_map')]
+         remaps += [(f'{s}/image_rect',f'sensors/stereo/{s}/image_raw') for s in ('left','right')]
+         remaps += [(f'{s}/camera_info',f'sensors/stereo/{s}/camera_info') for s in ('left','right')]
+-        processes.append(('slam',node('rtabmap_slam','rtabmap','rtabmap',slam_parameters(out,ns,Path(share('uw_localization'))/'config/rtabmap_stereo.yaml',long_survey=survey),remappings=remaps)))
++        if mapping_prior and not fusion:
++            remaps=[(source,target.replace('sensors/stereo/','mapping/stereo/') if target.startswith('sensors/stereo/') else 'mapping/odometry' if source=='odom' else target) for source,target in remaps]
++        if fusion:
++            remaps=[(s,'vio/odometry' if s=='odom' else t) for s,t in remaps]
++            remaps.append(('localization_pose','slam/localization_pose'))
++        processes.append(('slam',node('rtabmap_slam','rtabmap','rtabmap',slam_parameters(out,ns,Path(share('uw_localization'))/'config/rtabmap_stereo.yaml',long_survey=survey or mapped,mapping_prior=mapping_prior,
++            localization_database=cfg.get('planner_localization_database'),session_keyframes=localization_tuning['session_keyframes']),remappings=remaps,
++            **({'sigterm_timeout':'120','sigkill_timeout':'10'} if fusion else {}))))
++    if fusion:
++        from uw_localization.map_fusion import prepare as prepare_fusion
++        processes += [('state_ekf',node('robot_localization','ekf_node','state_ekf',prepare_fusion(out,ns),remappings=[('odometry/filtered','state/filtered')])),
++                      ('map_state',node('uw_localization','map_state','map_state',{'run_dir':str(out)}))]
++        if localization_tuning['session_keyframes']:
++            processes.append(('goal_keyframes',node('uw_localization','goal_keyframes','goal_keyframes',{'run_dir':str(out)})))
++    if planner:
++        stereo_remaps=[(f'{s}/image',f'sensors/stereo/{s}/image_raw') for s in ('left','right')]
++        stereo_remaps += [(f'{s}/camera_info',f'sensors/stereo/{s}/camera_info') for s in ('left','right')]
++        stereo_remaps.append(('cloud','planner/sensor_cloud'))
++        cloud_parameters={'approx_sync':False,'qos':2,'qos_camera_info':2,'decimation':2 if porth else 4,'min_depth':.2,'max_depth':8.,'voxel_size':.03 if porth else .06,'filter_nans':True,
++            'noise_filter_radius':.12,'noise_filter_min_neighbors':4}
++        if porth:
++            processes.append(('stereo_disparity',node('uw_perception','stereo_disparity','stereo_disparity',{'run_dir':str(out)})))
++            stereo_remaps=[('disparity/image','planner/disparity'),('disparity/camera_info','sensors/stereo/left/camera_info'),('cloud','planner/sensor_cloud')]
++        else:cloud_parameters.update({'StereoBM/Disp12MaxDiff':'1','StereoBM/SpeckleRange':'2'})
++        processes += [('stereo_cloud',node('rtabmap_util','point_cloud_xyz' if porth else 'point_cloud_xyzrgb','stereo_cloud',cloud_parameters,remappings=stereo_remaps)),
++            ('omniplanner',node('uw_navigation','omniplanner','omniplanner',{'run_dir':str(out)}))]
+     if milestone==3 and not survey:
+         processes += [('navigation',node('uw_navigation','tracker','navigation',{'run_dir':str(out)})),('tasks',node('uw_tasks','missions','missions',{'run_dir':str(out)}))]
++    deferred=[]
++    if full and not restore:
++        deferred=[p for _,p in processes if _ in ('guard','controller','navigation','tasks')]
++        processes += [
++            ('mapping_guard',node('uw_guard','guard','mapping_guard',{'run_dir':str(out),'state_frame_prefix':ns+'/truth','control_stage':'mapping'},remappings=[('state/odometry','sim/ground_truth/odometry')])),
++            ('mapping_controller',node('uw_controller','body_velocity','mapping_controller',{'run_dir':str(out),'state_frame_prefix':ns+'/truth','control_stage':'mapping','controller_backend':'body_pi'},remappings=[('state/odometry','sim/ground_truth/odometry')])),
++            ('mapping_route',node('uw_benchmark','full_survey','full_survey',{'run_dir':str(out)}))]
++        if mapping_prior:
++            old_vio=next(p for name,p in processes if name=='localization')
++            processes=[('mapping_vio' if name=='localization' else name,p) for name,p in processes]
++            new_vio=node('uw_localization','openvins','openvins',{'frame_prefix':ns,'run_id':out.name,'config_path':str(out/'openvins.yaml'),
++                         'allow_static_initialization':True,'normalize_health_image':True})
++            processes += [('localization',new_vio),('mapping_pose_bridge',node('uw_benchmark','mapping_pose_bridge','mapping_pose_bridge',{'run_dir':str(out)}))]
++            deferred.append(new_vio)
++    if restore:
++        processes += [('mapping_pose_bridge',node('uw_benchmark','mapping_pose_bridge','mapping_pose_bridge',{'run_dir':str(out)})),
++            ('restored_map_view',node('uw_benchmark','restored_map_view','restored_map_view',{'run_dir':str(out)}))]
+     if cfg['recording_profile']!='none':
+         names=['state/odometry','sim/ground_truth/odometry','sensors/imu','perception/status','localization/status','control/request','control/status','control/controller_status','sim/terminal/status','sim/actuators/native_feedback','localization/trajectory']
++        if backend=='jepa_mppi':names += ['sensors/pressure']
++        if fusion:names += ['vio/odometry','vio/status','vio/trajectory','state/filtered','slam/localization_pose','localization/map_pose','localization/vio_attitude','localization/keyframe_status','planner/goal_arrived']
++        if vins:names += ['vins_native/imu_propagate','vins_native/odometry','vins_native/point_cloud']
++        if full:names += ['sim/raw/observer/image_color','planner/depth_grid','mapping/odometry','mapping/status']
+         if milestone==3:names += ['navigation/goal','navigation/status','navigation/path','mission/status','control/approved','control/output','control/adapter_status']
++        if planner:names += ['planner/path','planner/status','planner/status_marker','planner/reachable_goals','planner/map_slice','planner/goal_plane','planner/goal','goal_point','goal_pose','slam/info','slam/map_graph']
+         if orb:names += ['slam/status','slam/pose','slam/trajectory','slam/cloud_map']
+         elif porth:names += ['slam/info','slam/map_graph','slam/trajectory']
+         if cfg['recording_profile'] in ('sensors','debug'):
+@@ -88,17 +204,53 @@ def compose(context,milestone=2):
+         from uw_ui.layouts import estimation_layout
+         rviz=out/'inspect.rviz'
+         layout=estimation_layout(Path(share('uw_ui'))/'config/inspect.rviz', ns, milestone=milestone, porth=porth, survey=survey, orb=orb, orb_robot_description=out/'orb-robot.urdf')
++        if vins:
++            for display in layout['Visualization Manager']['Displays']:
++                display['Name']=display.get('Name','').replace('OpenVINS','VINS-Fusion')
++        if planner:
++            from uw_ui.layouts import planner_layout
++            planner_layout(layout,ns,mapped_area=mapped,full_map=full)
++        if mapping_prior:
++            from uw_ui.layouts import mapping_prior_layout
++            mapping_prior_layout(layout,ns,out/'mapping-robot.urdf')
++        if restore:
++            for display in layout['Visualization Manager']['Displays']:
++                if display.get('Class')=='rviz_default_plugins/PointCloud2' and display.get('Topic',{}).get('Value','').endswith('/slam/cloud_map'):
++                    display['Name']='Complete measured map';display['Topic']['Value']=f'/{ns}/slam/full_cloud_map'
++                    display['Topic']['Durability Policy']='Transient Local'
++            layout['Visualization Manager']['Views']['Current'].update({'Scale':5.,'X':15.,'Y':-40.})
+         rviz.write_text(yaml.safe_dump(layout,sort_keys=False));processes.append(('rviz',node('rviz2','rviz2','rviz2',arguments=['-d',str(rviz)],additional_env={'QT_FONT_DPI':'96'})))
+-    actions=[];stopping=[False];finished=set()
++        if full and not restore:
++            from uw_ui.multiview import recording_layout
++            for view in ('grid','cloud'):
++                path=out/f'recording-{view}.rviz';path.write_text(yaml.safe_dump(recording_layout(layout,ns,view,mapping_prior=mapping_prior),sort_keys=False))
++                processes.append(('rviz_'+view,node('rviz2','rviz2','rviz_'+view,arguments=['-d',str(path)],additional_env={'QT_FONT_DPI':'96'})))
++    actions=[];stopping=[False];finished=set();handoff=[False]
+     def started(name):
+         def cb(event,context):
+             start_ticks=int(Path(f'/proc/{event.pid}/stat').read_text().rsplit(') ',1)[1].split()[19])
+             with (out/'process-starts.jsonl').open('a') as f:f.write(json.dumps(dict(name=name,pid=event.pid,proc_start_ticks=start_ticks))+'\n')
++            if mapping_prior and not restore and name=='localization':
++                (out/'navigation-vio-restarted.json').write_text(json.dumps(dict(started_wall_ns=time.monotonic_ns(),pid=event.pid)))
+         return cb
+     def exited(name):
+         def cb(event,context):
+             finished.add(name)
+             with (out/'process-exits.jsonl').open('a') as f:f.write(json.dumps(dict(name=name,returncode=event.returncode,before_case_completion=not (out/f'm{milestone}-metrics.json').exists()))+'\n')
++            if mapping_prior and not restore and name=='mapping_vio' and (out/'mapping-return-ready.json').exists():
++                if event.returncode!=0:return [EmitEvent(event=Shutdown(reason='Mapping VIO did not exit cleanly for navigation initialization'))]
++                return [new_vio]
++            if full and not restore and name in ('mapping_route','mapping_guard','mapping_controller'):
++                if name=='mapping_route':
++                    if event.returncode!=0 or not (out/'full-survey-complete.json').exists():
++                        return [EmitEvent(event=Shutdown(reason='Porth mapping failed; see full-survey-failed.json'))]
++                    handoff[0]=True
++                    return [EmitEvent(event=SignalProcess(signal_number=signal.SIGINT,process_matcher=matches_action(p)))
++                            for label,p in processes if label in ('mapping_guard','mapping_controller')]
++                if handoff[0] and {'mapping_guard','mapping_controller','mapping_route'}.issubset(finished):
++                    with (out/'stage-handoff.json').open('w') as f:f.write(json.dumps(dict(mapping_control_exited=True,navigation_feedback='OPENVINS_STEREO_IMU',map_reset=False)))
++                    return [p for p in deferred if not mapping_prior or p is not new_vio]
++                if handoff[0]:return []
+             expected=json.loads((out/'expected-exits.json').read_text()) if (out/'expected-exits.json').exists() else []
+             if context.is_shutdown or name in expected:return []
+             shutdown=EmitEvent(event=Shutdown(reason=f'{name} exited ({event.returncode})'))
+@@ -115,5 +267,12 @@ def compose(context,milestone=2):
+     for name,process in processes:actions.extend([RegisterEventHandler(OnProcessStart(target_action=process,on_start=started(name))),RegisterEventHandler(OnProcessExit(target_action=process,on_exit=exited(name)))])
+     if cfg['visualization']=='rviz':
+         clients=dict(processes);actions += show_window_actions(out,clients['stonefish_simulator'],clients['rviz'])
+-    return actions+[p for _,p in processes]
++    if mapping_prior and not restore:
++        def restart_vio(context):
++            if context.is_shutdown or 'mapping_vio' in finished:return []
++            if (out/'mapping-return-ready.json').exists():
++                return [EmitEvent(event=SignalProcess(signal_number=signal.SIGINT,process_matcher=matches_action(old_vio)))]
++            return [TimerAction(period=1.,actions=[OpaqueFunction(function=restart_vio)])]
++        actions.append(TimerAction(period=1.,actions=[OpaqueFunction(function=restart_vio)]))
++    return actions+[p for _,p in processes if p not in deferred]
+ 
+diff --git a/app/uw_app/m2_runner.py b/app/uw_app/m2_runner.py
+index 2a750e8..92b49dc 100644
+--- a/app/uw_app/m2_runner.py
++++ b/app/uw_app/m2_runner.py
+@@ -15,12 +15,17 @@ def run(config_path,repo,data_root,milestone=2):
+     porth=config['scene_profile']=='porth_sump9'
+     survey=config.get('survey_profile')=='known_route_capture_v1'
+     orb=config.get('slam_profile')=='orbslam3_stereo'
+-    used=sum(p.stat().st_size for p in (data_root/'runs').rglob('*') if p.is_file())
+-    budget_path=data_root/('orbslam3-budget.json' if orb else 'porth-survey-budget.json' if survey else 'porth-budget.json' if porth else 'm3-budget.json' if Path('/opt/uw/m3-lock.sha256').exists() else f'm{milestone}-budget.json')
+-    if not budget_path.exists():write_json(budget_path,dict(baseline_run_bytes=used,limit_bytes=25_000_000_000,created_at=utc_now()))
+-    budget=json.loads(budget_path.read_text())
+-    estimate=int(config['duration_sec']*70_000_000) if config['recording_profile'] in ('sensors','debug') else int(config['duration_sec']*2_000_000) if survey else 150_000_000
+-    if used-budget['baseline_run_bytes']+estimate>budget['limit_bytes']:raise RuntimeError('Active milestone data budget would exceed 25 GB')
++    planner=config.get('planner_profile')=='omniplanner_gbplanner3'
++    estimate=int(config['duration_sec']*70_000_000) if config['recording_profile'] in ('sensors','debug') else int(config['duration_sec']*2_000_000) if survey or config.get('planner_full_survey') else 150_000_000
++    if planner and config.get('planner_restore_map'):
++        from uw_app.data_budget import restored_navigation_budget
++        budget=restored_navigation_budget(config,data_root,estimate)
++    else:
++        used=sum(p.stat().st_size for p in (data_root/'runs').rglob('*') if p.is_file())
++        budget_path=data_root/('porth-fullmap-budget.json' if config.get('planner_full_survey') else 'orbslam3-budget.json' if orb else 'porth-survey-budget.json' if survey else 'porth-budget.json' if porth else 'm3-budget.json' if Path('/opt/uw/m3-lock.sha256').exists() else f'm{milestone}-budget.json')
++        if not budget_path.exists():write_json(budget_path,dict(baseline_run_bytes=used,limit_bytes=25_000_000_000,created_at=utc_now()))
++        budget=json.loads(budget_path.read_text())
++        if used-budget['baseline_run_bytes']+estimate>budget['limit_bytes']:raise RuntimeError('Active milestone data budget would exceed 25 GB')
+     if shutil.disk_usage(data_root).free<20_000_000_000:raise RuntimeError('Less than 20 GB disk free')
+     output=create_run(data_root,config['run_id']);process=None;started=time.monotonic()
+     if milestone==3 and (data_root/'active-session.json').exists():
+@@ -42,7 +47,74 @@ def run(config_path,repo,data_root,milestone=2):
+     try:
+         for sig in (signal.SIGINT,signal.SIGTERM):previous[sig]=signal.signal(sig,interrupt)
+         manifest.update(source_snapshot(repo,output))
++        if config.get('estimator_profile')=='vins_fusion_m3':
++            for name in ('vins-fusion','vins-navigation'):
++                shutil.copy2(repo/('vendor/source-lock.'+name+'.json'),output/('source-lock.'+name+'.json'))
++            shutil.copy2('/opt/uw/vins-fusion/patch-manifest.json',output/'vins-native-patches.json')
++            manifest.update(estimator_backend='VINS_FUSION_STEREO_IMU',
++                native_covariance_available=False,adapter_covariance='explicit configured noise model, not native covariance',
++                localization_truth_input=False)
++        manifest['controller_backend']=config.get('controller_backend','body_pi')
++        if manifest['controller_backend']=='jepa_mppi':
++            shutil.copy2(repo/'vendor/source-lock.jepa-mppi.json',output/'source-lock.jepa-mppi.json')
++            shutil.copy2('/opt/uw/jepa-mppi/source-lock.json',output/'jepa-image-source-lock.json')
++            manifest.update(controller_model='stage2_zhat_response_potential_full4096_four_modal_e5',controller_feedback='OpenVINS + raw IMU + pressure + applied thrusters')
++        elif manifest['controller_backend']=='tinympc':
++            shutil.copy2(repo/'vendor/source-lock.tinympc.json',output/'source-lock.tinympc.json')
++            shutil.copy2('/opt/uw/tinympc-source-lock.json',output/'tinympc-image-source-lock.json')
++            manifest.update(controller_model='native TinyMPC 0.0.8 / explicit linear drag and thrust-lag model',
++                            controller_feedback='estimated body velocity and attitude; bounded six-thruster allocation')
++        if planner:
++            manifest.update(milestone='OMNIPLANNER_SIX_INTEGRATION',slam_backend='RTAB-Map stereo',
++                planner_backend='NTNU OmniPlanner gbplanner3',planner_map='Voxblox TSDF from individual stereo scans in odom',
++                planning_mode='bounded XYZ+yaw goal search',planner_execution_enabled=config['planner_execute'],
++                known_start_prior='initial robot footprint plus one-voxel discretization halo; no occupied voxels overwritten',
++                navigation_verdict='NOT_RUN')
++            shutil.copy2(repo/'vendor/source-lock.omniplanner.json',output/'source-lock.omniplanner.json')
++            shutil.copy2(repo/('navigation/omniplanner/params-porth.yaml' if porth else 'navigation/omniplanner/params.yaml'),output/'omniplanner-parameters.yaml')
++            if config.get('planner_map_navigation'):
++                overlay=yaml.safe_load((repo/'navigation/omniplanner/params-map-navigation.yaml').read_text())
++                parameters=yaml.safe_load((output/'omniplanner-parameters.yaml').read_text())
++                def merge(base,extra):
++                    for key,value in extra.items():
++                        if isinstance(value,dict) and isinstance(base.get(key),dict):merge(base[key],value)
++                        else:base[key]=value
++                merge(parameters,overlay)
++                (output/'omniplanner-parameters.yaml').write_text(yaml.safe_dump(parameters,sort_keys=False))
++                manifest.update(planning_mode='mapped-area XYZ+yaw search with finite validated mission batches',
++                    initial_mapping='pre-screened Porth acquisition route in estimated start-body coordinates; no map reset at navigation handoff',
++                    mapping_route_source='imported asset route certificate; this prior screens acquisition only',
++                    mapping_control_feedback='OpenVINS and modeled sensors, no live truth feedback')
++                if config.get('planner_full_survey'):
++                    overlay=yaml.safe_load((repo/'navigation/omniplanner/params-full-navigation.yaml').read_text())
++                    merge(parameters,overlay)
++                    (output/'omniplanner-parameters.yaml').write_text(yaml.safe_dump(parameters,sort_keys=False))
++                    manifest.update(initial_mapping='closed full Porth acquisition followed by exclusive controller handoff',
++                                    mapping_route_source='pinned porth-survey-v14, acquisition only',
++                                    mapping_control_feedback='body_pi / PRIVILEGED_DEBUG',
++                                    mapping_pose_source=config.get('mapping_pose_source','OPENVINS_STEREO_IMU'),
++                                    slam_truth_input=config.get('mapping_pose_source')=='privileged_truth_prior',
++                                    planner_map='Voxblox TSDF from measured stereo scans in mapping_odom; declared truth-assisted acquisition prior',
++                                    controller_feedback=('estimated body velocity and attitude / TinyMPC (navigation only)' if manifest['controller_backend']=='tinympc' else 'OpenVINS + raw IMU + pressure + applied thrusters (navigation only)'))
++                    if config.get('planner_restore_map'):
++                        from uw_navigation.restored_map import validate_archive
++                        restored=validate_archive(config['planner_restore_map'])
++                        manifest.update(initial_mapping='verified native TSDF restored after native first-odometry initialization and before navigation authority; fixed known-spawn VIO alignment',
++                            mapping_control_feedback='NONE (no acquisition control in this run)',slam_truth_input=False,
++                            acquisition_in_this_run=False,restored_map=restored,archived_mapping_pose_prior=True,
++                            planner_map='native Voxblox TSDF reconstructed offline from archived stereo rays; updated by current estimated-state stereo scans')
++            metadata=data_root/'planner-session.json'
++            if metadata.exists():shutil.copy2(metadata,output/'planner-session.json')
+         from uw_app.composition.actuators import record_actuator_build
++        if config.get('state_fusion_profile')=='rtabmap_ekf':
++            from uw_runtime.localization_policy import estimated_state_source
++            source=estimated_state_source(config)
++            manifest.update(state_source=source,state_fusion_profile='rtabmap_ekf',navigation_state_source=source,
++                controller_feedback=('RTAB visual map localization + OpenVINS body twist + native EKF / TinyMPC' if manifest['controller_backend']=='tinympc' else 'RTAB visual map localization + OpenVINS body twist + native EKF; raw IMU, pressure and applied thrusters'),
++                localization_truth_input=False,public_body_tf_authority='robot_localization/state_ekf')
++            if config.get('estimator_profile')=='vins_fusion_m3':
++                manifest['controller_feedback']='RTAB visual map localization + VINS-Fusion body velocity + raw IMU gyro + native EKF / TinyMPC'
++            shutil.copy2('/opt/uw/map-localization-packages.txt',output/'map-localization-packages.txt')
+         record_actuator_build(repo,output,config,manifest)
+         for name in ('source-lock.yaml','source-lock.m2.yaml'):shutil.copy2(repo/'vendor'/name,output/name)
+         lock=hashlib.sha256((output/'source-lock.m2.yaml').read_bytes()).hexdigest()
+@@ -54,7 +126,7 @@ def run(config_path,repo,data_root,milestone=2):
+             m3lock=hashlib.sha256((output/'source-lock.m3.yaml').read_bytes()).hexdigest()
+             if m3lock!=Path('/opt/uw/m3-lock.sha256').read_text().split()[0]:raise RuntimeError('M3 parent lock/image mismatch')
+             manifest['m3_source_lock_sha256']=m3lock
+-        if porth:
++        if porth and not planner:
+             for name in ('source-lock.porth.yaml','porth-dpkg-packages.txt'):shutil.copy2(Path('/opt/uw')/name,output/name)
+             lock=hashlib.sha256((repo/'vendor/source-lock.porth.yaml').read_bytes()).hexdigest()
+             if lock!=Path('/opt/uw/porth-lock.sha256').read_text().split()[0]:raise RuntimeError('SLAM image/lock mismatch')
+@@ -78,8 +150,8 @@ def run(config_path,repo,data_root,milestone=2):
+             shutil.copy2(Path('/opt/uw')/name,output/name)
+         shutil.copy2(os.environ['FASTRTPS_DEFAULT_PROFILES_FILE'],output/'fastdds.xml')
+         manifest['dds_sha256']=hashlib.sha256((output/'fastdds.xml').read_bytes()).hexdigest()
+-        shutil.copy2(repo/('test/orbslam3-acceptance.yaml' if orb else 'test/porth-survey-acceptance.yaml' if survey else 'test/porth-acceptance.yaml' if porth else f'test/m{milestone}-acceptance.yaml'),output/'acceptance.yaml')
+-        if not porth and (repo/f'test/m{milestone}-freeze.json').exists():shutil.copy2(repo/f'test/m{milestone}-freeze.json',output/'freeze.json')
++        shutil.copy2(repo/('test/omniplanner-acceptance.yaml' if planner else 'test/orbslam3-acceptance.yaml' if orb else 'test/porth-survey-acceptance.yaml' if survey else 'test/porth-acceptance.yaml' if porth else f'test/m{milestone}-acceptance.yaml'),output/'acceptance.yaml')
++        if not porth and not planner and (repo/f'test/m{milestone}-freeze.json').exists():shutil.copy2(repo/f'test/m{milestone}-freeze.json',output/'freeze.json')
+         if orb and (repo/'test/orbslam3-freeze.json').exists():shutil.copy2(repo/'test/orbslam3-freeze.json',output/'freeze.json')
+         if survey and not orb and (repo/'test/porth-survey-freeze.json').exists():shutil.copy2(repo/'test/porth-survey-freeze.json',output/'freeze.json')
+         env=dict(os.environ,ROS_DOMAIN_ID=str(config['ros_domain_id']),ROS_LOG_DIR=str(output/'logs/ros'),RCUTILS_LOGGING_BUFFERED_STREAM='1')
+@@ -96,11 +168,13 @@ def run(config_path,repo,data_root,milestone=2):
+         starts_path=output/'process-starts.jsonl'
+         starts=[json.loads(s) for s in starts_path.read_text().splitlines()] if starts_path.exists() else []
+         exit_accounting=bool(starts) and len(exits)==len(starts) and {x['name'] for x in exits}=={x['name'] for x in starts}
+-        expected_codes=all(x['returncode']==-9 for x in exits if x['name'] in expected)
++        mapping_names={'mapping_guard','mapping_controller','mapping_route','mapping_vio'} if config.get('planner_full_survey') else set()
++        expected_codes=all(x['returncode']==(0 if x['name'] in mapping_names else -9) for x in exits if x['name'] in expected)
+         bag=output/'bags/metadata.yaml';bagmeta=yaml.safe_load(bag.read_text()) if bag.exists() else {}
+         finalized=bagmeta.get('rosbag2_bagfile_information',{}).get('message_count',0)>0
+         passed=code==0 and metrics.get('status')=='PASS' and not unexpected and exit_accounting and expected_codes and (config['recording_profile']=='none' or finalized)
+-        if porth:
++        if planner:manifest['navigation_verdict']=metrics.get('navigation_verdict','NOT_RUN')
++        if porth and not planner:
+             from uw_localization.artifacts import inspect_database
+             if orb:
+                 from uw_localization.artifacts import inspect_orb_output as inspect_output
+@@ -110,11 +184,11 @@ def run(config_path,repo,data_root,milestone=2):
+             slam_path=output/'slam-metrics.json';slam=json.loads(slam_path.read_text()) if slam_path.exists() else {}
+             passed=passed and database['passed'] and slam.get('status')=='PASS'
+             manifest.update(slam_verdict=slam.get('status','NOT_RUN'),**({'orb_output_finalized':database['passed']} if orb else {'database_reopened':database['passed']}))
+-        manifest.update(status=('COMPLETED_WITH_EXPECTED_FAULT' if expected else 'COMPLETED') if code==0 and not unexpected else 'FAILED',
++        manifest.update(status=('COMPLETED_WITH_EXPECTED_FAULT' if set(expected)-mapping_names else 'COMPLETED') if code==0 and not unexpected else 'FAILED',
+             test_verdict='PASS' if passed else 'FAIL',process_exits=exits,expected_process_exits=expected,
+             exit_accounting_complete=exit_accounting,expected_exit_codes_verified=expected_codes,
+             bag_finalized_nonempty=finalized,reason=metrics.get('reason','Missing M2 metrics'))
+-        if porth and not passed:
++        if porth and not passed and not planner:
+             manifest['reason']='Porth checks incomplete: '+json.dumps(dict(mission=metrics.get('status','NOT_RUN'),
+                 slam=slam.get('status','NOT_RUN'),database=database['passed'],unexpected_exits=unexpected,
+                 exit_accounting=exit_accounting,bag_finalized=finalized))
+diff --git a/app/uw_app/m3_config.py b/app/uw_app/m3_config.py
+index c9e0f4a..219282a 100644
+--- a/app/uw_app/m3_config.py
++++ b/app/uw_app/m3_config.py
+@@ -9,10 +9,86 @@ def load_config(path):
+     value=yaml.load(Path(path).read_text(),Loader=UniqueKeyLoader)
+     if not isinstance(value,dict) or value.get('schema_version')!=4:raise ConfigError('M3 requires schema 4')
+     if value.get('navigation_profile')!='local_waypoints' or value.get('task_profile')!='finite_mission':raise ConfigError('Explicit M3 profiles required')
+-    if value.get('estimator_profile')!='openvins_m3_static' or value.get('fixed_fixture') is not False or value.get('diagnostic_motion') is not False:raise ConfigError('M3 uses free-body estimated feedback only')
++    vins=value.get('estimator_profile')=='vins_fusion_m3'
++    if value.get('estimator_profile') not in ('openvins_m3_static','vins_fusion_m3') or value.get('fixed_fixture') is not False or value.get('diagnostic_motion') is not False:raise ConfigError('M3 uses free-body estimated feedback only')
++    if vins and not (value.get('state_source')=='vins_fusion_stereo_imu' and value.get('controller_backend')=='tinympc'
++                     and value.get('state_fusion_profile')=='rtabmap_ekf' and value.get('planner_restore_map')
++                     and value.get('planner_profile')=='omniplanner_gbplanner3' and value.get('scene_profile')=='porth_sump9'):
++        raise ConfigError('VINS navigation requires explicit restored Porth map fusion and TinyMPC')
++    if not vins and value.get('state_source')!='openvins_stereo_imu':raise ConfigError('Estimator and state source differ')
+     porth=value.get('scene_profile')=='porth_sump9'
++    planner=value.get('planner_profile')=='omniplanner_gbplanner3'
+     survey=porth and value.get('survey_profile')=='known_route_capture_v1'
+     extra=('cave_asset','slam_profile','execute_path') if porth else ()
++    if 'navigation_output_budget_gb' in value:
++        import math
++        extra+=('navigation_output_budget_gb',)
++        allowance=value['navigation_output_budget_gb']
++        if not (planner and value.get('planner_restore_map') and type(allowance) in (float,int)
++                and math.isfinite(allowance) and 25<=allowance<=200):
++            raise ConfigError('Explicit restored-navigation output allowance must be 25–200 GB')
++    mapped=value.get('planner_map_navigation',False)
++    full=value.get('planner_full_survey',False)
++    if 'planner_lighting_profile' in value:
++        extra+=('planner_lighting_profile',)
++        if not full or value['planner_lighting_profile'] not in ('cave_white_v1','legacy'):
++            raise ConfigError('Porth lighting profile requires explicit full-map navigation')
++    if 'state_fusion_profile' in value or 'planner_localization_database' in value:
++        extra+=('state_fusion_profile','planner_localization_database')
++        archive=value.get('planner_restore_map','')
++        if (value.get('state_fusion_profile')!='rtabmap_ekf' or not archive
++                or value.get('planner_localization_database')!=str(Path(archive).parent/'localization.db')):
++            raise ConfigError('Map fusion requires a verified restored-map database in the same session')
++    if 'planner_localization_policy' in value:
++        extra+=('planner_localization_policy',)
++        from uw_runtime.localization_policy import localization_policy
++        try:localization_policy(value)
++        except ValueError as exc:raise ConfigError(str(exc)) from exc
++    if 'planner_heading_policy' in value:
++        extra+=('planner_heading_policy',)
++        if not mapped or value['planner_heading_policy'] not in ('keep_heading','path_tangent'):
++            raise ConfigError('Path heading policy requires explicit mapped navigation')
++    if 'planner_restore_map' in value:
++        extra+=('planner_restore_map',)
++        restore=value['planner_restore_map']
++        if not full or value.get('mapping_pose_source')!='privileged_truth_prior' or not isinstance(restore,str) or not restore.startswith('/data/sessions/') or not restore.endswith('/restore/map.json'):
++            raise ConfigError('Restoring a map requires an explicit verified full-map archive')
++    if 'planner_full_survey' in value:
++        extra+=('planner_full_survey','planner_survey_distance_m','mapping_pose_source')
++        import math
++        distance=value.get('planner_survey_distance_m')
++        if type(full) is not bool or not (full and mapped and planner and porth and value.get('controller_backend') in ('jepa_mppi','tinympc')):
++            raise ConfigError('Full survey requires mapped Porth navigation with JEPA-MPPI')
++        if type(distance) not in (int,float) or not math.isfinite(distance) or not 1<=distance<=570.883:
++            raise ConfigError('Invalid pinned Porth survey distance')
++        if value.get('mapping_pose_source') not in (None,'privileged_truth_prior'):
++            raise ConfigError('Unknown mapping pose source')
++    elif 'mapping_pose_source' in value:raise ConfigError('Mapping pose prior requires an explicit full survey')
++    if 'planner_map_navigation' in value:
++        extra+=('planner_map_navigation',)
++        if type(mapped) is not bool or not (planner and porth and value.get('controller_backend') in ('jepa_mppi','tinympc')):
++            raise ConfigError('Mapped-area navigation requires Porth OmniPlanner with JEPA-MPPI')
++        if mapped and value.get('planner_short_demo'):raise ConfigError('Choose mapped-area navigation or the retained short demo')
++    if 'planner_short_demo' in value:
++        extra+=('planner_short_demo',)
++        if type(value['planner_short_demo']) is not bool or not (planner and porth and value.get('controller_backend') in ('jepa_mppi','tinympc')):
++            raise ConfigError('Short demo requires Porth OmniPlanner with JEPA-MPPI')
++    if 'controller_backend' in value:
++        extra+=('controller_backend',)
++        if value['controller_backend'] not in ('body_pi','jepa_mppi','tinympc'):
++            raise ConfigError('Unknown controller backend')
++        if value['controller_backend'] in ('jepa_mppi','tinympc'):
++            from uw_controller.checkpoint import validate_feedback
++            try:validate_feedback(value,value.get('namespace'))
++            except ValueError as exc:raise ConfigError(str(exc)) from exc
++    if planner:
++        extra+=('planner_profile','planner_execute','planner_url',*(() if porth else ('slam_profile',)))
++        if value.get('namespace')!='rov01' or value.get('slam_profile')!='rtabmap_stereo' or value.get('robot_profile')!='bluerov2_six_disaware':
++            raise ConfigError('OmniPlanner requires six-thruster RTAB-Map with namespace rov01')
++        if type(value.get('planner_execute')) is not bool or value.get('planner_url')!='http://planner:8801':
++            raise ConfigError('Explicit planner execution mode and private sidecar URL required')
++        if value.get('case_id')!='manual' or value.get('evaluation_phase')!='manual':
++            raise ConfigError('OmniPlanner is a separate navigation session, not frozen M3 acceptance')
+     if survey:
+         extra+=('survey_profile','survey_plan','survey_plan_sha256','control_state_source','survey_max_distance_m','survey_water_jerlov')
+         from uw_app.survey import validate_survey
+@@ -26,6 +102,7 @@ def load_config(path):
+         if value.get('case_id')!='manual' or (not survey and value.get('initial_rpy_enu_deg')!=[0.,0.,90.]):raise ConfigError('Porth uses the screened initial pose and demo runner')
+     old={k:v for k,v in value.items() if k not in ('navigation_profile','task_profile',*extra)}
+     if porth:old['scene_profile']='visual_fixture'
+-    old.update(schema_version=3,estimator_profile='openvins_m2');validate(old,maximum_duration=7200 if survey else 300)
++    # Reuse shared M2 structural checks after explicit M3 estimator validation.
++    old.update(schema_version=3,estimator_profile='openvins_m2',state_source='openvins_stereo_imu');validate(old,maximum_duration=14400 if full else 7200 if survey or mapped else 300)
+     if value['scene_profile']!='visual_fixture' and not porth:raise ConfigError('M3 bounded navigation requires an explicitly validated scene')
+     return value
+diff --git a/benchmark/package.xml b/benchmark/package.xml
+index 9eebd3e..fa29919 100644
+--- a/benchmark/package.xml
++++ b/benchmark/package.xml
+@@ -14,6 +14,7 @@
+   <exec_depend>tf2_ros</exec_depend>
+   <exec_depend>uw_interfaces</exec_depend>
+   <exec_depend>python3-numpy</exec_depend>
++  <exec_depend>python3-scipy</exec_depend>
+   <exec_depend>python3-matplotlib</exec_depend>
+   <exec_depend>visualization_msgs</exec_depend>
+   <exec_depend>uw_perception</exec_depend>
+@@ -29,4 +30,4 @@
+   <exec_depend>uw_navigation</exec_depend>
+   <exec_depend>uw_simulations</exec_depend>
+   <exec_depend>uw_localization</exec_depend>
+-</package>
+\ No newline at end of file
++</package>
+diff --git a/benchmark/setup.py b/benchmark/setup.py
+index 4f8a50e..8c218a1 100644
+--- a/benchmark/setup.py
++++ b/benchmark/setup.py
+@@ -11,5 +11,5 @@ setup(
+     maintainer="Jiajun Zhou", maintainer_email="ChoujiajunStats@126.com",
+     description="Underwater Stack M0 benchmark module",
+     license="LicenseRef-Not-Yet-Licensed",
+-    entry_points={"console_scripts": ['m0_probe = uw_benchmark.probe:main', 'm1_case = uw_benchmark.m1_case:main', 'm1_observation = uw_benchmark.m1_observation:main', 'm2_case = uw_benchmark.m2_case:main', 'm3_case = uw_benchmark.m3_case:main', 'porth_case = uw_benchmark.porth_case:main', 'survey_case = uw_benchmark.survey_case:main']},
++    entry_points={"console_scripts": ['m0_probe = uw_benchmark.probe:main', 'm1_case = uw_benchmark.m1_case:main', 'm1_observation = uw_benchmark.m1_observation:main', 'm2_case = uw_benchmark.m2_case:main', 'm3_case = uw_benchmark.m3_case:main', 'planner_session = uw_benchmark.planner_session:main', 'porth_case = uw_benchmark.porth_case:main', 'survey_case = uw_benchmark.survey_case:main', 'full_survey = uw_benchmark.full_survey_node:main', 'mapping_pose_bridge = uw_benchmark.mapping_pose_bridge:main', 'restored_map_view = uw_benchmark.restored_map_view:main']},
+ )
+diff --git a/benchmark/uw_benchmark/slam_export.py b/benchmark/uw_benchmark/slam_export.py
+index 6406c4b..1905728 100644
+--- a/benchmark/uw_benchmark/slam_export.py
++++ b/benchmark/uw_benchmark/slam_export.py
+@@ -43,7 +43,7 @@ def trajectory_error(source,poses,report,alignment=None):
+ def export(data,run_id):
+     if Path(run_id).name!=run_id or run_id in ('.','..'):raise ValueError('Expected one run directory name')
+     data=Path(data);source=data/'runs'/run_id;manifest=json.loads((source/'manifest.json').read_text())
+-    if manifest.get('milestone') not in ('PORTH_SLAM_DEMO','PORTH_SURVEY') or manifest.get('status')=='RUNNING':raise ValueError('Expected a completed Porth SLAM run')
++    if manifest.get('milestone') not in ('PORTH_SLAM_DEMO','PORTH_SURVEY','OMNIPLANNER_SIX_INTEGRATION') or manifest.get('status')=='RUNNING':raise ValueError('Expected a completed stereo SLAM run')
+     report=data/'reports'/('slam-export-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8]);report.mkdir(parents=True)
+     original=source/'rtabmap.db';before=sha(original);copy=report/'rtabmap.db';shutil.copy2(original,copy)
+     # Saved optimized poses cover only the last working graph when memory
+@@ -76,7 +76,7 @@ def export(data,run_id):
+     result['exporter_sha256']=sha(__file__)
+     result['full_global_reoptimization']=bounded_memory
+     if bounded_memory:result['scope']='Full global optimization of retained graph after bounded online working memory; not a new sensor relocalization trial'
+-    if poses and (source/'m3-metrics.json').exists():result['trajectory_evaluation']=trajectory_error(source,poses[0],report)
++    if poses and (source/'m3-metrics.json').exists() and (source/'m3-samples.jsonl').exists():result['trajectory_evaluation']=trajectory_error(source,poses[0],report)
+     result['files']={p.name:sha(p) for p in report.iterdir() if p.is_file()}
+     result['status']='PASS' if exits==[0,0] and result['source_unchanged'] and points>1000 and pose_count>0 else 'FAIL'
+     (report/'reload-metrics.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(report=str(report),**result),indent=2))
+diff --git a/controller/config/defaults.yaml b/controller/config/defaults.yaml
+index bbb03bf..25345af 100644
+--- a/controller/config/defaults.yaml
++++ b/controller/config/defaults.yaml
+@@ -1,4 +1,5 @@
+ version: m1-v2
++backend: body_pi
+ rate_hz: 50.0
+ velocity_kp: [65.0, 65.0, 85.0, 9.0]
+ velocity_ki: [30.0, 30.0, 40.0, 4.0]
+diff --git a/controller/package.xml b/controller/package.xml
+index e2b22ae..7cc59e8 100644
+--- a/controller/package.xml
++++ b/controller/package.xml
+@@ -9,11 +9,15 @@
+   <exec_depend>rclpy</exec_depend>
+   <exec_depend>uw_interfaces</exec_depend>
+   <exec_depend>uw_robot</exec_depend>
++  <exec_depend>uw_runtime</exec_depend>
+   <exec_depend>nav_msgs</exec_depend>
++  <exec_depend>sensor_msgs</exec_depend>
++  <exec_depend>rosgraph_msgs</exec_depend>
++  <exec_depend>ament_index_python</exec_depend>
+   <exec_depend>std_msgs</exec_depend>
+   <exec_depend>python3-numpy</exec_depend>
+   <exec_depend>python3-yaml</exec_depend>
+   <export>
+     <build_type>ament_python</build_type>
+   </export>
+-</package>
+\ No newline at end of file
++</package>
+diff --git a/controller/setup.py b/controller/setup.py
+index 9e9386c..75f8e9c 100644
+--- a/controller/setup.py
++++ b/controller/setup.py
+@@ -2,7 +2,9 @@ from setuptools import setup, find_packages
+ from glob import glob
+ setup(name='uw_controller',version="0.1.0",packages=find_packages(),
+  data_files=[("share/ament_index/resource_index/packages",["resource/uw_controller"]),
+- ("share/uw_controller",["package.xml"]),("share/uw_controller/config",glob("config/*.yaml"))],
++ ("share/uw_controller",["package.xml"]),("share/uw_controller/config",glob("config/*.yaml")),
++ ("share/uw_controller/checkpoints",glob("checkpoints/*.pt"))],
+  install_requires=["setuptools"],zip_safe=True,maintainer="Jiajun Zhou",
+  maintainer_email="ChoujiajunStats@126.com",description="M1 controller",
+- license="LicenseRef-Not-Yet-Licensed",entry_points={"console_scripts":['body_velocity = uw_controller.node:main']})
++ license="LicenseRef-Not-Yet-Licensed",extras_require={'mppi':['torch>=2.7,<3']},
++ entry_points={"console_scripts":['body_velocity = uw_controller.node:main']})
+diff --git a/controller/uw_controller/core.py b/controller/uw_controller/core.py
+index 320438c..bcd4941 100644
+--- a/controller/uw_controller/core.py
++++ b/controller/uw_controller/core.py
+@@ -7,6 +7,17 @@ def rpy(q):
+     """Compatibility array interface; geometry is owned by uw_robot."""
+     return np.asarray(quaternion_rpy(q))
+ 
++
++def attitude_wrench(parameters,velocity,angles,integral):
++    return (-np.asarray(parameters['attitude_kp'])*np.asarray(angles[:2])
++            -np.asarray(parameters['attitude_kd'])*np.asarray(velocity[3:5])+integral)
++
++
++def integrate_attitude(parameters,integral,angles,desired,predicted,dt):
++    value=integral+dt*(-np.asarray(parameters['attitude_ki'])*np.asarray(angles[:2])
++                      +3*(predicted-desired)[3:5])
++    return np.clip(value,-parameters['attitude_integral_limit'],parameters['attitude_integral_limit'])
++
+ class BodyController:
+     def __init__(self,parameters,allocation):
+         self.p=parameters;self.allocation=allocation;self.reset()
+@@ -18,11 +29,10 @@ class BodyController:
+         if not 0<dt<=0.1 or not np.isfinite(np.r_[target,velocity,angles,dt]).all():
+             self.reset();raise ValueError('Invalid state or simulation dt')
+         error=np.asarray(target)-np.asarray(velocity)[[0,1,2,5]]
+-        attitude_error=-np.asarray(angles[:2])
+         desired=np.zeros(6)
+         desired[[0,1,2,5]]=np.asarray(self.p['velocity_kp'])*error+self.integral
+         desired[2]+=self.p['buoyancy_feedforward_N']
+-        desired[3:5]=np.asarray(self.p['attitude_kp'])*attitude_error-np.asarray(self.p['attitude_kd'])*np.asarray(velocity[3:5])+self.attitude_integral
++        desired[3:5]=attitude_wrench(self.p,velocity,angles,self.attitude_integral)
+         attitude_mask=np.array([3 in self.allocation.controlled_axes,4 in self.allocation.controlled_axes])
+         desired[3:5]*=attitude_mask
+         clipped=np.clip(desired,-np.asarray(self.p['wrench_limits']),self.p['wrench_limits'])
+@@ -33,7 +43,6 @@ class BodyController:
+         # Back calculation includes allocator and rate saturation; integral is force/torque.
+         self.integral+=dt*(np.asarray(self.p['velocity_ki'])*error+3*(predicted-desired)[[0,1,2,5]])
+         self.integral=np.clip(self.integral,-np.asarray(self.p['integral_force_limits']),self.p['integral_force_limits'])
+-        self.attitude_integral+=dt*(np.asarray(self.p['attitude_ki'])*attitude_error+3*(predicted-desired)[3:5])
+-        self.attitude_integral=np.clip(self.attitude_integral,-self.p['attitude_integral_limit'],self.p['attitude_integral_limit'])
++        self.attitude_integral=integrate_attitude(self.p,self.attitude_integral,angles,desired,predicted,dt)
+         self.attitude_integral*=attitude_mask
+         return command,desired,predicted,saturated or bool(np.any(clipped!=desired))
+diff --git a/controller/uw_controller/node.py b/controller/uw_controller/node.py
+index 57055a8..24c1ba8 100644
+--- a/controller/uw_controller/node.py
++++ b/controller/uw_controller/node.py
+@@ -1,5 +1,5 @@
+ """50 Hz controller; monotonic expiry and validated simulation integration time."""
+-import json,time,math
++import json,time,math,os
+ from pathlib import Path
+ import yaml
+ import signal
+@@ -8,10 +8,14 @@ from rclpy.signals import SignalHandlerOptions
+ from rclpy.node import Node
+ from rclpy.clock import Clock,ClockType
+ from nav_msgs.msg import Odometry
++from sensor_msgs.msg import Imu,FluidPressure
++from rosgraph_msgs.msg import Clock as ClockMsg
+ from std_msgs.msg import String
++from rclpy.qos import qos_profile_sensor_data
+ from uw_interfaces.msg import AuthorizedCommand,ActuatorOutput
+ from uw_robot.thrusters import Allocation,load_profile
+ from uw_controller.core import BodyController,rpy
++from uw_robot.frames import rpy_quaternion
+ 
+ 
+ class Controller(Node):
+@@ -20,15 +24,60 @@ class Controller(Node):
+         self.folder=Path(self.declare_parameter('run_dir','').value)
+         self.p=yaml.safe_load((self.folder/'controller-parameters.yaml').read_text())
+         self.config=yaml.safe_load((self.folder/'resolved_config.yaml').read_text())
++        stage=self.declare_parameter('control_stage','navigation').value
++        if stage not in ('navigation','mapping'):raise ValueError('Unknown controller stage')
++        if stage=='mapping':
++            if not self.config.get('planner_full_survey'):raise ValueError('Mapping controller requires explicit full survey')
++            self.config=yaml.safe_load((self.folder/'mapping-control-config.yaml').read_text())
++            self.p=yaml.safe_load((self.folder/'mapping-controller-parameters.yaml').read_text())
+         self.state_prefix=self.declare_parameter('state_frame_prefix',self.config['namespace']).value
++        self.backend=self.declare_parameter('controller_backend',self.p.get('backend','body_pi')).value
++        if self.backend not in ('body_pi','jepa_mppi','tinympc'):raise ValueError('Unknown controller backend')
++        self.estimator={};self.estimator_wall=0;self.feedback_valid=False
++        from uw_runtime.localization_policy import estimated_state_source
++        self.estimated_source=estimated_state_source(self.config)
++        self.stabilization=None;self.stabilization_stamp=0.;self.stabilization_wall=0
++        if self.backend=='tinympc':
++            from ament_index_python.packages import get_package_share_directory
++            from uw_controller.checkpoint import validate_feedback
++            from uw_runtime.localization_policy import localization_policy
++            validate_feedback(self.config,self.state_prefix)
++            if self.resolve_topic_name('state/odometry')!='/'+self.config['namespace']+'/state/odometry':
++                raise ValueError('TinyMPC state topic cannot be remapped')
++            settings_path=self.declare_parameter('tinympc_settings_path',str(Path(get_package_share_directory('uw_controller'))/'config/tinympc.yaml')).value
++            self.tiny_settings=yaml.safe_load(Path(settings_path).read_text())
++            self.maximum_pose_variance=localization_policy(self.config)['maximum_position_variance_m2']
++        if self.backend=='jepa_mppi':
++            from ament_index_python.packages import get_package_share_directory
++            from uw_controller.checkpoint import validate_feedback
++            validate_feedback(self.config,self.state_prefix)
++            if self.resolve_topic_name('state/odometry')!='/'+self.config['namespace']+'/state/odometry':
++                raise ValueError('JEPA-MPPI state topic cannot be remapped')
++            settings_path=self.declare_parameter('jepa_settings_path',str(Path(get_package_share_directory('uw_controller'))/'config/jepa_mppi.yaml')).value
++            self.jepa_settings=yaml.safe_load(Path(settings_path).read_text())
++            cache=self.folder/'torch-kernels';cache.mkdir(exist_ok=True)
++            os.environ['PYTORCH_KERNEL_CACHE_PATH']=str(cache)
++            checkpoint=Path(self.jepa_settings['checkpoint']).expanduser()
++            if not checkpoint.is_absolute():checkpoint=Path(get_package_share_directory('uw_controller'))/checkpoint
++            self.jepa_settings['checkpoint']=str(checkpoint.resolve())
+         self.state_valid=False
+         self.profile=load_profile(self.folder/'thrusters.yaml')
+         self.control=None;self.command=None;self.state=None;self.state_wall=0;self.last_stamp=None;self.generation=None
+-        self.terminal={};self.guard={};self.last_tick=None
++        self.terminal={};self.guard={};self.last_tick=None;self.last_update_error=None
++        self.clock_ns=None;self.clock_wall=0;self.last_feedback_stamp=None
+         self.output=self.create_publisher(ActuatorOutput,'control/output',1)
+         self.status=self.create_publisher(String,'control/controller_status',1)
+         self.create_subscription(AuthorizedCommand,'control/approved',lambda m:setattr(self,'command',m),1)
+         self.create_subscription(Odometry,'state/odometry',self.on_state,1)
++        if self.config.get('state_fusion_profile')=='rtabmap_ekf':
++            self.create_subscription(Odometry,'vio/odometry',self.on_stabilization,1)
++        if self.backend=='jepa_mppi':
++            self.create_subscription(Imu,'sensors/imu',self.on_imu,qos_profile_sensor_data)
++            self.create_subscription(FluidPressure,'sensors/pressure',self.on_pressure,qos_profile_sensor_data)
++            self.create_subscription(String,'localization/status',self.on_estimator,1)
++        elif self.backend=='tinympc':
++            self.create_subscription(String,'localization/status',self.on_estimator,1)
++            self.create_subscription(ClockMsg,'/clock',self.on_clock,1)
+         self.create_subscription(String,'control/status',lambda m:setattr(self,'guard',json.loads(m.data)),1)
+         self.create_subscription(String,'sim/terminal/status',self.on_terminal,1)
+         self.create_timer(1/self.p['rate_hz'],self.tick,clock=Clock(clock_type=ClockType.STEADY_TIME))
+@@ -38,18 +87,99 @@ class Controller(Node):
+         values=[p.x,p.y,p.z,q.x,q.y,q.z,q.w,v.linear.x,v.linear.y,v.linear.z,v.angular.x,v.angular.y,v.angular.z]
+         self.state_valid=(all(math.isfinite(x) for x in values) and abs(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w-1)<1e-4 and
+             msg.header.frame_id==self.state_prefix+'/odom' and msg.child_frame_id==self.state_prefix+'/base_link')
++        if self.backend=='jepa_mppi':
++            covariance=list(msg.pose.covariance)+list(msg.twist.covariance)
++            self.state_valid=self.state_valid and all(math.isfinite(x) for x in covariance) and all(0<=msg.pose.covariance[i]<=.25 for i in (0,7))
++        elif self.backend=='tinympc':
++            covariance=list(msg.pose.covariance)+list(msg.twist.covariance)
++            self.state_valid=self.state_valid and all(math.isfinite(x) for x in covariance) and all(0<=msg.pose.covariance[i]<=self.maximum_pose_variance for i in (0,7,14))
++            self.feedback_valid=self.state_valid
+         stamp=msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9
+-        if self.state is None or stamp!=self.stamp:self.state_wall=time.monotonic_ns()
++        if self.state is None or stamp>self.stamp:self.state_wall=time.monotonic_ns()
+         self.state=msg;self.stamp=stamp
++        if self.backend=='jepa_mppi' and self.control:
++            quaternion=values[3:7]
++            if self.stabilization is not None:
++                angles=rpy(quaternion);quaternion=rpy_quaternion(*self.stabilization[0][:2],angles[2])
++            self.feedback_valid=self.state_valid and self.control.observe(stamp,values[:3],quaternion,values[7:])
++
++    def on_clock(self,msg):
++        stamp=msg.clock.sec*1_000_000_000+msg.clock.nanosec
++        if self.clock_ns is None or stamp!=self.clock_ns:self.clock_wall=time.monotonic_ns()
++        self.clock_ns=stamp
++
++    def on_stabilization(self,msg):
++        if msg.header.frame_id!=self.config['namespace']+'/vio_odom' or msg.child_frame_id!=self.config['namespace']+'/base_link':return
++        q=msg.pose.pose.orientation;v=msg.twist.twist.angular
++        if not all(math.isfinite(x) for x in (q.x,q.y,q.z,q.w,v.x,v.y,v.z)):return
++        if abs(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w-1)>1e-4:return
++        self.stabilization=(rpy([q.x,q.y,q.z,q.w]),[v.x,v.y,v.z])
++        self.stabilization_stamp=msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9;self.stabilization_wall=time.monotonic_ns()
++
++    def on_imu(self,msg):
++        if not self.control:return
++        a=msg.linear_acceleration;g=msg.angular_velocity
++        if msg.header.frame_id!=self.config['namespace']+'/imu_link' or msg.orientation_covariance[0]!=-1:return
++        stamp=msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9
++        if not self.control.on_imu(stamp,[a.x,a.y,a.z],[g.x,g.y,g.z]):
++            if not all(math.isfinite(x) for x in (a.x,a.y,a.z,g.x,g.y,g.z)):self.control.imu.samples.clear();self.control.clear_history()
++
++    def on_pressure(self,msg):
++        if not self.control:return
++        if msg.header.frame_id!=self.config['namespace']+'/pressure':return
++        stamp=msg.header.stamp.sec+msg.header.stamp.nanosec*1e-9
++        try:self.control.on_pressure(stamp,msg.fluid_pressure)
++        except ValueError:self.control.pressure.samples.clear();self.control.clear_history();self.feedback_valid=False
++
++    def on_estimator(self,msg):
++        try:
++            report=json.loads(msg.data)
++            if not isinstance(report,dict):raise ValueError('Invalid estimator report')
++        except ValueError:self.estimator={};self.feedback_valid=False;return
++        if self.backend=='jepa_mppi' and self.control and self.estimator and report.get('epoch')!=self.estimator.get('epoch'):self.control.clear_history()
++        self.estimator=report;self.estimator_wall=time.monotonic_ns()
++
++    def estimated_feedback_healthy(self,now):
++        if self.backend=='tinympc':
++            attitude_fresh=(self.config.get('state_fusion_profile')!='rtabmap_ekf' or
++                (self.stabilization is not None and now-self.stabilization_wall<250_000_000
++                 and abs(self.stamp-self.stabilization_stamp)<.25))
++            clock_fresh=(self.clock_ns is not None and now-self.clock_wall<250_000_000
++                         and -.05<=self.clock_ns*1e-9-self.stamp<=.25)
++            return (self.feedback_valid and attitude_fresh and clock_fresh and now-self.estimator_wall<250_000_000
++                and self.estimator.get('run')==self.folder.name and self.estimator.get('source')==self.estimated_source
++                and self.estimator.get('state') in ('READY_STATIC','TRACKING')
++                and self.guard.get('state_source')==self.estimated_source)
++        if self.config.get('state_fusion_profile')=='rtabmap_ekf' and (self.stabilization is None or now-self.stabilization_wall>250_000_000 or abs(self.stamp-self.stabilization_stamp)>.1):return False
++        return (self.feedback_valid and self.control.inputs_ready(self.stamp,now) and
++            now-self.estimator_wall<250_000_000 and self.estimator.get('run')==self.folder.name and
++            self.estimator.get('source')==self.estimated_source and self.estimator.get('state') in ('READY_STATIC','TRACKING') and
++            self.guard.get('state_source')==self.estimated_source)
+ 
+     def on_terminal(self,msg):
+         self.terminal=json.loads(msg.data)
+         if self.control is None:
+-            self.control=BodyController(self.p,Allocation(self.profile,self.terminal['model']))
++            allocation=Allocation(self.profile,self.terminal['model'])
++            if self.backend=='jepa_mppi':
++                from uw_controller.checkpoint import CheckpointController
++                reference=allocation
++                if self.profile.get('variant')!='bluerov2_six_disaware':
++                    from ament_index_python.packages import get_package_share_directory
++                    profile=load_profile(Path(get_package_share_directory('uw_robot'))/'config/thrusters_six_disaware.yaml')
++                    model=dict(names=[t['name'] for t in profile['thrusters']],cg_frd_m=self.terminal['model']['cg_frd_m'],
++                        geometry=[dict(position_frd=t['position_frd'],axis_frd=t['axis_frd']) for t in profile['thrusters']])
++                    reference=Allocation(profile,model)
++                self.control=CheckpointController(self.p,allocation,self.jepa_settings,reference)
++            elif self.backend=='tinympc':
++                from uw_controller.tiny_mpc import TinyBodyController
++                self.control=TinyBodyController(self.p,allocation,self.tiny_settings)
++            else:self.control=BodyController(self.p,allocation)
++        if self.backend=='jepa_mppi' and self.terminal.get('run')==self.folder.name and self.terminal.get('names')==self.control.allocation.names:
++            self.control.on_applied(int(self.terminal['clock_ns'])*1e-9,self.terminal['applied_setpoint'])
+ 
+     def reset(self):
+         if self.control:self.control.reset()
+-        self.last_stamp=None;self.generation=None
++        self.last_stamp=None;self.generation=None;self.last_feedback_stamp=None
+ 
+     def tick(self):
+         now=time.monotonic_ns();period=(now-self.last_tick)*1e-9 if self.last_tick else 0;self.last_tick=now
+@@ -57,31 +187,57 @@ class Controller(Node):
+                 self.terminal.get('state')=='ARMED' and self.command.request.run_id==self.folder.name and
+                 self.command.request.generation==int(self.terminal.get('generation',0)) and
+                 now<self.command.deadline_steady_ns and now-self.state_wall<250_000_000)
++        if active and self.backend in ('jepa_mppi','tinympc'):active=self.estimated_feedback_healthy(now)
+         if not active:
+             self.reset()
+-            self.status.publish(String(data=json.dumps(dict(wall_ns=now,state='IDLE',dt=0.,period_sec=period,
+-                generation=0,integral=[0.]*4,attitude_integral=[0.]*2,request_age_sec=0.))))
++            self.status.publish(String(data=json.dumps(dict(run=self.folder.name,wall_ns=now,state='FAULT' if self.last_update_error else 'IDLE',failure_reason=self.last_update_error,dt=0.,period_sec=period,
++                generation=0,integral=[0.]*4,attitude_integral=[0.]*2,request_age_sec=0.,backend=self.backend,
++                ready_for_arm=bool(self.backend in ('jepa_mppi','tinympc') and self.control and self.state and self.state_valid
++                                   and self.control.ready and self.estimated_feedback_healthy(now)),
++                **(self.control.report() if self.backend in ('jepa_mppi','tinympc') and self.control else {})))))
+             return
+         gen=self.command.request.generation
+         if gen!=self.generation:self.reset();self.generation=gen
+-        if self.last_stamp is None:self.last_stamp=self.stamp;return
+-        dt=self.stamp-self.last_stamp
++        # The filter can batch delayed corrections while the valid latest state
++        # remains unchanged. Recompute TinyMPC at each simulation-time step using
++        # that recent observation; never extend its 250 ms freshness allowance.
++        integration_stamp=self.clock_ns*1e-9 if self.backend=='tinympc' else self.stamp
++        if self.last_stamp is None:self.last_stamp=integration_stamp;return
++        dt=integration_stamp-self.last_stamp
+         if dt==0:return
+-        self.last_stamp=self.stamp
++        self.last_stamp=integration_stamp
+         v=self.state.twist.twist;q=self.state.pose.pose.orientation;t=self.command.request.command.twist
+         velocity=[v.linear.x,v.linear.y,v.linear.z,v.angular.x,v.angular.y,v.angular.z]
+         angles=rpy([q.x,q.y,q.z,q.w]);target=[t.linear.x,t.linear.y,t.linear.z,t.angular.z]
++        if self.backend in ('jepa_mppi','tinympc') and self.stabilization is not None:
++            angles[:2]=self.stabilization[0][:2];velocity[3:5]=self.stabilization[1][:2]
+         try:command,requested,predicted,saturated=self.control.update(target,velocity,angles,dt)
+-        except ValueError:self.reset();return
++        except ValueError as error:
++            if self.backend=='tinympc':
++                self.last_update_error=self.control.reason
++                report=dict(run=self.folder.name,wall_ns=time.monotonic_ns(),stamp=self.stamp,
++                    state='FAULT',backend=self.backend,ready_for_arm=False,failure_reason=self.last_update_error,
++                    message=str(error),target=target,velocity=velocity,angles=angles.tolist(),dt=dt,**self.control.report())
++                with (self.folder/'controller-errors.jsonl').open('a') as log:log.write(json.dumps(report)+'\n')
++                self.status.publish(String(data=json.dumps(report)))
++            self.reset();return
++        now=time.monotonic_ns()
++        if now>=self.command.deadline_steady_ns or now-self.state_wall>=250_000_000:self.reset();return
++        if self.backend in ('jepa_mppi','tinympc') and not self.estimated_feedback_healthy(now):self.reset();return
+         output=ActuatorOutput(authorization=self.command,names=self.control.allocation.names,
+                               setpoint=command.tolist(),saturated=saturated,computed_steady_ns=now)
+         for wrench,values in ((output.requested_wrench,requested),(output.predicted_wrench,predicted)):
+             wrench.force.x,wrench.force.y,wrench.force.z=map(float,values[:3])
+             wrench.torque.x,wrench.torque.y,wrench.torque.z=map(float,values[3:])
+         self.output.publish(output)
+-        self.status.publish(String(data=json.dumps(dict(wall_ns=now,dt=dt,period_sec=period,
++        self.last_update_error=None
++        held_feedback=self.last_feedback_stamp==self.stamp;self.last_feedback_stamp=self.stamp
++        self.status.publish(String(data=json.dumps(dict(run=self.folder.name,wall_ns=now,dt=dt,period_sec=period,
++            feedback_stamp_sec=self.stamp,integration_stamp_sec=integration_stamp,held_feedback=held_feedback,
++            feedback_age_sec=(now-self.state_wall)*1e-9,
+             generation=gen,integral=self.control.integral.tolist(),attitude_integral=self.control.attitude_integral.tolist(),
+-            request_age_sec=(now-self.command.request.issued_steady_ns)*1e-9))))
++            request_age_sec=(now-self.command.request.issued_steady_ns)*1e-9,backend=self.backend,
++            **(self.control.report() if self.backend in ('jepa_mppi','tinympc') else {})))))
+ 
+ 
+ def main(args=None):
+@@ -91,4 +247,6 @@ def main(args=None):
+     try:
+         while rclpy.ok() and not stop[0]:rclpy.spin_once(node,timeout_sec=.1)
+     except (KeyboardInterrupt,rclpy.executors.ExternalShutdownException):pass
+-    finally:node.destroy_node();rclpy.try_shutdown()
++    finally:
++        if node.backend=='jepa_mppi' and node.control:node.control.close()
++        node.destroy_node();rclpy.try_shutdown()
+diff --git a/docker/compose.yaml b/docker/compose.yaml
+index 66793c6..7ee3ecd 100644
+--- a/docker/compose.yaml
++++ b/docker/compose.yaml
+@@ -20,7 +20,7 @@ x-common: &common
+       target: /workspace
+       read_only: true
+     - type: bind
+-      source: ${UW_DATA_ROOT:?set UW_DATA_ROOT outside the repository}
++      source: ${UW_DATA_ROOT:?set UW_DATA_ROOT to a dedicated results directory}
+       target: /data
+     - overlay:/work/overlay
+ 
+diff --git a/guard/package.xml b/guard/package.xml
+index 2ca026b..9093d8b 100644
+--- a/guard/package.xml
++++ b/guard/package.xml
+@@ -9,7 +9,9 @@
+   <exec_depend>rclpy</exec_depend>
+   <exec_depend>uw_interfaces</exec_depend>
+   <exec_depend>uw_robot</exec_depend>
++  <exec_depend>uw_runtime</exec_depend>
+   <exec_depend>nav_msgs</exec_depend>
++  <exec_depend>sensor_msgs</exec_depend>
+   <exec_depend>rosgraph_msgs</exec_depend>
+   <exec_depend>std_msgs</exec_depend>
+   <exec_depend>diagnostic_msgs</exec_depend>
+@@ -17,4 +19,4 @@
+   <export>
+     <build_type>ament_python</build_type>
+   </export>
+-</package>
+\ No newline at end of file
++</package>
+diff --git a/guard/uw_guard/configuration.py b/guard/uw_guard/configuration.py
+index 354c0d4..41a79ba 100644
+--- a/guard/uw_guard/configuration.py
++++ b/guard/uw_guard/configuration.py
+@@ -2,6 +2,25 @@
+ import math
+ 
+ 
++def pose_covariance_error(covariance, maximum_variance_m2=.25):
++    """Explain the configured position variance limit without changing data."""
++    for axis,index in zip('xyz',(0,7,14)):
++        value=float(covariance[index])
++        if not math.isfinite(value) or not 0<=value<=maximum_variance_m2:
++            return dict(reason='position_covariance_'+axis,axis=axis,variance_m2=value,maximum_variance_m2=maximum_variance_m2)
++    return None
++
++
++def handoff_counters(record,run_id):
++    if (record.get('run')!=run_id or record.get('status')!='PASS'
++            or record.get('terminal_neutral_verified') is not True or record.get('map_reset') is not False
++            or record.get('mapping_feedback')!='PRIVILEGED_DEBUG'):
++        raise ValueError('A verified mapping return and neutral handoff are required')
++    values=[record.get('terminal_generation'),record.get('guard_gate_sequence')]
++    if any(type(v) is not int or v<1 for v in values):raise ValueError('Missing native monotonic counters')
++    return tuple(values)
++
++
+ def route_safety_envelope(route):
+     """Return position bounds with the existing 1 m depth / 2 m horizontal margins.
+ 
+diff --git a/guard/uw_guard/contracts.py b/guard/uw_guard/contracts.py
+index 57fddca..9da1d8f 100644
+--- a/guard/uw_guard/contracts.py
++++ b/guard/uw_guard/contracts.py
+@@ -2,6 +2,17 @@
+ import math
+ 
+ 
++def sensor_freshness_error(samples,now_ns,clock_ns):
++    """Validate actual incoming sample ages, independently of health-report cadence."""
++    if clock_ns is None:return 'clock_missing'
++    for role in ('left','right','imu'):
++        if role not in samples:return 'sensor_'+role+'_missing'
++        stamp,received=samples[role]
++        if not 0<=now_ns-received<=250_000_000:return 'sensor_'+role+'_stale'
++        if not -50_000_000<=clock_ns-stamp<=250_000_000:return 'sensor_'+role+'_stamp'
++    return None
++
++
+ def validate_request(request,now_ns,clock_ns,run_id,source,token,generation,last_sequence,mode,names,limits):
+     if request['run_id']!=run_id or request['source']!=source or request['token']!=token or request['generation']!=generation:
+         return 'authorization_mismatch'
+diff --git a/guard/uw_guard/node.py b/guard/uw_guard/node.py
+index 08b5ee9..0ee5f46 100644
+--- a/guard/uw_guard/node.py
++++ b/guard/uw_guard/node.py
+@@ -9,10 +9,12 @@ from rclpy.node import Node
+ from rclpy.clock import Clock,ClockType
+ from std_msgs.msg import String
+ from nav_msgs.msg import Odometry
++from sensor_msgs.msg import CameraInfo,Imu
++from rclpy.qos import qos_profile_sensor_data
+ from rosgraph_msgs.msg import Clock as ClockMsg
+ from uw_interfaces.msg import ControlRequest,AuthorizedCommand,ActuatorOutput
+ from uw_interfaces.srv import Control
+-from uw_guard.contracts import validate_request
++from uw_guard.contracts import validate_request,sensor_freshness_error
+ from uw_robot.thrusters import Allocation,load_profile
+ 
+ 
+@@ -24,26 +26,47 @@ class Guard(Node):
+         super().__init__('control_guard')
+         self.run_dir=Path(self.declare_parameter('run_dir','').value)
+         self.config=yaml.safe_load((self.run_dir/'resolved_config.yaml').read_text())
++        stage=self.declare_parameter('control_stage','navigation').value
++        if stage not in ('navigation','mapping'):raise ValueError('Unknown guard stage')
++        full=self.config.get('planner_full_survey',False)
++        if stage=='mapping':
++            if not full:raise ValueError('Mapping guard requires an explicit full survey')
++            self.config=yaml.safe_load((self.run_dir/'mapping-control-config.yaml').read_text())
+         self.state_prefix=self.declare_parameter('state_frame_prefix',self.config['namespace']).value
+         survey=(self.config.get('survey_profile')=='known_route_capture_v1' and self.config.get('control_state_source')=='ground_truth_debug' and self.config.get('scene_profile')=='porth_sump9')
+         self.estimated_control=self.config.get('schema_version')==4 and not survey
++        self.direct_sensor_freshness=self.estimated_control and self.config.get('controller_backend')=='tinympc'
++        self.sensor_samples={}
++        from uw_runtime.localization_policy import localization_policy
++        self.localization_tuning=localization_policy(self.config)
++        self.maximum_pose_variance=self.localization_tuning['maximum_position_variance_m2']
++        from uw_runtime.localization_policy import estimated_state_source
++        self.estimated_source=estimated_state_source(self.config)
+         self.write_control_status=self.estimated_control or survey
+         self.estimated_horizontal_limit=self.declare_parameter('estimated_horizontal_limit_m',1.5).value
+         self.estimated_vertical_limit=self.declare_parameter('estimated_vertical_limit_m',.6).value
+-        if not (0<self.estimated_horizontal_limit<=4 and 0<self.estimated_vertical_limit<=1):raise ValueError('Invalid estimated envelope')
++        mapped=(self.config.get('planner_map_navigation') is True and self.config.get('planner_profile')=='omniplanner_gbplanner3'
++            and self.config.get('controller_backend') in ('jepa_mppi','tinympc') and self.config.get('scene_profile')=='porth_sump9')
++        upper_xy,upper_z=(145.,11.) if full else (13.,5.) if mapped else (4.,1.)
++        if not (0<self.estimated_horizontal_limit<=upper_xy and 0<self.estimated_vertical_limit<=upper_z):raise ValueError('Invalid estimated envelope')
+         self.last_status_write=0;self.estimator={};self.estimator_wall=0;self.state_origin=None;self.epoch=None
+         self.run=self.run_dir.name;self.secret=json.loads((self.run_dir/'session.json').read_text())['terminal_secret']
+         self.frame=self.config['namespace']+'/base_link';self.mode=self.config['control_mode']
+         self.profile=load_profile(self.run_dir/'thrusters.yaml');self.names=[t['name'] for t in self.profile['thrusters']]
+         self.defaults=yaml.safe_load((self.run_dir/'guard-parameters.yaml').read_text())
++        if stage=='mapping':self.defaults=yaml.safe_load((self.run_dir/'mapping-guard-parameters.yaml').read_text())
+         if self.estimated_control:self.defaults['sources'].append('navigation')
+         for key,value in {'request_timeout_sec':.25,'state_timeout_sec':.25,'clock_timeout_sec':.25,'future_tolerance_sec':.05,'ros_age_limit_sec':.25,'probe_limit':.15}.items():
+             if self.defaults[key]!=value:raise ValueError('Safety budget requires a protocol revision: '+key)
+-        self.state='DISARMED';self.reason='startup';self.generation=0;self.token='';self.source='benchmark'
++        self.state='DISARMED';self.reason='startup';self.generation=0;self.token='';self.source='benchmark';self.fault_context=None
+         self.clock_ns=None;self.clock_wall=0;self.state_stamp=0;self.state_wall=0;self.state_valid=False;self.envelope_valid=False
+         self.terminal={};self.terminal_wall=0;self.mapping=False;self.arm_wall=0
+         self.ready_since=None;self.ready_for_arm=False
+         self.last_sequence=0;self.last_request=None;self.deadline=0;self.gate_sequence=0;self.rejects=0;self.last_reject=''
++        if full and stage=='navigation' and not self.config.get('planner_restore_map'):
++            handoff=json.loads((self.run_dir/'full-survey-complete.json').read_text())
++            from uw_guard.configuration import handoff_counters
++            self.generation,self.gate_sequence=handoff_counters(handoff,self.run)
+         self.gate=self.create_publisher(String,'sim/terminal/gate',1)
+         self.approved=self.create_publisher(AuthorizedCommand,'control/approved',1)
+         self.status=self.create_publisher(String,'control/status',1)
+@@ -51,6 +74,13 @@ class Guard(Node):
+         self.create_subscription(ClockMsg,'/clock',self.on_clock,1)
+         self.create_subscription(Odometry,'state/odometry',self.on_state,1)
+         if self.estimated_control:self.create_subscription(String,'localization/status',self.on_estimator,1)
++        if self.config.get('controller_backend')=='tinympc':
++            self.create_subscription(String,'control/controller_status',self.on_controller,1)
++        if self.direct_sensor_freshness:
++            for side in ('left','right'):
++                self.create_subscription(CameraInfo,'sensors/stereo/'+side+'/camera_info',
++                    lambda m,role=side:self.on_sensor(role,m),qos_profile_sensor_data)
++            self.create_subscription(Imu,'sensors/imu',lambda m:self.on_sensor('imu',m),qos_profile_sensor_data)
+         self.create_subscription(String,'sim/terminal/status',self.on_terminal,1)
+         self.create_subscription(ControlRequest,'control/request',self.on_request,1)
+         self.create_service(Control,'control/authority',self.service)
+@@ -64,8 +94,14 @@ class Guard(Node):
+ 
+     def fault(self,reason):
+         if self.state!='ARMED':return
++        now=time.monotonic_ns()
++        self.fault_context=dict(reason=reason,wall_ns=now,clock_ns=self.clock_ns,
++            state_stamp_ns=self.state_stamp,state_age_sec=(now-self.state_wall)*1e-9,
++            estimator=copy.deepcopy(self.estimator),estimator_age_sec=(now-self.estimator_wall)*1e-9)
+         self.state='FAULT';self.reason=reason;self.last_request=None;self.token=''
+         self.gate_message('FAULT',reason)
++        with (self.run_dir/'guard-faults.jsonl').open('a') as log:
++            log.write(json.dumps(self.fault_context)+'\n')
+ 
+     def on_clock(self,msg):
+         value=ns(msg.clock)
+@@ -95,11 +131,15 @@ class Guard(Node):
+                 max(abs(v.linear.x),abs(v.linear.y),abs(v.linear.z))<.6 and
+                 max(abs(v.angular.x),abs(v.angular.y),abs(v.angular.z))<.6)
+             cov=list(msg.pose.covariance)+list(msg.twist.covariance)
+-            self.state_valid=self.state_valid and all(math.isfinite(x) for x in cov) and all(0<=msg.pose.covariance[i]<=.25 for i in (0,7,14))
++            self.state_valid=self.state_valid and all(math.isfinite(x) for x in cov) and all(0<=msg.pose.covariance[i]<=self.maximum_pose_variance for i in (0,7,14))
+         if stamp<self.state_stamp:self.fault('state_time_rewind')
+         if stamp>self.state_stamp:self.state_wall=time.monotonic_ns()
+         self.state_stamp=stamp
+-        if not self.state_valid:self.fault('invalid_state')
++        if self.estimated_control:
++            from uw_guard.configuration import pose_covariance_error
++            self.state_diagnostic=pose_covariance_error(msg.pose.covariance,self.maximum_pose_variance)
++        else:self.state_diagnostic=None
++        if not self.state_valid:self.fault(self.state_diagnostic['reason'] if self.state_diagnostic else 'invalid_state')
+ 
+     def on_estimator(self,msg):
+         try:
+@@ -107,7 +147,10 @@ class Guard(Node):
+             if report.get('run')!=self.run:self.fault('estimator_run');return
+             if self.epoch is not None and report.get('epoch')!=self.epoch:self.fault('estimator_epoch_changed')
+             self.epoch=report.get('epoch');self.estimator=report;self.estimator_wall=time.monotonic_ns()
+-            if report.get('state') not in ('READY_STATIC','TRACKING'):self.fault('estimator_'+str(report.get('state')))
++            if report.get('state') not in ('READY_STATIC','TRACKING'):
++                reason='estimator_'+str(report.get('state'))
++                if report.get('reason'):reason+=':'+str(report['reason'])
++                self.fault(reason)
+         except (ValueError,TypeError):self.fault('estimator_invalid')
+ 
+     def on_terminal(self,msg):
+@@ -122,16 +165,36 @@ class Guard(Node):
+             if self.terminal['state']=='FAULT':self.fault('terminal:'+self.terminal['reason'])
+         except (ValueError,KeyError,TypeError):self.mapping=False;self.fault('mapping_invalid')
+ 
++    def on_controller(self,msg):
++        try:report=json.loads(msg.data)
++        except (ValueError,TypeError):return
++        if not isinstance(report,dict):return
++        if (report.get('run')==self.run and report.get('backend')=='tinympc' and report.get('state')=='FAULT'):
++            self.fault('controller:'+str(report.get('failure_reason') or 'invalid_output'))
++
++    def on_sensor(self,role,msg):
++        expected=self.config['namespace']+('/imu_link' if role=='imu' else '/'+role+'_camera_optical')
++        stamp=ns(msg.header.stamp)
++        if msg.header.frame_id!=expected or stamp<=0:return
++        previous=self.sensor_samples.get(role)
++        if previous is None or stamp>previous[0]:self.sensor_samples[role]=(stamp,time.monotonic_ns())
++
+     def health(self):
+         now=time.monotonic_ns()
+         if self.config['mode']!='simulation_research':return 'not_simulation'
+         if self.estimated_control:
+             if now-self.estimator_wall>250_000_000:return 'estimator_health_stale'
+             if self.estimator.get('state') not in ('READY_STATIC','TRACKING'):return 'estimator_not_ready'
+-            if self.clock_ns is not None and any(self.clock_ns-int(self.estimator.get(k,0)*1e9)>250_000_000 for k in ('image_stamp','imu_stamp')):return 'estimator_sensor_stale'
++            if self.direct_sensor_freshness:
++                error=sensor_freshness_error(self.sensor_samples,now,self.clock_ns)
++                if error:return error
++                for topic in ('sensors/imu','sensors/stereo/left/camera_info','sensors/stereo/right/camera_info'):
++                    if self.count_publishers(topic)!=1:return 'sensor_authority:'+topic
++            elif self.clock_ns is not None and any(self.clock_ns-int(self.estimator.get(k,0)*1e9)>250_000_000 for k in ('image_stamp','imu_stamp')):return 'estimator_sensor_stale'
+             if self.count_publishers('state/odometry')!=1 or self.count_publishers('localization/status')!=1:return 'estimator_authority'
+         if not self.mapping:return 'mapping_not_verified'
+-        if not self.state_valid or now-self.state_wall>250_000_000:return 'state_stale'
++        if not self.state_valid:return (getattr(self,'state_diagnostic',None) or {}).get('reason','invalid_state')
++        if now-self.state_wall>250_000_000:return 'state_stale'
+         if not self.envelope_valid:return 'safety_envelope'
+         if self.clock_ns is None or now-self.clock_wall>250_000_000:return 'clock_stale'
+         if abs(self.clock_ns-self.state_stamp)>250_000_000:return 'state_clock_mismatch'
+@@ -151,7 +214,7 @@ class Guard(Node):
+         elif req.action=='CLEAR_FAULT':
+             error=self.health()
+             if not error:
+-                self.state='DISARMED';self.reason='explicit_reset';self.token='';self.last_request=None;self.gate_message('RESET')
++                self.state='DISARMED';self.reason='explicit_reset';self.token='';self.last_request=None;self.fault_context=None;self.gate_message('RESET')
+         elif req.action=='SELECT_SOURCE':
+             if req.source not in self.defaults['sources']:error='unknown_source'
+             else:
+@@ -206,9 +269,15 @@ class Guard(Node):
+             if error:self.fault(error)
+             else:self.gate_message('LEASE')
+         report=dict(run=self.run,state=self.state,reason=self.reason,source=self.source,generation=self.generation,
+-            state_source='OPENVINS_STEREO_IMU' if self.estimated_control else 'PRIVILEGED_DEBUG',epoch=self.epoch,
+-            ready=self.ready_for_arm,health=self.health(),rejected=self.rejects,last_reject=self.last_reject,
++            state_source=self.estimated_source if self.estimated_control else 'PRIVILEGED_DEBUG',epoch=self.epoch,
++            ready=self.ready_for_arm,health=self.health(),rejected=self.rejects,last_reject=self.last_reject,gate_sequence=self.gate_sequence,
+             request_seq=self.last_sequence,wall_ns=time.monotonic_ns(),deadline_ns=self.deadline)
++        report['state_diagnostic']=getattr(self,'state_diagnostic',None)
++        report['fault_context']=self.fault_context
++        report['localization_policy']=self.localization_tuning
++        if self.direct_sensor_freshness:
++            report['sensor_freshness_source']='validated_stereo_camera_info_and_raw_imu'
++            report['sensor_stamp_ns']={role:value[0] for role,value in self.sensor_samples.items()}
+         self.status.publish(String(data=json.dumps(report)))
+         if self.write_control_status and time.monotonic_ns()-self.last_status_write>100_000_000:
+             temporary=self.run_dir/'control-status.json.tmp';temporary.write_text(json.dumps(report));temporary.replace(self.run_dir/'control-status.json')
+diff --git a/localization/CMakeLists.txt b/localization/CMakeLists.txt
+index b7d1f54..85fbbbb 100644
+--- a/localization/CMakeLists.txt
++++ b/localization/CMakeLists.txt
+@@ -25,6 +25,7 @@ target_include_directories(openvins PRIVATE ${OPENVINS_INCLUDE} ${OpenCV_INCLUDE
+ target_link_libraries(openvins ${OPENVINS_LIBRARY} Eigen3::Eigen ${OpenCV_LIBRARIES} Boost::filesystem Boost::system)
+ ament_target_dependencies(openvins rclcpp sensor_msgs nav_msgs geometry_msgs std_msgs std_srvs rosgraph_msgs tf2_ros tf2_msgs)
+ install(TARGETS openvins DESTINATION lib/${PROJECT_NAME})
++install(PROGRAMS scripts/map_state scripts/goal_keyframes scripts/vins_state DESTINATION lib/${PROJECT_NAME})
+ install(DIRECTORY config/ DESTINATION share/${PROJECT_NAME}/config)
+ 
+ # Optional additive image: older M0-M3 images do not require ORB-SLAM3.
+diff --git a/localization/package.xml b/localization/package.xml
+index fa675fb..02b7c3a 100644
+--- a/localization/package.xml
++++ b/localization/package.xml
+@@ -8,6 +8,10 @@
+   <buildtool_depend>ament_cmake</buildtool_depend>
+   <buildtool_depend>ament_cmake_python</buildtool_depend>
+   <exec_depend>python3-yaml</exec_depend>
++  <exec_depend>python3-numpy</exec_depend>
++  <exec_depend>python3-opencv</exec_depend>
++  <exec_depend>rtabmap_msgs</exec_depend>
++  <exec_depend>rclpy</exec_depend>
+   <depend>rclcpp</depend>
+   <depend>sensor_msgs</depend>
+   <depend>nav_msgs</depend>
+@@ -20,7 +24,8 @@
+   <depend>eigen</depend>
+   <depend>opencv</depend>
+   <exec_depend>uw_perception</exec_depend>
++  <exec_depend>uw_runtime</exec_depend>
+   <export>
+     <build_type>ament_cmake</build_type>
+   </export>
+-</package>
+\ No newline at end of file
++</package>
+diff --git a/localization/src/openvins_node.cpp b/localization/src/openvins_node.cpp
+index 06988f8..c6fa569 100644
+--- a/localization/src/openvins_node.cpp
++++ b/localization/src/openvins_node.cpp
+@@ -32,6 +32,9 @@ class Estimator : public rclcpp::Node {
+  public:
+   Estimator() : Node("openvins") {
+     prefix_=declare_parameter<std::string>("frame_prefix","rov01");
++    odom_frame_=declare_parameter<std::string>("odometry_frame_id",prefix_+"/odom");
++    publish_tf_=declare_parameter<bool>("publish_tf",true);
++    external_tf_authority_=declare_parameter<std::string>("external_tf_authority","");
+     run_=declare_parameter<std::string>("run_id","");
+     allow_static_=declare_parameter<bool>("allow_static_initialization",false);
+     normalized_health_=declare_parameter<bool>("normalize_health_image",false);
+@@ -55,13 +58,16 @@ class Estimator : public rclcpp::Node {
+     tf_monitor_=create_subscription<tf2_msgs::msg::TFMessage>("/tf",rclcpp::QoS(100),
+       [this](tf2_msgs::msg::TFMessage::ConstSharedPtr message,const rclcpp::MessageInfo &info) {
+         for(const auto &t:message->transforms) if(t.child_frame_id==prefix_+"/base_link") {
+-          bool own=false;
++          if(!publish_tf_ && external_tf_authority_.empty())continue;
++          bool own=false,external=false;
+           const auto &gid=info.get_rmw_message_info().publisher_gid;
+           for(const auto &endpoint:get_publishers_info_by_topic("/tf")) {
+             if(endpoint.node_name()==get_name() && endpoint.node_namespace()==get_namespace()
+                 && std::equal(endpoint.endpoint_gid().begin(),endpoint.endpoint_gid().end(),gid.data)) own=true;
++            if(endpoint.node_name()==external_tf_authority_ && endpoint.node_namespace()==get_namespace()
++                && std::equal(endpoint.endpoint_gid().begin(),endpoint.endpoint_gid().end(),gid.data)) external=true;
+           }
+-          if(own && t.header.frame_id==prefix_+"/odom") ++tf_verified_;
++          if((publish_tf_?own:external) && t.header.frame_id==prefix_+"/odom") ++tf_verified_;
+           else {++foreign_tf_;fail("FOREIGN_DYNAMIC_TF");}
+         }
+       });
+@@ -163,7 +169,7 @@ class Estimator : public rclcpp::Node {
+     if(x.segment<3>(7).norm()>max_speed_) {fail("IMPLAUSIBLE_BODY_SPEED");return;}
+     nav_msgs::msg::Odometry o;
+     o.header.stamp=rclcpp::Time(int64_t(std::llround(imu_t_*1e9)),RCL_ROS_TIME);
+-    o.header.frame_id=prefix_+"/odom";o.child_frame_id=prefix_+"/base_link";
++    o.header.frame_id=odom_frame_;o.child_frame_id=prefix_+"/base_link";
+     // OpenVINS stores JPL G->I. Identical xyzw represents Hamilton I->G.
+     auto &q=o.pose.pose.orientation;q.x=x(0);q.y=x(1);q.z=x(2);q.w=x(3);
+     auto &p=o.pose.pose.position;p.x=x(4);p.y=x(5);p.z=x(6);
+@@ -183,7 +189,7 @@ class Estimator : public rclcpp::Node {
+     geometry_msgs::msg::TransformStamped transform;
+     transform.header=o.header;transform.child_frame_id=o.child_frame_id;
+     transform.transform.translation.x=p.x;transform.transform.translation.y=p.y;transform.transform.translation.z=p.z;
+-    transform.transform.rotation=q;tf_->sendTransform(transform);
++    transform.transform.rotation=q;if(publish_tf_)tf_->sendTransform(transform);
+     if(++published_%10==0) {
+       trajectory_.header=o.header;
+       geometry_msgs::msg::PoseStamped pose;pose.header=o.header;pose.pose=o.pose.pose;
+@@ -212,7 +218,8 @@ class Estimator : public rclcpp::Node {
+   }
+   bool normalized_health_=false;
+   size_t raw_features_=0;
+-  std::string prefix_,run_,fault_;
++  std::string prefix_,run_,fault_,odom_frame_,external_tf_authority_;
++  bool publish_tf_=true;
+   ov_msckf::VioManagerOptions options_;
+   std::shared_ptr<ov_msckf::VioManager> app_;
+   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_;
+diff --git a/localization/uw_localization/rtabmap.py b/localization/uw_localization/rtabmap.py
+index 027b8a5..62564b0 100644
+--- a/localization/uw_localization/rtabmap.py
++++ b/localization/uw_localization/rtabmap.py
+@@ -3,7 +3,7 @@ from pathlib import Path
+ import yaml
+ 
+ 
+-def prepare(out, namespace, defaults, *, long_survey=False):
++def prepare(out, namespace, defaults, *, long_survey=False, mapping_prior=False, localization_database=None, session_keyframes=False):
+     out = Path(out)
+     p=yaml.safe_load(Path(defaults).read_text())
+     ns=namespace
+@@ -15,6 +15,24 @@ def prepare(out, namespace, defaults, *, long_survey=False):
+         # Evicted working nodes remain in the database and can be retrieved.
+         p.update({'Grid/CellSize':'0.20','Grid/RangeMax':'10.0','Rtabmap/DetectionRate':'1.0','Mem/STMSize':'30',
+                   'Rtabmap/MemoryThr':'600','Rtabmap/TimeThr':'250'})
++    if mapping_prior:p.update(frame_id=ns+'/mapping_body',odom_frame_id=ns+'/mapping_odom')
++    if localization_database:
++        p.update(frame_id=ns+'/base_link',map_frame_id=ns+'/odom',odom_frame_id='',
++            database_path=str(localization_database),publish_tf=True,initial_pose='0 0 0 0 0 0',
++            pub_loc_pose_only_when_localizing=True)
++        p.update({'Mem/IncrementalMemory':'false','Mem/InitWMWithAllNodes':'true','Mem/LocalizationReadOnly':'true',
++            'Rtabmap/MemoryThr':'0','Rtabmap/TimeThr':'0','Rtabmap/DetectionRate':'1.0',
++            'RGBD/LinearUpdate':'0','RGBD/AngularUpdate':'0','Optimizer/Iterations':'20'})
++        if session_keyframes:
++            # The database is a per-session COPY of the frozen acquisition map.
++            # Retain observations under today's illumination for native visual
++            # registration, including during station keeping. Do not publish
++            # odometry-only frames as fresh visual matches.
++            p.update({'Mem/IncrementalMemory':'true','Mem/LocalizationReadOnly':'false',
++                'Mem/STMSize':'2','Mem/RehearsalSimilarity':'1.0',
++                'RGBD/MaxOdomCacheSize':'0','Vis/MinInliers':'12'})
++    elif session_keyframes:
++        raise ValueError('Session keyframes require a disposable restored database')
+     path=out/'rtabmap-parameters.yaml';path.write_text(yaml.safe_dump({'/**':{'ros__parameters':p}},sort_keys=False))
+     return str(path)
+ 
+diff --git a/navigation/package.xml b/navigation/package.xml
+index b33d1b8..fa95e07 100644
+--- a/navigation/package.xml
++++ b/navigation/package.xml
+@@ -1,3 +1,3 @@
+ <?xml version="1.0"?><package format="3"><name>uw_navigation</name><version>0.1.0</version><description>M3 navigation</description>
+ <maintainer email="ChoujiajunStats@126.com">Jiajun Zhou</maintainer><license>LicenseRef-Not-Yet-Licensed</license>
+-<buildtool_depend>ament_python</buildtool_depend><exec_depend>rclpy</exec_depend><exec_depend>geometry_msgs</exec_depend><exec_depend>nav_msgs</exec_depend><exec_depend>std_msgs</exec_depend><exec_depend>uw_interfaces</exec_depend><exec_depend>python3-yaml</exec_depend><export><build_type>ament_python</build_type></export></package>
++<buildtool_depend>ament_python</buildtool_depend><exec_depend>rclpy</exec_depend><exec_depend>geometry_msgs</exec_depend><exec_depend>nav_msgs</exec_depend><exec_depend>std_msgs</exec_depend><exec_depend>visualization_msgs</exec_depend><exec_depend>sensor_msgs</exec_depend><exec_depend>sensor_msgs_py</exec_depend><exec_depend>tf2_ros</exec_depend><exec_depend>uw_interfaces</exec_depend><exec_depend>uw_runtime</exec_depend><exec_depend>python3-numpy</exec_depend><exec_depend>python3-yaml</exec_depend><export><build_type>ament_python</build_type></export></package>
+diff --git a/navigation/setup.py b/navigation/setup.py
+index 2f736cf..e702883 100644
+--- a/navigation/setup.py
++++ b/navigation/setup.py
+@@ -3,4 +3,4 @@ from setuptools import setup,find_packages
+ setup(name='uw_navigation',version='0.1.0',packages=find_packages(),
+  data_files=[('share/ament_index/resource_index/packages',['resource/uw_navigation']),('share/uw_navigation',['package.xml']),('share/uw_navigation/config',glob('config/*.yaml'))],
+  install_requires=['setuptools'],zip_safe=True,maintainer='Jiajun Zhou',maintainer_email='ChoujiajunStats@126.com',
+- description='M3 navigation',license='LicenseRef-Not-Yet-Licensed',entry_points={'console_scripts':['tracker = uw_navigation.node:main']})
++ description='M3 navigation',license='LicenseRef-Not-Yet-Licensed',entry_points={'console_scripts':['tracker = uw_navigation.node:main','omniplanner = uw_navigation.omniplanner_node:main','planner_goal = uw_navigation.omniplanner_cli:main']})
+diff --git a/navigation/uw_navigation/core.py b/navigation/uw_navigation/core.py
+index d618318..ae19a1e 100644
+--- a/navigation/uw_navigation/core.py
++++ b/navigation/uw_navigation/core.py
+@@ -30,9 +30,24 @@ def guide(position,quaternion,target,target_yaw,p):
+     velocity[2]=max(-p['vertical_speed_m_s'],min(p['vertical_speed_m_s'],velocity[2]))
+     angle=wrap(target_yaw-yaw(quaternion))
+     rate=max(-p['yaw_rate_rad_s'],min(p['yaw_rate_rad_s'],p['yaw_gain']*angle))
++    alignment=p.get('translation_heading_limit_rad')
++    if alignment is not None:
++        if abs(angle)>alignment:velocity=[0.,0.,0.]
++        else:
++            trim=p.get('lateral_correction_m_s',p['horizontal_speed_m_s'])
++            velocity[1]=max(-trim,min(trim,velocity[1]))
+     return velocity+[rate],distance,angle
+ 
+ 
++def settling_reference(command,distance,angle,parameters,braking):
++    """Brake inside the goal band; hysteresis avoids repeatedly accelerating near it."""
++    position=parameters['position_tolerance_m'];heading=parameters['yaw_tolerance_rad']
++    # A stopped point outside the acceptance band must regain position control.
++    if distance>position or abs(angle)>2*heading:braking=False
++    elif distance<.8*position and abs(angle)<heading:braking=True
++    return ([0.]*4 if braking else command),braking
++
++
+ def validate_waypoints(run,expected,mission,authorize,points,timeout,frame,p):
+     if run!=expected:return 'wrong_run'
+     if not authorize:return 'explicit_arm_authorization_required'
+diff --git a/navigation/uw_navigation/node.py b/navigation/uw_navigation/node.py
+index 5ffdeab..14b0a3c 100644
+--- a/navigation/uw_navigation/node.py
++++ b/navigation/uw_navigation/node.py
+@@ -9,7 +9,7 @@ from rclpy.signals import SignalHandlerOptions
+ from nav_msgs.msg import Odometry
+ from std_msgs.msg import String
+ from uw_interfaces.msg import NavigationGoal,ControlRequest
+-from uw_navigation.core import guide,yaw
++from uw_navigation.core import guide,yaw,settling_reference
+ 
+ 
+ class Tracker(Node):
+@@ -18,7 +18,7 @@ class Tracker(Node):
+         self.out=Path(self.declare_parameter('run_dir','').value);self.cfg=yaml.safe_load((self.out/'resolved_config.yaml').read_text());self.ns=self.cfg['namespace']
+         self.p=yaml.safe_load((self.out/'navigation-parameters.yaml').read_text())
+         self.goal=None;self.state=None;self.state_wall=0;self.guard={};self.guard_wall=0;self.last_stamp=0
+-        self.sequence=0;self.goal_sequence=0;self.identity=None;self.dwell=None
++        self.sequence=0;self.goal_sequence=0;self.identity=None;self.dwell=None;self.braking=False
+         self.pub=self.create_publisher(ControlRequest,'control/request',1);self.status=self.create_publisher(String,'navigation/status',1)
+         self.create_subscription(NavigationGoal,'navigation/goal',self.on_goal,1)
+         self.create_subscription(Odometry,'state/odometry',self.on_state,1)
+@@ -37,7 +37,7 @@ class Tracker(Node):
+         if self.guard.get('source')!='navigation' or self.guard.get('generation')!=m.generation or self.guard.get('epoch')!=m.epoch:return
+         if identity!=self.identity:self.identity=identity;self.goal_sequence=0;self.sequence=0;self.dwell=None
+         if m.sequence<=self.goal_sequence:return
+-        if self.goal is None or self.goal.waypoint_index!=m.waypoint_index:self.dwell=None
++        if self.goal is None or self.goal.waypoint_index!=m.waypoint_index:self.dwell=None;self.braking=False
+         self.goal_sequence=m.sequence;self.goal=m
+     def tick(self):
+         now=time.monotonic_ns();g=self.goal;s=self.state
+@@ -50,6 +50,8 @@ class Tracker(Node):
+             p=s.pose.pose.position;q=s.pose.pose.orientation;t=g.target.pose.position;r=g.target.pose.orientation;v=s.twist.twist
+             try:
+                 command,distance,angle=guide([p.x,p.y,p.z],[q.x,q.y,q.z,q.w],[t.x,t.y,t.z],yaw([r.x,r.y,r.z,r.w]),self.p)
++                if self.cfg.get('controller_backend')=='tinympc':
++                    command,self.braking=settling_reference(command,distance,angle,self.p,self.braking)
+                 settled=(distance<self.p['position_tolerance_m'] and abs(angle)<self.p['yaw_tolerance_rad'] and
+                     math.sqrt(v.linear.x**2+v.linear.y**2+v.linear.z**2)<self.p['settle_speed_m_s'] and abs(v.angular.z)<self.p['settle_yaw_rate_rad_s'])
+                 self.dwell=(self.dwell or now) if settled else None
+diff --git a/perception/package.xml b/perception/package.xml
+index 95a2403..bd33fd4 100644
+--- a/perception/package.xml
++++ b/perception/package.xml
+@@ -1,2 +1,2 @@
+ <?xml version="1.0"?>
+-<package format="3"><name>uw_perception</name><version>0.2.0</version><description>Validated synchronized stereo and specific-force IMU inputs</description><maintainer email="ChoujiajunStats@126.com">Jiajun Zhou</maintainer><license>LicenseRef-Not-Yet-Licensed</license><buildtool_depend>ament_python</buildtool_depend><exec_depend>rclpy</exec_depend><exec_depend>sensor_msgs</exec_depend><exec_depend>std_msgs</exec_depend><exec_depend>rosgraph_msgs</exec_depend><exec_depend>uw_robot</exec_depend><export><build_type>ament_python</build_type></export></package>
++<package format="3"><name>uw_perception</name><version>0.2.0</version><description>Validated synchronized stereo and specific-force IMU inputs</description><maintainer email="ChoujiajunStats@126.com">Jiajun Zhou</maintainer><license>LicenseRef-Not-Yet-Licensed</license><buildtool_depend>ament_python</buildtool_depend><exec_depend>rclpy</exec_depend><exec_depend>sensor_msgs</exec_depend><exec_depend>stereo_msgs</exec_depend><exec_depend>std_msgs</exec_depend><exec_depend>rosgraph_msgs</exec_depend><exec_depend>python3-opencv</exec_depend><exec_depend>python3-numpy</exec_depend><exec_depend>uw_robot</exec_depend><export><build_type>ament_python</build_type></export></package>
+diff --git a/perception/setup.py b/perception/setup.py
+index 9ce3dd9..3d4cd8b 100644
+--- a/perception/setup.py
++++ b/perception/setup.py
+@@ -1,2 +1,2 @@
+ from setuptools import setup,find_packages
+-setup(name='uw_perception',version='0.2.0',packages=find_packages(),data_files=[('share/ament_index/resource_index/packages',['resource/uw_perception']),('share/uw_perception',['package.xml'])],install_requires=['setuptools'],entry_points={'console_scripts':['sensors = uw_perception.node:main']})
++setup(name='uw_perception',version='0.2.0',packages=find_packages(),data_files=[('share/ament_index/resource_index/packages',['resource/uw_perception']),('share/uw_perception',['package.xml'])],install_requires=['setuptools'],entry_points={'console_scripts':['sensors = uw_perception.node:main','stereo_disparity = uw_perception.stereo_disparity:main','hmu_telemetry = uw_perception.hmu_telemetry:main']})
+diff --git a/runtime/uw_runtime/artifacts.py b/runtime/uw_runtime/artifacts.py
+index f04c9a0..219e664 100644
+--- a/runtime/uw_runtime/artifacts.py
++++ b/runtime/uw_runtime/artifacts.py
+@@ -53,7 +53,8 @@ def source_snapshot(repo, output):
+     excluded = {".git", ".cache", "__pycache__", "build", "install", "log", ".pytest_cache"}
+     with tarfile.open(Path(output) / "source.tar.gz", "w:gz") as archive:
+         for directory, dirs, files in os.walk(repo):
+-            dirs[:] = sorted(d for d in dirs if d not in excluded and not d.endswith(".egg-info"))
++            dirs[:] = sorted(d for d in dirs if d not in excluded and not d.endswith(".egg-info")
++                             and Path(directory) / d != repo / "experiment_results")
+             for filename in sorted(files):
+                 path = Path(directory) / filename
+                 if (filename == ".env" or filename.startswith(".env.") or
+diff --git a/simulations/package.xml b/simulations/package.xml
+index 1035147..01fb88f 100644
+--- a/simulations/package.xml
++++ b/simulations/package.xml
+@@ -12,6 +12,7 @@
+   <exec_depend>sensor_msgs</exec_depend>
+   <exec_depend>tf2_ros</exec_depend>
+   <exec_depend>python3-yaml</exec_depend>
++  <exec_depend>python3-numpy</exec_depend>
+   <exec_depend>uw_robot</exec_depend>
+   <exec_depend>stonefish_ros2</exec_depend>
+   <exec_depend>stonefish_bluerov2</exec_depend>
+@@ -21,4 +22,4 @@
+   <export>
+     <build_type>ament_python</build_type>
+   </export>
+-</package>
+\ No newline at end of file
++</package>
+diff --git a/simulations/uw_simulations/m2_scene.py b/simulations/uw_simulations/m2_scene.py
+index 2f50111..c1e18ff 100644
+--- a/simulations/uw_simulations/m2_scene.py
++++ b/simulations/uw_simulations/m2_scene.py
+@@ -27,6 +27,13 @@ def generate_m2_scene(upstream,template,profile,namespace,output,assets,config,s
+             sensor.find('noise').attrib.update(angle='0',angular_velocity='0.0002',linear_acceleration='0.01')
+         elif name.startswith('camera_'):
+             sensor.set('rate','-1');sensor.set('uw_capture_time','true')
++    if config.get('controller_backend')=='jepa_mppi':
++        pressure=ET.SubElement(robot,'sensor',name='pressure',type='pressure',rate='20.0')
++        ET.SubElement(pressure,'link',name=robot.find('base_link').get('name'))
++        ET.SubElement(pressure,'origin',xyz='0 0 0',rpy='0 0 0')
++        ET.SubElement(pressure,'noise',pressure='5.0')
++        ET.SubElement(pressure,'ros_publisher',topic='sensors/pressure')
++        evidence.update(pressure_rate_hz=20,pressure_density_kg_m3=float(root.find('environment/ocean/water').get('density')))
+     fixture_assets={}
+     if config['scene_profile']=='visual_fixture':
+         # Diagnostic scenery only: original robot mass/buoyancy/drag are untouched.
+diff --git a/simulations/uw_simulations/optics.py b/simulations/uw_simulations/optics.py
+index e3c8f9b..2aad7c1 100644
+--- a/simulations/uw_simulations/optics.py
++++ b/simulations/uw_simulations/optics.py
+@@ -3,23 +3,49 @@ import math
+ import xml.etree.ElementTree as ET
+ 
+ 
++CAVE_WHITE_V1=dict(lighting='cave_white_v1',jerlov=.10,native_flux_each=30000.,
++                   cone_deg=80.,temperature_k=6000.,native_color_rgb=[1.,.95,.90],sun_elevation_deg=-85.,
++                   brightness_reference_native_flux=6000.,emitted_power_multiplier=5.)
++
++
+ def apply_optics(root, settings, namespace):
+     jerlov=settings['jerlov']
+     if not isinstance(jerlov,(int,float)) or not math.isfinite(jerlov) or not 0<=jerlov<=1:
+         raise ValueError('Native Jerlov parameter must be finite in [0,1]')
+     root.find('environment/ocean/water').set('jerlov',str(jerlov))
+-    if settings['lighting']!='robot_spots':raise ValueError('Unsupported survey optical fixture')
++    cave=settings['lighting']=='cave_white_v1'
++    if settings['lighting'] not in ('robot_spots','cave_white_v1'):raise ValueError('Unsupported survey optical fixture')
++    cone=float(settings.get('cone_deg',110.));temperature=float(settings.get('temperature_k',5000.))
++    flux=float(settings['native_flux_each'])
++    if not all(math.isfinite(v) for v in (cone,temperature,flux)) or not (0<cone<180 and 1000<=temperature<=12000 and flux>=0):
++        raise ValueError('Invalid native lamp optics')
++    rgb=settings.get('native_color_rgb')
++    if rgb is not None and (len(rgb)!=3 or any(not math.isfinite(float(v)) or not 0<=v<=1 for v in rgb)):
++        raise ValueError('Invalid native lamp RGB')
++    if cave:
++        # A sunless cave: below-horizon sun removes the non-occluded daylight
++        # contribution of the engine's sky model, without changing the geometry.
++        atmosphere=root.find('environment/atmosphere')
++        if atmosphere is None:atmosphere=ET.SubElement(root.find('environment'),'atmosphere')
++        sun=atmosphere.find('sun')
++        if sun is None:sun=ET.SubElement(atmosphere,'sun')
++        sun.set('azimuth','45.0');sun.set('elevation',str(settings['sun_elevation_deg']))
+     robot=root.find('robot');link=robot.find('base_link').get('name')
+     for light in list(root.findall('light')):
+         if light.get('name','').startswith('porth_'):root.remove(light)
++    for light in list(robot.findall('light')):
++        if light.get('name','').startswith('survey_camera_lamp_'):robot.remove(light)
+     for side in (-1,1):
+         light=ET.SubElement(robot,'light',name=f'survey_camera_lamp_{side}')
+-        ET.SubElement(light,'specs',illuminance=str(settings['native_flux_each']),radius='.025',cone_angle='110')
+-        ET.SubElement(light,'color',temperature='5000')
++        ET.SubElement(light,'specs',illuminance=str(flux),radius='.025',cone_angle=str(cone))
++        ET.SubElement(light,'color',**({'rgb':' '.join(map(str,rgb))} if rgb is not None else {'temperature':str(temperature)}))
+         ET.SubElement(light,'link',name=link)
+         # Native FRD: offset from the stereo lenses, +Z spotlight axis rotated
+         # onto +X. Cameras remain at their original calibrated transforms.
+-        ET.SubElement(light,'origin',xyz=f'0.20 {side*.23} 0.05',rpy=f'0 {math.pi/2} {side*.05}')
+-    return dict(**settings,count=2,cone_deg=110,temperature_k=5000,
++        # Keep the heads outside the stereo lenses. Parallel axes preserve a
++        # broad overlapping measurement area and do not point at nearby water.
++        ET.SubElement(light,'origin',xyz=f'0.35 {side*.322} 0.0' if cave else f'0.20 {side*.23} 0.05',rpy=f'0 {math.pi/2} {0. if cave else side*.05}')
++    return dict(dict(settings),count=2,cone_deg=cone,temperature_k=temperature,
+         sensor_postprocessing='NONE',native_blur_shader='NOT_ENABLED_IN_PINNED_VERSION',
++        native_auto_exposure='UNCHANGED',native_volume_scattering=True,
+         dynamics_changed=False,calibrated_real_water=False)
+diff --git a/tasks/uw_tasks/node.py b/tasks/uw_tasks/node.py
+index cd68aa4..d0aa8d9 100644
+--- a/tasks/uw_tasks/node.py
++++ b/tasks/uw_tasks/node.py
+@@ -92,7 +92,7 @@ class Missions(Node):
+                 else:self.stopping('ABORTED','arm_rejected')
+             if self.phase in ('ARMING','RUNNING'):
+                 if self.mission_handle.is_cancel_requested:self.stopping('CANCELED','explicit_cancel')
+-                elif now-self.started>int(g.timeout_sec*1e9):self.stopping('ABORTED','mission_timeout')
++                elif now-self.started>int((g.timeout_sec-(1. if self.cfg.get('planner_map_navigation') else 0.))*1e9):self.stopping('ABORTED','mission_timeout')
+                 elif self.phase=='RUNNING' and (now-self.guard_wall>250_000_000 or self.guard.get('state')=='FAULT' or self.guard.get('epoch')!=self.epoch):self.stopping('ABORTED','control_or_estimator_fault')
+             if self.phase=='RUNNING':
+                 # Allow the first status from Guard to catch up to the service response.
+diff --git a/test/test_artifacts.py b/test/test_artifacts.py
+index ceec168..a442c68 100644
+--- a/test/test_artifacts.py
++++ b/test/test_artifacts.py
+@@ -41,6 +41,21 @@ class EvidenceContractTests(unittest.TestCase):
+                 self.assertEqual(archive.getnames(), ["code.py"])
+                 self.assertEqual(archive.extractfile("code.py").read(), b"value = 1\n")
+ 
++    def test_in_repository_results_never_enter_source_snapshot(self):
++        with tempfile.TemporaryDirectory() as directory:
++            repo = Path(directory)
++            (repo / 'code.py').write_text('value = 1\n')
++            results = repo / 'experiment_results'
++            output = create_run(results / 'imu', 'snapshot')
++            baseline = create_run(results / 'baseline', 'previous')
++            (baseline / 'logs/previous.log').write_text('prior baseline output\n')
++            (results / 'imu/previous.log').write_text('prior IMU output\n')
++            source_snapshot(repo, output)
++            snapshot = json.loads((output / 'source-state.json').read_text())
++            self.assertEqual(set(snapshot['files_sha256']), {'code.py'})
++            with tarfile.open(output / 'source.tar.gz') as archive:
++                self.assertEqual(archive.getnames(), ['code.py'])
++
+     def test_event_log_appends_and_manifest_update_is_atomic(self):
+         with tempfile.TemporaryDirectory() as directory:
+             output = Path(directory)
+diff --git a/test/test_module_boundaries.py b/test/test_module_boundaries.py
+index 89ab142..08e7d8e 100644
+--- a/test/test_module_boundaries.py
++++ b/test/test_module_boundaries.py
+@@ -24,11 +24,11 @@ ROOT = Path(__file__).resolve().parents[1]
+ ALLOWED = {
+     'uw_runtime': set(), 'uw_robot': set(), 'uw_interfaces': set(), 'uw_ui': set(),
+     'uw_perception': {'uw_robot'},
+-    'uw_localization': {'uw_perception'},
+-    'uw_controller': {'uw_robot', 'uw_interfaces'},
+-    'uw_guard': {'uw_robot', 'uw_interfaces'},
++    'uw_localization': {'uw_perception', 'uw_runtime'},
++    'uw_controller': {'uw_robot', 'uw_interfaces', 'uw_runtime'},
++    'uw_guard': {'uw_robot', 'uw_interfaces', 'uw_runtime'},
+     'uw_simulations': {'uw_robot', 'uw_interfaces', 'uw_perception'},
+-    'uw_navigation': {'uw_interfaces'},
++    'uw_navigation': {'uw_interfaces', 'uw_runtime'},
+     'uw_tasks': {'uw_interfaces', 'uw_navigation'},
+     'uw_benchmark': {'uw_interfaces', 'uw_runtime', 'uw_robot', 'uw_localization',
+                      'uw_navigation', 'uw_perception', 'uw_simulations'},
+diff --git a/test/test_workspace.py b/test/test_workspace.py
+index e202a71..f6bdd25 100644
+--- a/test/test_workspace.py
++++ b/test/test_workspace.py
+@@ -43,11 +43,59 @@ class WorkspaceContracts(unittest.TestCase):
+             orb, _ = compose_env()
+             self.assertNotEqual(core['UW_OVERLAY_VOLUME'], orb['UW_OVERLAY_VOLUME'])
+             self.assertEqual(orb['UW_IMAGE'], 'stonefish-slam:orbslam3')
+-            for forbidden in ('/', str(ROOT), str(ROOT.parent), str(Path.home())):
++            for forbidden in ('/', str(ROOT), str(ROOT.parent), str(Path.home()), str(ROOT / 'config'),
++                              str(ROOT / 'experiment_results/../config'),
++                              str(ROOT / 'experiment_results/imu/../../config'),
++                              str(ROOT / 'experiment_results_other')):
+                 os.environ['UW_DATA_ROOT'] = forbidden
+-                with self.assertRaises(ValueError):
++                with self.subTest(forbidden=forbidden), self.assertRaises(ValueError):
+                     compose_env()
+ 
++    def test_dedicated_in_repository_results_directories_are_allowed(self):
++        with patch.dict(os.environ, {'UW_PROFILE': 'orbslam3'}, clear=True):
++            for relative in ('experiment_results', 'experiment_results/baseline',
++                             'experiment_results/imu', 'experiment_results/future/calibration'):
++                with self.subTest(relative=relative):
++                    os.environ['UW_DATA_ROOT'] = str(ROOT / relative)
++                    env, _ = compose_env()
++                    self.assertEqual(env['UW_DATA_ROOT'], str(ROOT / relative))
++
++    def test_results_symlinks_cannot_grant_source_directory_write_access(self):
++        with tempfile.TemporaryDirectory() as directory:
++            root = Path(directory)
++            repo = root / 'repo'
++            (repo / 'docker').mkdir(parents=True)
++            for name in ('profiles.json', 'base-image.txt'):
++                (repo / 'docker' / name).write_bytes((ROOT / 'docker' / name).read_bytes())
++            source = repo / 'config'
++            source.mkdir()
++            results = repo / 'experiment_results'
++            (results / 'imu').mkdir(parents=True)
++            outside = root / 'dedicated-data'
++            outside.mkdir()
++            (results / 'source-link').symlink_to(source, target_is_directory=True)
++            (root / 'source-alias').symlink_to(source, target_is_directory=True)
++            (results / 'imu-alias').symlink_to(results / 'imu', target_is_directory=True)
++            (results / 'external-link').symlink_to(outside, target_is_directory=True)
++            with patch('uw_workspace.environment.REPO', repo), \
++                    patch.dict(os.environ, {'UW_PROFILE': 'orbslam3'}, clear=True):
++                for path in (results / 'source-link', results / 'source-link/child', root / 'source-alias'):
++                    os.environ['UW_DATA_ROOT'] = str(path)
++                    with self.subTest(rejected=path), self.assertRaises(ValueError):
++                        compose_env()
++                for path, expected in ((results / 'imu-alias', results / 'imu'),
++                                       (results / 'external-link', outside), (outside, outside)):
++                    os.environ['UW_DATA_ROOT'] = str(path)
++                    with self.subTest(allowed=path):
++                        env, _ = compose_env()
++                        self.assertEqual(env['UW_DATA_ROOT'], str(expected))
++                results.rename(repo / 'prior-results')
++                results.symlink_to(source, target_is_directory=True)
++                for path in (results, results / 'imu'):
++                    os.environ['UW_DATA_ROOT'] = str(path)
++                    with self.subTest(rejected_root_symlink=path), self.assertRaises(ValueError):
++                        compose_env()
++
+     def fixture(self, root):
+         files = {}
+         for name in ('assets/porth_sump9_v1/visual.obj', 'plans/porth-survey-v14/plan.json'):
+diff --git a/tools/uw_workspace/cli.py b/tools/uw_workspace/cli.py
+index a08edf3..8bbc020 100644
+--- a/tools/uw_workspace/cli.py
++++ b/tools/uw_workspace/cli.py
+@@ -35,6 +35,18 @@ def main():
+     m1.add_argument('config',nargs='?',default='config/run.m1.yaml')
+     m2 = commands.add_parser('m2')
+     m2.add_argument('config',nargs='?',default='config/run.m2.yaml')
++    imu = commands.add_parser('imu', help='Static native IMU capture and stochastic-model comparison')
++    imu.add_argument('config', nargs='?', default='config/run.imu.yaml')
++    imu.add_argument('--duration-sec', type=float, help='Capture duration in simulation seconds')
++    imu.add_argument('--seed', type=int)
++    plume = commands.add_parser('plume', help='Offline controlled sediment release and camera obscuration')
++    plume.add_argument('config', nargs='?', default='config/run.plume.yaml')
++    plume.add_argument('--duration-sec', type=float, help='Model duration in simulation seconds')
++    plume.add_argument('--seed', type=int)
++    plume_native = commands.add_parser('plume-native', help='Fixed Stonefish RGB/depth and controlled sediment postprocessing')
++    plume_native.add_argument('config', nargs='?', default='config/run.plume-native.yaml')
++    plume_native.add_argument('--duration-sec', type=float, help='Capture duration in simulation seconds')
++    plume_native.add_argument('--seed', type=int)
+     m3=commands.add_parser('m3');m3.add_argument('config',nargs='?',default='config/run.m3.yaml')
+     coverage=commands.add_parser('survey-coverage');coverage.add_argument('run_id');coverage.add_argument('export_dir')
+     porth=commands.add_parser('porth');porth.add_argument('config',nargs='?',default='config/run.porth.yaml');porth.add_argument('--arm',action='store_true',help='Explicitly authorize the finite prescribed data-collection path')
+@@ -179,10 +191,28 @@ def main():
+                                  "--format", "{{.Id}}"], capture_output=True, text=True, check=True)
+         env["UW_IMAGE_ID"] = result.stdout.strip()
+         compose(["run", "--rm", "--no-deps", "tools", "/workspace/scripts/container-command", "build"], env, project)
+-        env["UW_XAUTH_FILE"] = str(prepare_xauth(temporary))
++        if options.command not in ('imu', 'plume'):
++            env["UW_XAUTH_FILE"] = str(prepare_xauth(temporary))
+         try:
+-            compose(["run", "--rm", "--no-deps", "--name", name, "sim", "ros2", "run", "uw_app", "m3_run" if options.command in ("m3","porth") else "m2_run" if options.command=="m2" else "run",
+-                     "--config", str(Path("/workspace") / config.relative_to(REPO))], env, name)
++            if options.command in ('imu', 'plume'):
++                extra = []
++                for key in ('duration_sec', 'seed'):
++                    value = getattr(options, key)
++                    if value is not None:
++                        extra += ['--' + key.replace('_', '-'), str(value)]
++                compose(['run', '--rm', '--no-deps', '--name', name, 'tools', 'ros2', 'run', 'uw_app',
++                         'imu_run' if options.command == 'imu' else 'plume_run',
++                         '--config', str(Path('/workspace') / config.relative_to(REPO)), *extra], env, name)
++            else:
++                extra = []
++                if options.command == 'plume-native':
++                    for key in ('duration_sec', 'seed'):
++                        value = getattr(options, key)
++                        if value is not None:
++                            extra += ['--' + key.replace('_', '-'), str(value)]
++                executable = 'plume_native_run' if options.command == 'plume-native' else 'm3_run' if options.command in ('m3', 'porth') else 'm2_run' if options.command == 'm2' else 'run'
++                compose(["run", "--rm", "--no-deps", "--name", name, "sim", "ros2", "run", "uw_app", executable,
++                         "--config", str(Path("/workspace") / config.relative_to(REPO)), *extra], env, name)
+         finally:
+             subprocess.run(["docker", "stop", "--time", "20", name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+             compose(["down"], env, name, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+diff --git a/tools/uw_workspace/environment.py b/tools/uw_workspace/environment.py
+index 9a16895..4f8529b 100644
+--- a/tools/uw_workspace/environment.py
++++ b/tools/uw_workspace/environment.py
+@@ -30,8 +30,11 @@ def doctor():
+ def compose_env():
+     env = dict(os.environ)
+     data = Path(env.get("UW_DATA_ROOT", str(Path.home() / ".local/share/stonefish-slam"))).expanduser().resolve()
+-    if data == REPO or data.is_relative_to(REPO) or REPO.is_relative_to(data):
+-        raise ValueError("UW_DATA_ROOT must be a dedicated directory outside the repository and its ancestors")
++    # Check the resolved destination against the literal results subtree, so
++    # a symlink into repository source directories cannot grant write access.
++    if (data == REPO or REPO.is_relative_to(data) or
++            (data.is_relative_to(REPO) and not data.is_relative_to(REPO / "experiment_results"))):
++        raise ValueError("UW_DATA_ROOT must be experiment_results or one of its subdirectories inside the repository, or a dedicated directory outside the repository and its ancestors")
+     # Never mount the complete home directory as the data root.
+     if data == Path.home() or data == Path("/"):
+         raise ValueError("UW_DATA_ROOT cannot be home or filesystem root")
+diff --git a/ui/uw_ui/layouts.py b/ui/uw_ui/layouts.py
+index f7f86c7..76c49d7 100644
+--- a/ui/uw_ui/layouts.py
++++ b/ui/uw_ui/layouts.py
+@@ -56,3 +56,45 @@ def control_layout(template, namespace):
+         {'Class':'rviz_default_plugins/Marker','Name':'Control state','Enabled':True,
+          'Topic':{'Value':f'/{namespace}/control/status_marker','Reliability Policy':'Reliable','Durability Policy':'Volatile','Depth':5}}]
+     return layout
++
++
++def planner_layout(layout,namespace,*,mapped_area=False,full_map=False):
++    """Add goal input and measured map/path displays for the six-thruster session."""
++    m=layout['Visualization Manager'];ns=namespace
++    m['Global Options']['Fixed Frame']=ns+'/map'
++    m['Global Options']['Background Color']='255; 255; 255'
++    m['Tools'].append({'Class':'rviz_default_plugins/PublishPoint','Single click':True,'Topic':'/'+ns+'/goal_point'})
++    m['Tools'].append({'Class':'rviz_default_plugins/SetGoal','Topic':'/'+ns+'/goal_pose'})
++    for display in m['Displays']:
++        if display.get('Class')=='rviz_default_plugins/Grid':display.update({'Cell Size':.2,'Color':'190; 195; 200'})
++        if display.get('Class')=='rviz_default_plugins/RobotModel':display.update({'Name':'BlueROV2 six thrusters','Alpha':.4})
++        if display.get('Name')=='Mission status':display['Enabled']=False
++    m['Displays'] += [
++        {'Class':'rviz_default_plugins/Path','Name':'OmniPlanner validated path','Enabled':True,'Color':'70; 220; 255',
++         'Topic':{'Value':f'/{ns}/planner/path','Reliability Policy':'Reliable','Durability Policy':'Volatile','Depth':1}},
++        {'Class':'rviz_default_plugins/Marker','Name':'Navigation status','Enabled':True,'Topic':{'Value':f'/{ns}/planner/status_marker','Reliability Policy':'Reliable','Durability Policy':'Volatile','Depth':1}},
++        {'Class':'rviz_default_plugins/Marker','Name':'Validated goal centers (includes start prior)','Enabled':True,'Topic':{'Value':f'/{ns}/planner/reachable_goals','Reliability Policy':'Reliable','Durability Policy':'Volatile','Depth':1}}]
++    if not any(d.get('Topic',{}).get('Value')==f'/{ns}/slam/cloud_map' for d in m['Displays']):m['Displays'].append(
++        {'Class':'rviz_default_plugins/PointCloud2','Name':'RTAB-Map stereo map','Enabled':True,
++         'Topic':{'Value':f'/{ns}/slam/cloud_map','Reliability Policy':'Reliable','Durability Policy':'Volatile','Depth':1},
++         'Style':'Points','Size (Pixels)':3,'Color Transformer':'RGB8','Position Transformer':'XYZ'})
++    m['Views']['Current']={'Class':'rviz_default_plugins/TopDownOrtho','Name':'Top down waypoint selection','Target Frame':ns+'/odom','Scale':180.,'X':0.,'Y':0.,'Angle':0.}
++    if mapped_area:
++        for display in m['Displays']:
++            if full_map and display.get('Name','').startswith('Known Porth'):display['Enabled']=False
++            if display.get('Name')=='Validated goal centers (includes start prior)':display['Enabled']=False
++        m['Displays'] += [
++            {'Class':'rviz_default_plugins/Marker','Name':'Mapped free/occupied depth slice','Enabled':True,
++             'Topic':{'Value':f'/{ns}/planner/map_slice','Reliability Policy':'Reliable','Durability Policy':'Volatile','Depth':1}},
++            {'Class':'rviz_default_plugins/Marker','Name':'Click selection plane (not free-space evidence)','Enabled':True,
++             'Topic':{'Value':f'/{ns}/planner/goal_plane','Reliability Policy':'Reliable','Durability Policy':'Volatile','Depth':1}}]
++        m['Views']['Current'].update({'Name':'Built map and target selection','Scale':5. if full_map else 70.})
++
++
++def mapping_prior_layout(layout,namespace,robot_description):
++    """Use the declared mapping pose for the model, with independent sensor TF."""
++    m=layout['Visualization Manager'];m['Global Options']['Fixed Frame']=namespace+'/mapping_odom'
++    m['Views']['Current']['Target Frame']=namespace+'/mapping_odom'
++    for display in m['Displays']:
++        if display.get('Class')=='rviz_default_plugins/RobotModel':
++            display.update({'Name':'BlueROV2 mapping pose','Description Source':'File','Description File':str(robot_description)})

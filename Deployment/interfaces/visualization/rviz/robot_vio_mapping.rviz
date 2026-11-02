@@ -1,0 +1,125 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+- Class: rviz_common/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Enabled: true
+  Global Options:
+    Background Color: 28; 32; 38
+    Fixed Frame: world
+    Frame Rate: 5
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: World grid (0.5 m)
+    Enabled: false
+    Cell Size: 0.5
+    Plane: XY
+    Plane Cell Count: 40
+    Reference Frame: world
+    Value: false
+  - Class: rviz_default_plugins/Axes
+    Name: World axes
+    Enabled: false
+    Length: 0.5
+    Radius: 0.012
+    Reference Frame: world
+    Value: false
+  - Class: nvblox_rviz_plugin/NvbloxMesh
+    Name: Mapping - nvblox TSDF surface
+    Enabled: true
+    Topic:
+      Value: /nvblox_node/mesh
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+    Value: true
+    Cut Ceiling: false
+    Ceiling Height: 1.5
+  - Class: rviz_default_plugins/Marker
+    Name: VIO trajectory
+    Enabled: true
+    Topic:
+      Value: /okvis/okvis_path
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 10
+    Value: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: VIO landmarks
+    Enabled: false
+    Topic:
+      Value: /okvis/okvis_points_matched
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+    Position Transformer: XYZ
+    Color Transformer: FlatColor
+    Color: 255; 210; 80
+    Style: Points
+    Size (Pixels): 3
+    Decay Time: 0
+    Value: false
+  - Class: rviz_default_plugins/Pose
+    Name: VIO camera pose
+    Enabled: true
+    Topic:
+      Value: /visualization/camera_pose
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 5
+    Shape: Axes
+    Axes Length: 0.25
+    Axes Radius: 0.012
+    Value: true
+  - Class: rviz_default_plugins/Path
+    Name: OmniPlanner path (preview)
+    Enabled: false
+    Topic:
+      Value: /omniplanner/path
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Color: 55; 255; 85
+    Alpha: 1
+    Buffer Length: 1
+    Line Style: Billboards
+    Line Width: 0.035
+    Pose Style: None
+    Value: false
+  - Class: rviz_default_plugins/MarkerArray
+    Name: OmniPlanner goal and status
+    Enabled: false
+    Topic:
+      Value: /omniplanner/markers
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Value: false
+  Tools:
+  - Class: rviz_default_plugins/Interact
+  - Class: rviz_default_plugins/MoveCamera
+  - Class: rviz_default_plugins/Select
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 4.0
+      Pitch: 0.65
+      Yaw: 0.8
+      Focal Point:
+        X: 1.0
+        Y: 0
+        Z: 0
+      Target Frame: world
+Window Geometry:
+  Width: 1400
+  Height: 820
+  X: 0
+  Y: 0

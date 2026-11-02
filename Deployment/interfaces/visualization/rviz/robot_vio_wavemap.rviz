@@ -1,0 +1,180 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+- Class: rviz_common/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Enabled: true
+  Global Options:
+    Background Color: 28; 32; 38
+    Fixed Frame: world
+    Frame Rate: 5
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: World grid (0.5 m)
+    Enabled: true
+    Cell Size: 0.5
+    Plane: XY
+    Plane Cell Count: 40
+    Reference Frame: world
+    Value: true
+  - Class: rviz_default_plugins/Axes
+    Name: World axes
+    Enabled: true
+    Length: 0.5
+    Radius: 0.012
+    Reference Frame: world
+    Value: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Mapping - Wavemap CPU
+    Enabled: true
+    Topic:
+      Value: /mapping/occupied
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Value: true
+    Position Transformer: XYZ
+    Color Transformer: FlatColor
+    Color: 75; 220; 130
+    Alpha: 1
+    Style: Flat Squares
+    Size (Pixels): 4
+    Size (m): 0.06
+    Decay Time: 0
+  - Class: rviz_default_plugins/Marker
+    Name: VIO trajectory
+    Enabled: true
+    Topic:
+      Value: /okvis/okvis_path
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 10
+    Value: true
+  - Class: rviz_default_plugins/PointCloud2
+    Name: VIO landmarks
+    Enabled: false
+    Topic:
+      Value: /okvis/okvis_points_matched
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+    Position Transformer: XYZ
+    Color Transformer: FlatColor
+    Color: 255; 210; 80
+    Style: Points
+    Size (Pixels): 3
+    Decay Time: 0
+    Value: false
+  - Class: rviz_default_plugins/Pose
+    Name: VIO camera pose
+    Enabled: true
+    Topic:
+      Value: /visualization/camera_pose
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 5
+    Shape: Axes
+    Axes Length: 0.25
+    Axes Radius: 0.012
+    Value: true
+  - Class: rviz_default_plugins/Path
+    Name: 3D planned path
+    Enabled: true
+    Topic:
+      Value: /planning/path
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Line Style: Lines
+    Line Width: 0.035
+    Color: 40; 220; 240
+    Alpha: 1
+    Buffer Length: 1
+    Pose Style: None
+    Value: true
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Controller status
+    Enabled: true
+    Topic:
+      Value: /control/markers
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Value: true
+  - Class: rviz_default_plugins/Path
+    Name: JEPA predicted trajectory (shadow)
+    Enabled: true
+    Topic:
+      Value: /control/predicted_path
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Line Style: Lines
+    Line Width: 0.025
+    Color: 255; 165; 55
+    Alpha: 1
+    Buffer Length: 1
+    Pose Style: None
+    Value: true
+  - Class: rviz_default_plugins/Path
+    Name: Controller timed reference
+    Enabled: true
+    Topic:
+      Value: /control/reference_path
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Line Style: Lines
+    Line Width: 0.025
+    Color: 225; 235; 245
+    Alpha: 1
+    Buffer Length: 1
+    Pose Style: None
+    Value: true
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Planning goal and status
+    Enabled: true
+    Topic:
+      Value: /omniplanner/markers
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+    Value: true
+  Tools:
+  - Class: rviz_default_plugins/Interact
+  - Class: rviz_default_plugins/MoveCamera
+  - Class: rviz_default_plugins/Select
+  - Class: rviz_default_plugins/SetGoal
+    Topic:
+      Value: /omniplanner/goal
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 5
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 8
+      Pitch: 0.65
+      Yaw: 0.8
+      Focal Point:
+        X: 2
+        Y: 0
+        Z: 0
+      Target Frame: world
+Window Geometry:
+  Width: 1400
+  Height: 820
+  X: 0
+  Y: 0

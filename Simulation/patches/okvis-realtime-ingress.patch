@@ -1,0 +1,213 @@
+--- a/okvis_ros2/include/okvis/ros2/Publisher.hpp
++++ b/okvis_ros2/include/okvis/ros2/Publisher.hpp
+@@ -41,6 +41,8 @@
+ #define INCLUDE_OKVIS_ROS2_PUBLISHER_HPP_
+ 
+ #include <memory>
++#include <mutex>
++#include <chrono>
+ 
+ #if __has_include(<cv_bridge/cv_bridge.hpp>) // requires GCC >= 5
+ #include <cv_bridge/cv_bridge.hpp>
+@@ -190,7 +192,8 @@
+   /// @{
+ 
+   std::vector<ImuMeasurement> imuMeasurements_; ///< Buffered IMU measurements (realtime pub.).
+-  std::atomic_bool trajectoryLocked_; ///< Lock the trajectory object (realtime/update are async.).
++  std::mutex trajectoryMutex_; ///< Synchronize all trajectory mutation and state queries.
++  std::chrono::steady_clock::time_point lastPropagationStatsLog_{}; ///< Ingress-thread-only diagnostics.
+   okvis::Trajectory trajectory_; ///< Underlying trajectory object for state queries.
+   okvis::kinematics::Transformation T_BS_; ///< Body-IMU transform.
+   visualization_msgs::msg::Marker meshMsg_; ///< Mesh message.
+--- a/okvis_ros2/src/Publisher.cpp
++++ b/okvis_ros2/src/Publisher.cpp
+@@ -49,7 +49,7 @@
+ 
+ // Default constructor.
+ Publisher::Publisher(std::shared_ptr<rclcpp::Node> node)
+-    : trajectoryOutput_(false), trajectoryLocked_(false)
++    : trajectoryOutput_(false)
+ {
+   setupNode(node);
+ }
+@@ -146,14 +146,21 @@
+                          const Eigen::Vector3d& alpha,
+                          const Eigen::Vector3d& omega) {
+ 
++  const auto propagationEntry = std::chrono::steady_clock::now();
++
+   // store in any case
+   imuMeasurements_.push_back(ImuMeasurement(stamp, ImuSensorReadings(omega,alpha)));
+ 
+   // add to Trajectory if possible
+   bool success = false;
+   State state;
+-  if(!trajectoryLocked_) {
+-    trajectoryLocked_ = true;
++  {
++    // Keep the original busy-buffer behavior: this callback never waits for an
++    // optimized update, and the next IMU call drains the retained real samples.
++    std::unique_lock<std::mutex> lock(trajectoryMutex_, std::try_to_lock);
++    if(!lock.owns_lock()) {
++      return false;
++    }
+     for(auto & imuMeasurement : imuMeasurements_) {
+       State propagatedState;
+       if(trajectory_.addImuMeasurement(imuMeasurement.timeStamp,
+@@ -165,12 +172,9 @@
+       }
+     }
+     imuMeasurements_.clear();
+-    trajectoryLocked_ = false;
+     if(!success) {
+       return false;
+     }
+-  } else {
+-    return false;
+   }
+ 
+   // only publish according to rate
+@@ -224,6 +228,18 @@
+ 
+   // publish odometry
+   pubObometry_->publish(odometryMsg);
++  // Low-rate evidence only. Neither timestamp is substituted into the state:
++  // the published header remains the original propagated IMU acquisition time.
++  if(propagationEntry-lastPropagationStatsLog_ >= std::chrono::seconds(5)) {
++    lastPropagationStatsLog_ = propagationEntry;
++    const auto published = std::chrono::steady_clock::now();
++    LOG(INFO) << "Pelagos IMU propagation acquisition_ns=" << stamp.toNSec()
++              << " entry_steady_ns=" << std::chrono::duration_cast<std::chrono::nanoseconds>(
++                   propagationEntry.time_since_epoch()).count()
++              << " published_state_ns=" << state.timestamp.toNSec()
++              << " publish_steady_ns=" << std::chrono::duration_cast<std::chrono::nanoseconds>(
++                   published.time_since_epoch()).count();
++  }
+   return true;
+ }
+ 
+@@ -306,10 +322,10 @@
+ 
+   // update Trajectory object
+   std::set<okvis::StateId> affectedStateIds;
+-  while(trajectoryLocked_);
+-  trajectoryLocked_ = true;
+-  trajectory_.update(trackingState, updatedStates, affectedStateIds);
+-  trajectoryLocked_ = false;
++  {
++    std::lock_guard<std::mutex> lock(trajectoryMutex_);
++    trajectory_.update(trackingState, updatedStates, affectedStateIds);
++  }
+ 
+   // now for the path (in segments of 1000 state IDs)
+   visualization_msgs::msg::Marker path; // The path message.
+@@ -341,7 +357,12 @@
+   if(path.id != 0) {
+     // link to previous path segment
+     okvis::State state;
+-    if(trajectory_.getState(okvis::StateId(path.id-1), state)) {
++    bool stateFound;
++    {
++      std::lock_guard<std::mutex> lock(trajectoryMutex_);
++      stateFound = trajectory_.getState(okvis::StateId(path.id-1), state);
++    }
++    if(stateFound) {
+       const okvis::kinematics::Transformation T_WB_p = state.T_WS * T_SB;
+       const Eigen::Vector3d& r = T_WB_p.r();
+       geometry_msgs::msg::Point point;
+@@ -363,7 +384,12 @@
+       path.points.push_back(lastPoint);
+     }
+     okvis::State state;
+-    if(!trajectory_.getState(okvis::StateId(id), state)) continue;
++    bool stateFound;
++    {
++      std::lock_guard<std::mutex> lock(trajectoryMutex_);
++      stateFound = trajectory_.getState(okvis::StateId(id), state);
++    }
++    if(!stateFound) continue;
+     const okvis::kinematics::Transformation T_WB_p = state.T_WS * T_SB;
+     const Eigen::Vector3d& r = T_WB_p.r();
+     geometry_msgs::msg::Point point;
+--- a/okvis_ros2/src/okvis_node_subscriber.cpp
++++ b/okvis_ros2/src/okvis_node_subscriber.cpp
+@@ -38,6 +38,11 @@
+  */
+ 
+ #include <functional>
++#include <algorithm>
++#include <atomic>
++#include <chrono>
++#include <exception>
++#include <thread>
+ #include <iostream>
+ #include <fstream>
+ #include <iostream>
+@@ -121,18 +126,57 @@
+     shtdown = true; 
+   });
+   
+-  // Main loop
+-  while (true) {
+-    rclcpp::spin_some(node);
+-    estimator.processFrame();
+-    std::map<std::string, cv::Mat> images;
+-    estimator.display(images);
+-    publisher.publishImages(images);
+-    if(shtdown) {
+-      break;
++  // Keep all ROS callbacks mutually serial, but independent of visual work.
++  // The source estimator receives images/IMU through its threadsafe queues.
++  rclcpp::executors::SingleThreadedExecutor ingressExecutor;
++  ingressExecutor.add_node(node);
++  std::exception_ptr ingressError;
++  std::thread ingress([&]() {
++    try {
++      ingressExecutor.spin();
++    } catch(...) {
++      ingressError = std::current_exception();
+     }
++    shtdown.store(true);
++  });
++  auto stopIngress = [&]() {
++    ingressExecutor.cancel();
++    if(ingress.joinable()) ingress.join();
++    subscriber.shutdown();
++  };
++
++  LOG(INFO) << "Pelagos native single-threaded ROS ingress created; visual work stays on main";
++
++  auto lastProcessingStats = std::chrono::steady_clock::now();
++  double maximumProcessingMs = 0.0, totalProcessedMs = 0.0;
++  uint64_t processedCalls = 0;
++  try {
++    while(rclcpp::ok() && !shtdown.load()) {
++      const auto started = std::chrono::steady_clock::now();
++      const bool processed = estimator.processFrame();
++      const double elapsedMs = std::chrono::duration<double, std::milli>(
++          std::chrono::steady_clock::now()-started).count();
++      maximumProcessingMs = std::max(maximumProcessingMs, elapsedMs);
++      if(processed) { totalProcessedMs += elapsedMs; ++processedCalls; }
++      std::map<std::string, cv::Mat> images;
++      estimator.display(images);
++      publisher.publishImages(images);
++      const auto now = std::chrono::steady_clock::now();
++      if(now-lastProcessingStats >= std::chrono::seconds(5)) {
++        LOG(INFO) << "Pelagos visual processFrame max_ms=" << maximumProcessingMs
++                  << " true_calls=" << processedCalls
++                  << " true_mean_ms=" << (processedCalls ? totalProcessedMs/processedCalls : 0.0);
++        lastProcessingStats = now;
++        maximumProcessingMs = totalProcessedMs = 0.0; processedCalls = 0;
++      }
++    }
++  } catch(...) {
++    stopIngress();
++    throw;
+   }
+-  subscriber.shutdown();
++  // Join callback execution before destroying its Subscriber/estimator/Publisher.
++  stopIngress();
++  if(ingressError) std::rethrow_exception(ingressError);
+       
+   // final BA if needed
+   if(parameters.estimator.do_final_ba) {

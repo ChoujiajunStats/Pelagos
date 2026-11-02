@@ -1,0 +1,14 @@
+repository_root: /opt/uw/jepa-mppi/source
+checkpoint: checkpoints/stage2_zhat_response_potential_full4096_four_modal_e5.pt
+mppi_config: src/disaware_learning/config/jepa_mppi_feedback_search.json
+device: cuda
+torch_threads: 1
+# The model runs at 10 Hz independently of the 50 Hz ROS output loop.
+mppi_overrides:
+  sample_count: 128
+  planner_latency_compensation_seconds: 0.08
+# Gradual guidance changes are allowed while a 10 Hz solve is in flight.
+target_change_tolerance: [0.025, 0.025, 0.015, 0.025]
+# Stonefish reports gauge pressure. Match the scene's water density.
+fluid_density_kg_m3: 1031.0
+surface_pressure_pa: 0.0

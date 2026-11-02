@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "organization": "bounded context first, files grouped by responsibility inside each task",
+  "contexts": {
+    "sensing": {
+      "dependencies": [],
+      "owns": [
+        "stereo images",
+        "raw IMU",
+        "camera device lifecycle"
+      ],
+      "path": "Deployment/contexts/sensing"
+    },
+    "localization": {
+      "dependencies": [
+        "sensing"
+      ],
+      "owns": [
+        "OKVIS2 process",
+        "body to camera pose adaptation"
+      ],
+      "path": "Deployment/contexts/localization"
+    },
+    "depth": {
+      "dependencies": [
+        "sensing"
+      ],
+      "owns": [
+        "LAS2 model adapter",
+        "rectification",
+        "metric optical Z depth"
+      ],
+      "path": "Deployment/contexts/depth"
+    },
+    "mapping": {
+      "dependencies": [
+        "depth",
+        "localization"
+      ],
+      "owns": [
+        "Wavemap or nvblox integration adapters",
+        "native occupancy or TSDF state"
+      ],
+      "path": "Deployment/contexts/mapping"
+    },
+    "planning": {
+      "dependencies": [
+        "mapping",
+        "localization"
+      ],
+      "owns": [
+        "goal updates",
+        "known-free collision validation",
+        "Wavestar or OmniPlanner preview"
+      ],
+      "path": "Deployment/contexts/planning"
+    },
+    "control": {
+      "dependencies": [
+        "planning",
+        "localization"
+      ],
+      "owns": [
+        "real observation and TX history",
+        "JEPA-MPPI runtime",
+        "single HMU writer",
+        "manual-priority mux"
+      ],
+      "path": "Deployment/contexts/control"
+    },
+    "navigation": {
+      "dependencies": [
+        "mapping",
+        "planning"
+      ],
+      "owns": [
+        "integrated map management and search application",
+        "mesh extraction for visualization"
+      ],
+      "path": "Deployment/contexts/navigation"
+    }
+  },
+  "application": "Deployment/application",
+  "interfaces": "Deployment/interfaces",
+  "shared_kernel": "Deployment/contracts",
+  "infrastructure": "Deployment/infrastructure",
+  "configuration": "Deployment/config",
+  "artifacts": "Deployment/artifacts",
+  "verification": "Deployment/tests",
+  "rules": {
+    "dependency_graph_is_acyclic": true,
+    "thirdparty_algorithms_remain_in_TP": true,
+    "no_live_robot_calls_during_delivery_verification": true,
+    "no_runtime_preloaded_environment_map": true
+  },
+  "pure_domain_files": [
+    "Deployment/contexts/control/core/geometry.py",
+    "Deployment/contexts/control/core/collision.py",
+    "Deployment/contexts/control/core/clock_sync.py",
+    "Deployment/contexts/control/core/history.py",
+    "Deployment/contexts/control/core/motor_contract.py",
+    "Deployment/contexts/depth/core/metric_depth.py",
+    "Deployment/contexts/planning/core/planning_grid.py"
+  ],
+  "pure_domain_forbidden_imports": [
+    "rclpy",
+    "rclcpp",
+    "rospy",
+    "torch",
+    "aiohttp",
+    "hmu_bridge"
+  ],
+  "native_build": {
+    "source": "Deployment/contexts/navigation/core",
+    "artifacts_are_platform_specific": true
+  },
+  "role_names": [
+    "core",
+    "adapters",
+    "services",
+    "scripts",
+    "config",
+    "tests"
+  ],
+  "entrypoint": "Deployment/run.sh"
+}

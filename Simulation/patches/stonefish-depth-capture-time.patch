@@ -1,0 +1,92 @@
+--- a/Library/include/sensors/vision/DepthCamera.h
++++ b/Library/include/sensors/vision/DepthCamera.h
+@@ -67,6 +67,8 @@
+          \param up a unit vector pointing up (from center of image to the top edge of the image)
+          */
+         void SetupCamera(const Vector3& eye, const Vector3& dir, const Vector3& up);
++        Scalar getCaptureTime() const { return pelagosCaptureTime; }
++        void setCaptureTime(Scalar time) { pelagosCaptureTime = time; }
+         
+         //! A method used to inform about new data.
+         /*!
+@@ -102,6 +104,7 @@
+     private:
+         void InitGraphics();
+         
++        Scalar pelagosCaptureTime = Scalar(-1);
+         OpenGLDepthCamera* glCamera;
+         GLfloat* imageData;
+         glm::vec2 depthRange;
+--- a/Library/include/graphics/OpenGLDepthCamera.h
++++ b/Library/include/graphics/OpenGLDepthCamera.h
+@@ -107,6 +107,7 @@
+         
+         //! A method that updates camera world transform.
+         void UpdateTransform();
++        void setCaptureTime(double time) { pelagosTempCaptureTime = time; }
+ 
+         //! A method that flags the camera as needing update.
+         void Update();
+@@ -140,6 +141,9 @@
+         void LinearizeDepth();
+         void Depth2LinearRanges();
+         
++        double pelagosTempCaptureTime = -1.0;
++        double pelagosRenderCaptureTime = -1.0;
++        double pelagosPBOTimestamp = -1.0;
+         Camera* camera;
+         unsigned int idx;
+         glm::mat4 cameraTransform;
+--- a/Library/src/sensors/vision/DepthCamera.cpp
++++ b/Library/src/sensors/vision/DepthCamera.cpp
+@@ -26,6 +26,7 @@
+ #include "sensors/vision/DepthCamera.h"
+ 
+ #include "core/GraphicalSimulationApp.h"
++#include "core/SimulationManager.h"
+ #include "graphics/OpenGLPipeline.h"
+ #include "graphics/OpenGLContent.h"
+ #include "graphics/OpenGLDepthCamera.h"
+@@ -91,6 +92,7 @@
+     glm::vec3 dir_ = glm::vec3((GLfloat)dir.x(), (GLfloat)dir.y(), (GLfloat)dir.z());
+     glm::vec3 up_ = glm::vec3((GLfloat)up.x(), (GLfloat)up.y(), (GLfloat)up.z());
+     glCamera->SetupCamera(eye_, dir_, up_);
++    glCamera->setCaptureTime(SimulationApp::getApp()->getSimulationManager()->getSimulationTime());
+ }
+ 
+ void DepthCamera::InstallNewDataHandler(std::function<void(DepthCamera*)> callback)
+--- a/Library/src/graphics/OpenGLDepthCamera.cpp
++++ b/Library/src/graphics/OpenGLDepthCamera.cpp
+@@ -28,6 +28,7 @@
+ #include "core/GraphicalSimulationApp.h"
+ #include "entities/SolidEntity.h"
+ #include "sensors/vision/Camera.h"
++#include "sensors/vision/DepthCamera.h"
+ #include "graphics/OpenGLState.h"
+ #include "graphics/GLSLShader.h"
+ #include "graphics/OpenGLPipeline.h"
+@@ -138,6 +139,7 @@
+ 
+ void OpenGLDepthCamera::UpdateTransform()
+ {
++    pelagosRenderCaptureTime = pelagosTempCaptureTime;
+     eye = tempEye;
+     dir = tempDir;
+     up = tempUp;
+@@ -150,6 +152,8 @@
+         GLfloat* src = (GLfloat*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+         if(src)
+         {
++            if(auto* depth = dynamic_cast<DepthCamera*>(camera))
++                depth->setCaptureTime(pelagosPBOTimestamp);
+             camera->NewDataReady(src, idx);
+             glUnmapBuffer(GL_PIXEL_PACK_BUFFER); //Release pointer to the mapped buffer
+         }
+@@ -329,6 +333,7 @@
+                 
+         OpenGLState::BindTexture(TEX_POSTPROCESS1, GL_TEXTURE_2D, linearDepthTex);
+         glBindBuffer(GL_PIXEL_PACK_BUFFER, linearDepthPBO);
++        pelagosPBOTimestamp = pelagosRenderCaptureTime;
+         glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, NULL);
+         glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+         OpenGLState::UnbindTexture(TEX_POSTPROCESS1);

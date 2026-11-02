@@ -1,0 +1,424 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-11-02T04:04:28.303615+00:00",
+  "scope": "TP local metadata/source inventory only. No network restoration performed; not a complete reproducibility/environment lock.",
+  "policies": {
+    "existing_paths": "Never overwrite/reset/pull existing paths",
+    "git_lfs": "Bootstrap sets GIT_LFS_SKIP_SMUDGE=1; weights/assets separate",
+    "source_deltas": "No verified source delta in usable Git repos; nvblox dirty is checked LFS expansion. Incomplete/no.git sources have unknown delta; manual recovery, no speculative patch.",
+    "build_patches": "Simulation/patches and Simulation/nbv/patch_sources.py patch copied build trees only."
+  },
+  "dependencies": [
+    {
+      "id": "wavestar",
+      "path": "TP/Planner/wavestar",
+      "kind": "git_pin",
+      "url": "https://github.com/ethz-asl/wavestar.git",
+      "commit": "8880f3259b515ad680a813e2e2eb5fe40bbe9e44",
+      "commit_evidence": "Own local.git refs/HEAD; commit object available=True",
+      "metadata_health": "usable",
+      "dirty": {
+        "state": "clean",
+        "porcelain": ""
+      },
+      "submodule_status": "",
+      "restore": {
+        "automatic": true,
+        "recursive_submodules": true,
+        "patches": []
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "c4ebd4cc429f06c1f150b251b4ddcb78027e6c3e1aceddaedc68f80234428b71",
+        "files": 28,
+        "bytes": 96654,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      }
+    },
+    {
+      "id": "omniplanner",
+      "path": "TP/Planner/OmniPlanner",
+      "kind": "git_pin",
+      "url": "https://github.com/ntnu-arl/gbplanner_ros.git",
+      "commit": "f9904bb69392d2d46b2cbe939762f967a65daa14",
+      "commit_evidence": "Own local.git refs/HEAD; commit object available=True",
+      "metadata_health": "usable",
+      "dirty": {
+        "state": "clean",
+        "porcelain": ""
+      },
+      "submodule_status": "",
+      "restore": {
+        "automatic": true,
+        "recursive_submodules": true,
+        "patches": []
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "e5f6aaa911953391c1a94c6c7f5bc8da7c2cee17274fc68f4207c051fb22c5c2",
+        "files": 240,
+        "bytes": 18969704,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      }
+    },
+    {
+      "id": "okvis2",
+      "path": "TP/Localization/okvis2",
+      "kind": "git_pin",
+      "url": "https://github.com/ethz-mrl/okvis2.git",
+      "commit": "a2ea00688cd10988aae7bd52ab7935ce9a657ec0",
+      "commit_evidence": "Own local.git refs/HEAD; commit object available=False",
+      "metadata_health": "incomplete",
+      "dirty": {
+        "state": "unknown",
+        "porcelain": null
+      },
+      "submodule_status": null,
+      "restore": {
+        "automatic": false,
+        "recursive_submodules": true,
+        "patches": [],
+        "reason": "HEAD ref recorded but commit object unavailable; several external submodule.git files empty. Current local delta unknown; restore/verify manually before disposable build patches."
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "0948e8057157c1c593f007a00a37e4194b7519f5917d125c09e8ca4484d2cb9d",
+        "files": 1708,
+        "bytes": 24113190,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      }
+    },
+    {
+      "id": "zed_ros2_wrapper",
+      "path": "TP/Sensors/zed-ros2-wrapper",
+      "kind": "git_pin",
+      "url": "https://github.com/stereolabs/zed-ros2-wrapper.git",
+      "commit": "86171bccda22de6e83ccc69b3c0e67af99dece7c",
+      "commit_evidence": "Own local.git refs/HEAD; commit object available=True",
+      "metadata_health": "usable",
+      "dirty": {
+        "state": "clean",
+        "porcelain": ""
+      },
+      "submodule_status": "",
+      "restore": {
+        "automatic": true,
+        "recursive_submodules": true,
+        "patches": []
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "97b02a2fbd514e834535611b298493aeb5c8c4bfc88a444844cdbda485d92f7f",
+        "files": 94,
+        "bytes": 1588180,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      }
+    },
+    {
+      "id": "nvblox",
+      "path": "TP/Mapping/nvblox",
+      "kind": "git_pin",
+      "url": "https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_nvblox.git",
+      "commit": "4e5732317ff10bb875b7c2f812ad9452f122bbab",
+      "commit_evidence": "Own local.git refs/HEAD; commit object available=True",
+      "metadata_health": "usable",
+      "dirty": {
+        "state": "dirty",
+        "porcelain": " M nvblox_ros/nvblox_core\n M nvblox_ros/test/integration_tests/test_cases/rosbags/nvblox_pol/metadata.yaml\n M nvblox_ros/test/integration_tests/test_cases/rosbags/nvblox_pol/rosbag2_2024_05_07-11_54_22_0.db3\n M nvblox_rviz_plugin/icons/classes/NvbloxMesh.png\n M resources/nvblox_performance_setup.png",
+        "classification": "Git LFS materialization only",
+        "verified_materialized_lfs_files": 4,
+        "verification": "Each changed regular file SHA256/size matched its HEAD LFS pointer. Parent submodule change is also LFS materialization; no source patch generated."
+      },
+      "submodule_status": " ff4409b34f5d8434734a0028a936c9d294f372d8 nvblox_ros/nvblox_core (ff4409b)",
+      "restore": {
+        "automatic": true,
+        "recursive_submodules": true,
+        "patches": []
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "ec128b2edb6df7329ec3d088de6ccd9a4604d1eb2bbf1e7529a5935113772299",
+        "files": 709,
+        "bytes": 6101090,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      }
+    },
+    {
+      "id": "nvblox_core",
+      "path": "TP/Mapping/nvblox/nvblox_ros/nvblox_core",
+      "kind": "git_pin",
+      "url": "https://github.com/nvidia-isaac/nvblox.git",
+      "commit": "ff4409b34f5d8434734a0028a936c9d294f372d8",
+      "commit_evidence": "Own local.git refs/HEAD; commit object available=True",
+      "metadata_health": "usable",
+      "dirty": {
+        "state": "dirty",
+        "porcelain": " M docs/images/3dmatch.gif\n M docs/images/collision_field_exclusion.gif\n M docs/images/dynamic_office_reconstruction.gif\n M docs/images/jetson_nano_reconstruction.gif\n M docs/images/map_structure.png\n M docs/images/mapper.png\n M docs/images/multi_realsense_galileo.gif\n M docs/images/nvblox_logo.png\n M docs/images/nvblox_logo_128.png\n M docs/images/nvblox_logo_32.png\n M docs/images/nvblox_logo_64.png\n M docs/images/nvblox_manipulation.gif\n M docs/images/nvblox_navigation_trim.gif\n M docs/images/nvblox_slice.gif\n M docs/images/readme_nav2.gif\n M docs/images/reconstruction_in_docker_trim.png\n M docs/images/redwood_apartment.png\n M docs/images/replica_office0.png\n M docs/images/system_diagram.png",
+        "classification": "Git LFS materialization only",
+        "verified_materialized_lfs_files": 19,
+        "verification": "All19 changed docs images matched HEAD LFS pointer SHA256 and size; no source delta."
+      },
+      "submodule_status": "",
+      "restore": {
+        "automatic": false,
+        "reason": "Restored by parent recursive submodule checkout",
+        "patches": []
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "16a31978787a9663cb97ce66b7f0309103cd4f229a69a94ee2ffaa3649e8a76b",
+        "files": 510,
+        "bytes": 4991237,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "managed_by": "nvblox"
+    },
+    {
+      "id": "nbvplanner",
+      "path": "TP/Planner/nbvplanner",
+      "kind": "recorded_git_pin",
+      "url": "https://github.com/ethz-asl/nbvplanner",
+      "commit": "5c07657af18f967d7049d187db0607024746a42c",
+      "commit_evidence": "Simulation/nbv/source-lock.json, not current local Git HEAD",
+      "metadata_health": "no_own_git",
+      "dirty": {
+        "state": "not_verifiable_against_HEAD",
+        "present_locked_files_match": 30,
+        "pruned_or_missing_locked_files": [
+          "demo/exploration1.png",
+          "demo/exploration2.png",
+          "demo/exploration3.png",
+          "demo/exploration4.png",
+          "demo/exploration5.png",
+          "demo/exploration6.png",
+          "demo/mesh.png",
+          "demo/neo_mav.JPG",
+          "demo/pointcloud.png",
+          "demo/rotors.png",
+          "interface_nbvp_rotors/CMakeLists.txt",
+          "interface_nbvp_rotors/launch/area_exploration.launch",
+          "interface_nbvp_rotors/launch/multiagent_area_exploration.launch",
+          "interface_nbvp_rotors/launch/multiagent_flat_exploration.launch",
+          "interface_nbvp_rotors/mesh/meshFlat.stl",
+          "interface_nbvp_rotors/package.xml",
+          "interface_nbvp_rotors/worlds/flat.world",
+          "prune_pointcloud/CMakeLists.txt",
+          "prune_pointcloud/include/prune_pointcloud/prune.h",
+          "prune_pointcloud/launch/prune_pointcloud.launch",
+          "prune_pointcloud/package.xml",
+          "prune_pointcloud/src/prune.cc",
+          "prune_pointcloud/src/prune_node.cc"
+        ]
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "eda51e7432dd5c873fe2e2bfa27f2a6d74d5635b6c3904dd8445b59aac38df3f",
+        "files": 50,
+        "bytes": 236824,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": true,
+        "recursive_submodules": true,
+        "patches": [],
+        "reason": "Recorded upstream pin; present local source-lock Git blobs match."
+      }
+    },
+    {
+      "id": "volumetric_mapping",
+      "path": "TP/Planner/nbvplanner/volumetric_mapping",
+      "kind": "recorded_git_pin",
+      "url": "https://github.com/ethz-asl/volumetric_mapping",
+      "commit": "f4f7ba585d3020bfe2d453a194f288225332ff33",
+      "commit_evidence": "Simulation/nbv/source-lock.json, not current local Git HEAD",
+      "metadata_health": "no_own_git",
+      "dirty": {
+        "state": "not_verifiable_against_HEAD",
+        "present_locked_files_match": 20,
+        "pruned_or_missing_locked_files": [
+          "volumetric_mapping/CMakeLists.txt",
+          "volumetric_mapping/package.xml"
+        ]
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "0852b0069757ba39fbe7ab9abcf9e790664d1be0b907220382d5939ae7245c64",
+        "files": 20,
+        "bytes": 108295,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": false,
+        "recursive_submodules": true,
+        "patches": [],
+        "reason": "Recorded upstream pin; present local source-lock Git blobs match."
+      },
+      "managed_by": "nbvplanner"
+    },
+    {
+      "id": "wavemap",
+      "path": "TP/Mapping/wavemap",
+      "kind": "manual_required",
+      "url": "https://github.com/ethz-asl/wavemap.git",
+      "commit": "db4f2fffdc1da1bec042d51bfff58029c0c9c827",
+      "commit_evidence": "Declared project lock: Deployment/artifacts/locks/algorithm-sources.json; own.git HEAD/config empty, current working-tree equivalence unknown",
+      "dirty": {
+        "state": "unknown"
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "2dccd510f1900f3c6e424dc5c8470c46413630a30b3e6c38c700a207ad95fa52",
+        "files": 578,
+        "bytes": 1900542,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": false,
+        "reason": "Declared URL/commit retained from algorithm-sources lock, but current local snapshot equivalence/dirty state cannot be verified from empty Git metadata; manual restoration/verification required.",
+        "patches": []
+      },
+      "declared_lock": {
+        "url": "https://github.com/ethz-asl/wavemap.git",
+        "commit": "db4f2fffdc1da1bec042d51bfff58029c0c9c827",
+        "source": "Deployment/artifacts/locks/algorithm-sources.json",
+        "source_sha256": "e0c0dc439711d55008eba4a843c653b0870501d2e59213030eab53db7a596c98",
+        "verification": "Existing project declaration, not locally verified Git HEAD/working-tree equivalence; automatic restore remains disabled."
+      }
+    },
+    {
+      "id": "liteany_stereo_v2",
+      "path": "TP/Stereo/LiteAnyStereoV2",
+      "kind": "manual_required",
+      "url": "https://github.com/TomTomTommi/LiteAnyStereo.git",
+      "commit": "8c97bd4c4da3712c2ac60003a23201dfdb5935f4",
+      "commit_evidence": "Declared project lock: Deployment/artifacts/locks/algorithm-sources.json; own.git HEAD/config empty, current working-tree equivalence unknown",
+      "dirty": {
+        "state": "unknown"
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "5b0bb18bd53432a7e44ee907a6962fcc43f9990c40bf762cfff8757fc6e15268",
+        "files": 27,
+        "bytes": 124963,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": false,
+        "reason": "Declared URL/commit retained from algorithm-sources lock, but current local snapshot equivalence/dirty state cannot be verified from empty Git metadata; manual restoration/verification required.",
+        "patches": []
+      },
+      "declared_lock": {
+        "url": "https://github.com/TomTomTommi/LiteAnyStereo.git",
+        "commit": "8c97bd4c4da3712c2ac60003a23201dfdb5935f4",
+        "source": "Deployment/artifacts/locks/algorithm-sources.json",
+        "source_sha256": "e0c0dc439711d55008eba4a843c653b0870501d2e59213030eab53db7a596c98",
+        "verification": "Existing project declaration, not locally verified Git HEAD/working-tree equivalence; automatic restore remains disabled."
+      }
+    },
+    {
+      "id": "adaptive_obb_ros",
+      "path": "TP/Planner/OmniPlanner-deps/adaptive_obb_ros",
+      "kind": "manual_required",
+      "url": "git@github.com:ntnu-arl/adaptive_obb_ros.git",
+      "commit": "7a6a9f244ec35800808cb4610931f09c1ff8c4a8",
+      "commit_evidence": "Candidate from OmniPlanner/vcstool/packages_exact.repos; current snapshot equivalence not verified.",
+      "dirty": {
+        "state": "unknown"
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "20c00439a23b7d4c34c54ee4d2a25ec0c547c4a35138464b1e62c5575610a559",
+        "files": 13,
+        "bytes": 29052,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": false,
+        "reason": "Candidate from OmniPlanner/vcstool/packages_exact.repos; current snapshot equivalence not verified.",
+        "patches": []
+      }
+    },
+    {
+      "id": "catkin_simple",
+      "path": "TP/Planner/OmniPlanner-deps/catkin_simple",
+      "kind": "manual_required",
+      "url": "git@github.com:catkin/catkin_simple.git",
+      "commit": "0e62848b12da76c8cc58a1add42b4f894d1ac21e",
+      "commit_evidence": "Candidate from OmniPlanner/vcstool/packages_exact.repos; current snapshot equivalence not verified.",
+      "dirty": {
+        "state": "unknown"
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "e4788ff974b8e4bb13fdcce2ab0999f281158f018bd25d0cf2846219fd0e69eb",
+        "files": 17,
+        "bytes": 17859,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": false,
+        "reason": "Candidate from OmniPlanner/vcstool/packages_exact.repos; current snapshot equivalence not verified.",
+        "patches": []
+      }
+    },
+    {
+      "id": "disaware_learning",
+      "path": "TP/Controller/disaware_learning",
+      "kind": "vendored_local",
+      "url": null,
+      "commit": null,
+      "commit_evidence": "No own Git metadata; local controller code/config included by explicit user authorization. Ownership/upstream origin not inferred.",
+      "dirty": {
+        "state": "no_git_baseline"
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "3c0df360e537e7d2afb7e13b5294390f78274be2b8c86c5df9fd4ffccfc6fb9b",
+        "files": 65,
+        "bytes": 1364885,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": false,
+        "reason": "Vendored in private Pelagos source; if missing restore from private checkout/local backup, not an invented upstream URL. Weights separate.",
+        "patches": []
+      }
+    },
+    {
+      "id": "hmu_bridge",
+      "path": "TP/Controller/hmu_bridge",
+      "kind": "vendored_local",
+      "url": null,
+      "commit": null,
+      "commit_evidence": "No own Git metadata; local controller code/config included by explicit user authorization. Ownership/upstream origin not inferred.",
+      "dirty": {
+        "state": "no_git_baseline"
+      },
+      "source_snapshot": {
+        "sha256_path_and_file_hashes": "34967ccdcc7b08fb2e4501f636391471ee2106c292419d3aab63e6fedd63088a",
+        "files": 12,
+        "bytes": 68064,
+        "selection": "Nonbinary source/config/docs <=2MiB; excludes.git/cache/build/assets/weights/dist-info. Snapshot fingerprint, not Git commit."
+      },
+      "restore": {
+        "automatic": false,
+        "reason": "Vendored in private Pelagos source; if missing restore from private checkout/local backup, not an invented upstream URL. Weights separate.",
+        "patches": []
+      },
+      "local_origin_evidence": {
+        "distribution": "hmu-bridge0.1.0",
+        "license_metadata": "Proprietary",
+        "direct_url": "file:///home/kenton/Desktop/HMU",
+        "evidence": "TP/Controller/hmu_bridge/hmu_bridge-0.1.0.dist-info/{METADATA,direct_url.json}; local path is not a downloadable upstream."
+      }
+    }
+  ],
+  "external_model_artifacts": [
+    {
+      "path": "TP/Controller/disaware_learning/checkpoints/stage2_zhat_response_potential_full4096_four_modal_e5.pt",
+      "size": 674999,
+      "sha256": "e4e09e92f5ae00a6183c6f698ad32d9bcf671705d93d6b81e44e14d43f67974d",
+      "restore": "manual_required; excluded from private Git, download URL not inferred"
+    },
+    {
+      "path": "TP/Stereo/LiteAnyStereoV2/checkpoint/LAS2_S.pth",
+      "size": 24380949,
+      "sha256": "dda5ad5495710466f7e5c5a2dff395223893ef68a17d57d88e7ea7dfbb9d08e1",
+      "restore": "manual_required; excluded from private Git, download URL not inferred"
+    }
+  ],
+  "remaining_manual_requirements": [
+    "Verify Wavemap/LiteAnyStereo local snapshot equivalence against declared algorithm-sources pins; automatic restoration intentionally disabled",
+    "OKVIS incomplete Git objects/submodules and unknown local delta",
+    "OmniPlanner-deps snapshots vs recorded candidates",
+    "External model weights above",
+    "Stonefish workspace, Porth assets, base Docker images, OS/ROS/CUDA packages are outside this TP lock; see Simulation docs."
+  ]
+}

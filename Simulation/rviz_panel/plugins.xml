@@ -1,0 +1,7 @@
+<library path="pelagos_mission_tools">
+  <class name="pelagos_rviz/Explore" type="pelagos_rviz::ExploreTool" base_class_type="rviz_common::Tool"><description>Select confirmed autonomous ownership and start exploration.</description></class>
+  <class name="pelagos_rviz/Plan Preview" type="pelagos_rviz::PreviewTool" base_class_type="rviz_common::Tool"><description>Preview a path without motion.</description></class>
+  <class name="pelagos_rviz/Manual" type="pelagos_rviz::ManualTool" base_class_type="rviz_common::Tool"><description>Pause autonomy and select manual ownership.</description></class>
+  <class name="pelagos_rviz/Auto" type="pelagos_rviz::AutoTool" base_class_type="rviz_common::Tool"><description>Select autonomous ownership without starting motion.</description></class>
+  <class name="pelagos_rviz/Pause" type="pelagos_rviz::PauseTool" base_class_type="rviz_common::Tool"><description>Cancel queued exploration and revoke motion authority.</description></class>
+</library>

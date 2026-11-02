@@ -1,0 +1,316 @@
+[
+  {
+    "repository": "https://github.com/ethz-asl/nbvplanner",
+    "commit": "5c07657af18f967d7049d187db0607024746a42c",
+    "root": "TP/Planner/nbvplanner",
+    "files": [
+      {
+        "path": ".gitmodules",
+        "git_blob": "c0bc41a16c493facbf90b8483c0ca535174cd8c3"
+      },
+      {
+        "path": "README.md",
+        "git_blob": "074428dac98d6d3e3c8636e8110c0a079c6f54c3"
+      },
+      {
+        "path": "demo/exploration1.png",
+        "git_blob": "f17b6aa2b855a9f28429eb8caf01fd3d400b2d39"
+      },
+      {
+        "path": "demo/exploration2.png",
+        "git_blob": "e37ec845c076ccfe23fe75d202c1994f5f0fa977"
+      },
+      {
+        "path": "demo/exploration3.png",
+        "git_blob": "391bbb5c9a930f621adf1a3fac4da7b3465a8b0f"
+      },
+      {
+        "path": "demo/exploration4.png",
+        "git_blob": "4028c330fd9f7dd338d76725a1074e0a77158fae"
+      },
+      {
+        "path": "demo/exploration5.png",
+        "git_blob": "e564174bb6acbbbf5c785201fe528670e05bf736"
+      },
+      {
+        "path": "demo/exploration6.png",
+        "git_blob": "cd0fec1a5ad630886b4f26ff7e3b3ad281f5a2b4"
+      },
+      {
+        "path": "demo/mesh.png",
+        "git_blob": "328bce877feef1bc23dad0f7d598a2a41f161a0b"
+      },
+      {
+        "path": "demo/neo_mav.JPG",
+        "git_blob": "f10bb00989328e9adc0c9c95932a9a5097e4dcaf"
+      },
+      {
+        "path": "demo/pointcloud.png",
+        "git_blob": "b60c3589cab908f09b2896365abaaf8b557a4ece"
+      },
+      {
+        "path": "demo/rotors.png",
+        "git_blob": "2761eb45b6b7b2d495b51e81d0b6979e551ae4e0"
+      },
+      {
+        "path": "interface_nbvp_rotors/CMakeLists.txt",
+        "git_blob": "5ffe7171c1bb0207f14d5d87037c726d284c809b"
+      },
+      {
+        "path": "interface_nbvp_rotors/launch/area_exploration.launch",
+        "git_blob": "25d2580b854914443394398b048ff523d7b160f3"
+      },
+      {
+        "path": "interface_nbvp_rotors/launch/flat_exploration.launch",
+        "git_blob": "ef7c24415dc8fe656a409ffe07124bf04b8f4e2d"
+      },
+      {
+        "path": "interface_nbvp_rotors/launch/mav_inspector.launch",
+        "git_blob": "39b635a6c51a0b7c2e5935f3f62b496249b8a651"
+      },
+      {
+        "path": "interface_nbvp_rotors/launch/multiagent_area_exploration.launch",
+        "git_blob": "cbc41998f697aeb8e5f5a40662f7f256fe21e36d"
+      },
+      {
+        "path": "interface_nbvp_rotors/launch/multiagent_flat_exploration.launch",
+        "git_blob": "5d4b28b029ed842c84a62ee20bc5f7efada0e1d0"
+      },
+      {
+        "path": "interface_nbvp_rotors/mesh/meshFlat.stl",
+        "git_blob": "b97258ec416d08e975402ed0af91b208d4d10b0b"
+      },
+      {
+        "path": "interface_nbvp_rotors/package.xml",
+        "git_blob": "c41b78a74fecc3c8898186e841470c839decd7c7"
+      },
+      {
+        "path": "interface_nbvp_rotors/resource/area_exploration.yaml",
+        "git_blob": "16ba5b508bd22480478b6fd8bcc8cf0da211061e"
+      },
+      {
+        "path": "interface_nbvp_rotors/resource/exploration.yaml",
+        "git_blob": "92fc11d2a02224901cee7742da7df681c28e76e8"
+      },
+      {
+        "path": "interface_nbvp_rotors/src/exploration.cpp",
+        "git_blob": "5408aac0cbc4266ff5570e006f93774cf42c518b"
+      },
+      {
+        "path": "interface_nbvp_rotors/worlds/flat.world",
+        "git_blob": "9d3142c3ef8b1611ac51418edd7fbb776750a51f"
+      },
+      {
+        "path": "kdtree/CMakeLists.txt",
+        "git_blob": "ea1669b55da339ad98c5b25500fa73685951e17c"
+      },
+      {
+        "path": "kdtree/include/kdtree/kdtree.h",
+        "git_blob": "97ec4cf41dab286bf8f850163f098a005e103f24"
+      },
+      {
+        "path": "kdtree/package.xml",
+        "git_blob": "f69bde9f80480bb7488c06421547887bdb9beea9"
+      },
+      {
+        "path": "kdtree/src/kdtree.c",
+        "git_blob": "8bc77b67db606db4edbc379105bbc4700671318b"
+      },
+      {
+        "path": "multiagent_collision_check/CMakeLists.txt",
+        "git_blob": "570f3646b691bc6416fb0213e09813884d12f727"
+      },
+      {
+        "path": "multiagent_collision_check/include/multiagent_collision_check/multiagent_collision_checker.h",
+        "git_blob": "fa0b9140156228989429d880974584cfe7a70df7"
+      },
+      {
+        "path": "multiagent_collision_check/msg/Segment.msg",
+        "git_blob": "20a95e19a203746222f1258d20f3d0c6e391ae6e"
+      },
+      {
+        "path": "multiagent_collision_check/package.xml",
+        "git_blob": "6d483f3ac9df92f0849451b095f64b73acad5f2a"
+      },
+      {
+        "path": "multiagent_collision_check/src/multiagent_collision_checker.cpp",
+        "git_blob": "b097ba57462aceceb8bb953b706913cb7adf3be7"
+      },
+      {
+        "path": "nbvplanner/CMakeLists.txt",
+        "git_blob": "07f7f56b89c5b53b0c049aac14ef3b07b20d28ba"
+      },
+      {
+        "path": "nbvplanner/include/nbvplanner/mesh_structure.h",
+        "git_blob": "cb8f01ac04e3d36d00c49e644142bd27fa0b779c"
+      },
+      {
+        "path": "nbvplanner/include/nbvplanner/nbvp.h",
+        "git_blob": "d42059183c609559f3c2f44c82e1d2068d9a18e7"
+      },
+      {
+        "path": "nbvplanner/include/nbvplanner/nbvp.hpp",
+        "git_blob": "bfcfa078073628a813eaad95a8326e0bc74e9f7b"
+      },
+      {
+        "path": "nbvplanner/include/nbvplanner/rrt.h",
+        "git_blob": "7fbf044f26d66820fc8e7cb79ec0180e4fe31a29"
+      },
+      {
+        "path": "nbvplanner/include/nbvplanner/tree.h",
+        "git_blob": "3a855e184e5489d91522dce62d6c5b98946b1af0"
+      },
+      {
+        "path": "nbvplanner/include/nbvplanner/tree.hpp",
+        "git_blob": "a78166de8eda8c476353cc1af405255647b5efb0"
+      },
+      {
+        "path": "nbvplanner/package.xml",
+        "git_blob": "9816dcc1e6527b917fd5318554e29483a159b090"
+      },
+      {
+        "path": "nbvplanner/src/mesh_structure.cpp",
+        "git_blob": "c1d5315d59c2fbd52576384351b022510375cdaf"
+      },
+      {
+        "path": "nbvplanner/src/nbv_planner_node.cpp",
+        "git_blob": "de930eaf1fbb44b766cfbccefa4e95e8764e8974"
+      },
+      {
+        "path": "nbvplanner/src/nbvp.cpp",
+        "git_blob": "6c1b0dda6c0df3eef59e875db5847d0a69e78437"
+      },
+      {
+        "path": "nbvplanner/src/rrt.cpp",
+        "git_blob": "f9d650184092d30e671afbda67bcb2f6fff8aac5"
+      },
+      {
+        "path": "nbvplanner/src/tree.cpp",
+        "git_blob": "dc714cc2af2f6de3826f063b127dac610599f16f"
+      },
+      {
+        "path": "nbvplanner/srv/nbvp_srv.srv",
+        "git_blob": "416fbc0bad0fac6a3c745b472b59fcd11cebf920"
+      },
+      {
+        "path": "prune_pointcloud/CMakeLists.txt",
+        "git_blob": "c66fa9c1b7d12bfcc4a44a84e87645ffa95bea08"
+      },
+      {
+        "path": "prune_pointcloud/include/prune_pointcloud/prune.h",
+        "git_blob": "f5c2c60bf8ccb2d7dea7c5144d20545f0c9b5181"
+      },
+      {
+        "path": "prune_pointcloud/launch/prune_pointcloud.launch",
+        "git_blob": "a99fd314baa69c29bf490b9470d41c1ba722da40"
+      },
+      {
+        "path": "prune_pointcloud/package.xml",
+        "git_blob": "39a1e3850f82cfbd55c01dc986de5be55e080d6e"
+      },
+      {
+        "path": "prune_pointcloud/src/prune.cc",
+        "git_blob": "067497ac787512ccda5d1e67100a02d77fdd8e34"
+      },
+      {
+        "path": "prune_pointcloud/src/prune_node.cc",
+        "git_blob": "a83f5063ff12cf60d8c790241ab32641e52546af"
+      }
+    ]
+  },
+  {
+    "repository": "https://github.com/ethz-asl/volumetric_mapping",
+    "commit": "f4f7ba585d3020bfe2d453a194f288225332ff33",
+    "root": "TP/Planner/nbvplanner/volumetric_mapping",
+    "files": [
+      {
+        "path": ".gitignore",
+        "git_blob": "b8bd0267bdf1a5e02793430b53cbbebd6c257f6f"
+      },
+      {
+        "path": "README.md",
+        "git_blob": "07af522f41132c7479ce36cfb274572738d6cbba"
+      },
+      {
+        "path": "octomap_world/CMakeLists.txt",
+        "git_blob": "b26c8f849cd19019819d0d8aafe6fb5ca31b1492"
+      },
+      {
+        "path": "octomap_world/include/octomap_world/octomap_manager.h",
+        "git_blob": "c5c60f2da75de0c4db42eb2a345770037d602ded"
+      },
+      {
+        "path": "octomap_world/include/octomap_world/octomap_world.h",
+        "git_blob": "9c52b2617ea36acc8d1ce5ff7be39069bbf10d82"
+      },
+      {
+        "path": "octomap_world/package.xml",
+        "git_blob": "7b3250e9a8d3f7ad0a62a84dc314b76c82d61fdf"
+      },
+      {
+        "path": "octomap_world/src/octomap_manager.cc",
+        "git_blob": "be745793a4ee76a12d61c5000330604faa38354e"
+      },
+      {
+        "path": "octomap_world/src/octomap_manager_node.cc",
+        "git_blob": "c1baa4d58f4c5be554a9ca3f9809308f286ec4a6"
+      },
+      {
+        "path": "octomap_world/src/octomap_world.cc",
+        "git_blob": "01316cbc78d804056e5a365add6a1bd327e07e74"
+      },
+      {
+        "path": "volumetric_map_base/CMakeLists.txt",
+        "git_blob": "76740a9ca0b8b20f6b63c82a33742a585c33c944"
+      },
+      {
+        "path": "volumetric_map_base/include/volumetric_map_base/point_weighing.h",
+        "git_blob": "463202d57c5aaa8b84d1972dbf18c09a3dc72f24"
+      },
+      {
+        "path": "volumetric_map_base/include/volumetric_map_base/world_base.h",
+        "git_blob": "5d515450b8d2349c732742fd4954589a9808dc87"
+      },
+      {
+        "path": "volumetric_map_base/package.xml",
+        "git_blob": "8492f3685eff6d9b1a26ae7c6975080a75d576ba"
+      },
+      {
+        "path": "volumetric_map_base/src/world_base.cc",
+        "git_blob": "0bbef8161e330b905a49b310fce469881acec45c"
+      },
+      {
+        "path": "volumetric_mapping/CMakeLists.txt",
+        "git_blob": "816dbd918b11dcaf3eff3d5a07aeeab4296d2478"
+      },
+      {
+        "path": "volumetric_mapping/package.xml",
+        "git_blob": "6f8cff9c91713349d6b692c9bdccfbfb2d8e710c"
+      },
+      {
+        "path": "volumetric_msgs/CMakeLists.txt",
+        "git_blob": "3de9d0dcbf8c356857e3a4cd753981e28da137fe"
+      },
+      {
+        "path": "volumetric_msgs/package.xml",
+        "git_blob": "b2b10571c957ead06e49029ce52d97357042d1d3"
+      },
+      {
+        "path": "volumetric_msgs/srv/LoadMap.srv",
+        "git_blob": "9d71fa93ad7a49cdf4f6dfef14163b2a12407eca"
+      },
+      {
+        "path": "volumetric_msgs/srv/SaveMap.srv",
+        "git_blob": "9d71fa93ad7a49cdf4f6dfef14163b2a12407eca"
+      },
+      {
+        "path": "volumetric_msgs/srv/SetBoxOccupancy.srv",
+        "git_blob": "4e4feb99b66e82a56de82295b268e77db056bef6"
+      },
+      {
+        "path": "volumetric_msgs/srv/SetDisplayBounds.srv",
+        "git_blob": "cffbcd40837babe2b2ae5795bddef20e89ae1677"
+      }
+    ]
+  }
+]

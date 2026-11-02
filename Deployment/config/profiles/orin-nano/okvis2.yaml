@@ -1,0 +1,77 @@
+cameras:
+  - T_SC: [0.00615945616449431, 0.0012689240812189, 0.999980225270197, 0.000294449236753082,
+      -0.999977615332116, 0.00262127780480274, 0.00615611382007075, 0.0356466012504271,
+      -0.00261341432866964, -0.999995759358182, 0.00128504132250823, 0.000326049863910492,
+      0.0, 0.0, 0.0, 1.0]
+    image_dimension: [960, 600]
+    distortion_coefficients: [0.379874039589, -0.010058478926, 0.000975994618, -0.002266909706]
+    distortion_type: radialtangential
+    focal_length: [492.083788662298, 492.041109624111]
+    principal_point: [480.573799174174, 295.045171830716]
+    camera_type: gray
+    slam_use: okvis
+  - T_SC: [-0.00686413434847892, 0.000436937955310898, 0.99997634609268, 0.000504573849284321,
+      -0.99997177751988, 0.00305122095570854, -0.00686543621422156, -0.084516847720799,
+      -0.00305414855207283, -0.999995249556669, 0.000415981633271061, 0.000143357533288232,
+      0.0, 0.0, 0.0, 1.0]
+    image_dimension: [960, 600]
+    distortion_coefficients: [0.372022241139, 0.010685454782, 0.001736982695, 0.003535373907]
+    distortion_type: radialtangential
+    focal_length: [491.755561842114, 491.732207791923]
+    principal_point: [489.257875870984, 300.917595145297]
+    camera_type: gray
+    slam_use: okvis
+camera_parameters:
+  timestamp_tolerance: 0.005
+  sync_cameras: [0, 1]
+  image_delay: -0.0087
+  online_calibration:
+    do_extrinsics: false
+    do_extrinsics_final_ba: false
+    sigma_r: 0.01
+    sigma_alpha: 0.1
+    sigma_r_final_ba: 0.03
+    sigma_alpha_final_ba: 0.3
+imu_parameters:
+  use: true
+  a_max: 78.48000336
+  g_max: 17.4533
+  sigma_g_c: 0.003
+  sigma_a_c: 0.02
+  sigma_bg: 0.01
+  sigma_ba: 0.1
+  sigma_gw_c: 4.0e-05
+  sigma_aw_c: 0.0001
+  g: 9.80665
+  g0: [0.0, 0.0, 0.0]
+  a0: [0.0, 0.0, 0.0]
+  T_BS: [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+    1.0]
+frontend_parameters:
+  detection_threshold: 25.0
+  absolute_threshold: 150.0
+  matching_threshold: 60.0
+  octaves: 0
+  max_num_keypoints: 700
+  keyframe_overlap: 0.6
+  use_cnn: false
+  parallelise_detection: true
+  num_matching_threads: 4
+estimator_parameters:
+  num_keyframes: 5
+  num_loop_closure_frames: 3
+  num_imu_frames: 3
+  do_loop_closures: false
+  do_final_ba: false
+  enforce_realtime: false
+  realtime_min_iterations: 3
+  realtime_max_iterations: 10
+  realtime_time_limit: 0.035
+  realtime_num_threads: 3
+  full_graph_iterations: 15
+  full_graph_num_threads: 3
+  p_dbow: 0.4
+  drift_percentage_heuristic: 1.35
+output_parameters:
+  display_matches: false
+  display_overhead: false

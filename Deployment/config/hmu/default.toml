@@ -1,0 +1,26 @@
+[server]
+host = "127.0.0.1"
+port = 8765
+
+[rov]
+host = "192.168.1.7"
+port = 8887
+# observe: never write to the ROV socket; control: enable heartbeat and command output.
+mode = "control"
+# motor: six-thruster mixer with L4/R4 fixed at 1500; channel: vendor four-axis mixer.
+command_protocol = "channel"
+motor_channels = ["R1", "L1", "R3", "L3", "R2", "L2"]
+motor_signs = [1, 1, -1, -1, -1, 1]
+connect_timeout_seconds = 3.0
+reconnect_delay_seconds = 1.0
+heartbeat_period_seconds = 1.0
+command_rate_hz = 10.0
+
+[safety]
+command_timeout_seconds = 0.3
+arm_hold_seconds = 1.5
+neutral_deadzone = 0.08
+
+[storage]
+data_dir = "~/.local/share/hmu/data"
+record_raw_frames = true

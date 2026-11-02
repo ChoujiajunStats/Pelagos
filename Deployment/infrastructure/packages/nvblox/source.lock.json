@@ -1,0 +1,15 @@
+{
+  "repository": "https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_nvblox.git",
+  "tag": "v3.2-5",
+  "ros_package_version": "3.2.5",
+  "sources": [
+    {
+      "path": "TP/Mapping/nvblox",
+      "commit": "4e5732317ff10bb875b7c2f812ad9452f122bbab"
+    },
+    {
+      "path": "TP/Mapping/nvblox/nvblox_ros/nvblox_core",
+      "commit": "ff4409b34f5d8434734a0028a936c9d294f372d8"
+    }
+  ]
+}

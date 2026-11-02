@@ -1,0 +1,8 @@
+{
+  "source": "/home/kenton/disaware/ROV开发协议_对外.docx",
+  "sha256": "b57db5fdb269a01e025f8ccbf0c9af525c04fcaf15f726f4294f24d7537dfc7f",
+  "user_confirmed_six_thruster_conversion": {
+    "L4": 1500,
+    "R4": 1500
+  }
+}

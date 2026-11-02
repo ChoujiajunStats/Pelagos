@@ -1,0 +1,17 @@
+[Unit]
+Description=Stereo-inertial mapping pipeline
+Requires=zed-x-ingress.service
+After=zed-x-ingress.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Dapeng_Deployment
+ExecStart=/usr/bin/bash %h/Dapeng_Deployment/Deployment/application/scripts/start_pipeline.sh
+Environment=PYTHONUNBUFFERED=1
+Restart=no
+KillMode=mixed
+TimeoutStopSec=40s
+SuccessExitStatus=130 143
+
+[Install]
+WantedBy=default.target

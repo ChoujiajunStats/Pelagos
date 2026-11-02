@@ -1,0 +1,58 @@
+--- a/okvis_ros2/include/okvis/ros2/Publisher.hpp
++++ b/okvis_ros2/include/okvis/ros2/Publisher.hpp
+@@ -50,6 +50,7 @@
+ #include <message_filters/subscriber.h>
+ #include <message_filters/time_synchronizer.h>
+ #include <tf2_ros/transform_broadcaster.h>
++#include <tf2_ros/static_transform_broadcaster.h>
+ #include <geometry_msgs/msg/pose_stamped.hpp>
+ #include <geometry_msgs/msg/vector3_stamped.hpp>
+ #include <nav_msgs/msg/odometry.hpp>
+@@ -167,6 +168,8 @@
+   std::shared_ptr<rclcpp::Node> node_; ///< The node.
+ 
+   std::shared_ptr<tf2_ros::TransformBroadcaster> pubTf_;  ///< The transform broadcaster.
++  // Members are destroyed before node_; never retain ROS publishers in function statics.
++  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> pubStaticTf_;
+   /// \brief The publisher for matched points.
+   std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::PointCloud2>> pubPointsMatched_;
+   /// \brief The publisher for the odometry.
+--- a/okvis_ros2/src/Publisher.cpp
++++ b/okvis_ros2/src/Publisher.cpp
+@@ -61,6 +61,7 @@
+ 
+   // set up publishers
+   pubTf_.reset(new tf2_ros::TransformBroadcaster(node_));
++  pubStaticTf_.reset(new tf2_ros::StaticTransformBroadcaster(node_));
+   pubObometry_ = node_->create_publisher<nav_msgs::msg::Odometry>("okvis_odometry", 1);
+   pubPath_ = node_->create_publisher<visualization_msgs::msg::Marker>("okvis_path", 1);
+   pubTransform_ = node_->create_publisher<geometry_msgs::msg::TransformStamped>(
+@@ -133,8 +134,7 @@
+   poseMsg.transform.translation.x = r[0];
+   poseMsg.transform.translation.y = r[1];
+   poseMsg.transform.translation.z = r[2];
+-  static tf2_ros::StaticTransformBroadcaster br(node_);
+-  br.sendTransform(poseMsg);
++  pubStaticTf_->sendTransform(poseMsg);
+ }
+ 
+ void Publisher::setCsvFile(const std::string & filename, bool rpg)
+@@ -263,8 +263,7 @@
+   poseMsg.transform.translation.z = r[2];
+ 
+   // publish current pose
+-  static tf2_ros::TransformBroadcaster br(node_);
+-  br.sendTransform(poseMsg);
++  pubTf_->sendTransform(poseMsg);
+   pubTransform_->publish(poseMsg);
+ 
+   // also do the mesh
+@@ -302,7 +301,7 @@
+     updatedStatePoseMsg.transform.translation.z = T_WB.r()[2];
+ 
+     // publish
+-    br.sendTransform(updatedStatePoseMsg);
++    pubTf_->sendTransform(updatedStatePoseMsg);
+   }
+ 
+   // update Trajectory object

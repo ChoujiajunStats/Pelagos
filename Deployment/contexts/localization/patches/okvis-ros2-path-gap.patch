@@ -1,0 +1,14 @@
+--- a/okvis_ros2/src/Publisher.cpp
++++ b/okvis_ros2/src/Publisher.cpp
+@@ -364,7 +364,10 @@
+       path.points.push_back(lastPoint);
+     }
+     okvis::State state;
+-    if(!trajectory_.getState(okvis::StateId(id), state)) continue;
++    if(!trajectory_.getState(okvis::StateId(id), state)) {
++      ++id;
++      continue;
++    }
+     const okvis::kinematics::Transformation T_WB_p = state.T_WS * T_SB;
+     const Eigen::Vector3d& r = T_WB_p.r();
+     geometry_msgs::msg::Point point;

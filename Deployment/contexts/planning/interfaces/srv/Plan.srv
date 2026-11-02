@@ -1,0 +1,8 @@
+std_msgs/Header header
+uint32 map_sequence
+geometry_msgs/Pose root_pose
+geometry_msgs/Pose goal_pose
+---
+uint32 map_sequence
+int32 status
+geometry_msgs/Pose[] path

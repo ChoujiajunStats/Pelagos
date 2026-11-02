@@ -1,0 +1,21 @@
+{
+  "robot": {
+    "ubuntu": "22.04",
+    "ros": "humble",
+    "gpu_stack": "JetPack-compatible CUDA/PyTorch/torchvision must be installed externally",
+    "zed_sdk": "5.4.1 external SDK",
+    "zed_ros2_wrapper": {
+      "path": "TP/Sensors/zed-ros2-wrapper",
+      "tag": "v5.4.1",
+      "commit": "86171bccda22de6e83ccc69b3c0e67af99dece7c"
+    }
+  },
+  "complete_offline_dependency_closure": false,
+  "missing_external_components": [
+    "JetPack/CUDA runtime and development packages",
+    "ROS 2 Humble and ROS dependencies",
+    "JetPack-matched PyTorch and torchvision",
+    "ZED SDK installer",
+    "VNC server/client if using remote desktop"
+  ]
+}

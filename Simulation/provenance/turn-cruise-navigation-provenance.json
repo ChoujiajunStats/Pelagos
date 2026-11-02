@@ -1,0 +1,138 @@
+{
+  "recorded_at_utc": "2026-11-02T02:24:01.999750+00:00",
+  "status": "source44_pass_runtime_pending",
+  "authorization": "Explicit latest user strategy relayed by primary: planner supplies one heading turn; once aligned resume continuous cruise until next forward3m trigger. Endpoint precision arrival and originalNBVview observation are removed from reactive execution.",
+  "scope": {
+    "production_files": [
+      "Simulation/adapters/estimated_navigation.py"
+    ],
+    "test_files": [
+      "Simulation/tests/test_neutral_navigation.py"
+    ],
+    "other_files": [
+      "Simulation/build/wavemap-nbv/turn-cruise-navigation-tests.log",
+      "Simulation/build/wavemap-nbv/turn-cruise-navigation-provenance.json"
+    ],
+    "documentation_modified": false,
+    "parameters_modified": false,
+    "upstream_source_modified": false
+  },
+  "implementation": {
+    "profile": "ethz_nbvplanner",
+    "index0": "Existing neutral: temporarily use latest actual estimated XYZ and orientation each source tick; retain goal object and lease.",
+    "index1": "External pure-turn for any mission in project profile: temporarily use latest actual estimated XYZ each source tick, preserve externally requested target orientation/yaw exactly. Source guide therefore receives zero XYZ error; actual velocity, yaw error/yawrate and source dwell still determine reached.",
+    "reactive_real": "mission_id=nbv-reactive and waypoint_index>=12 call the original Tracker.tick directly. Rolling1m cruise target and yaw remain supplied by native/bridge. No heading wrapper, align, observe or adapter endpoint-stop gate; source guide output/report is unchanged.",
+    "legacy_real": "Other missions at real indices>=12 retain the prior align/translate/observe wrapper for compatibility.",
+    "restoration": "finally restores the original target pose only; a goal cleared by source failure/invalid state remains cleared.",
+    "report": "Source reports mission_id=nbv-reactive, original external index1 or real>=12, generation and original source fields unchanged."
+  },
+  "retained_thresholds": {
+    "position_tolerance_m": 0.06,
+    "yaw_tolerance_rad": 0.1,
+    "settle_speed_m_s": 0.04,
+    "settle_yaw_rate_rad_s": 0.04,
+    "dwell_sec": 1.0,
+    "horizontal_speed_cap_m_s": 0.48,
+    "vertical_speed_cap_m_s": 0.06,
+    "yaw_rate_cap_rad_s": 0.12
+  },
+  "unchanged": {
+    "source_tracker_class_and_guide": true,
+    "run_frame_identity_epoch_sequence_checks": true,
+    "guard_manual_fault_revocation": true,
+    "issued_deadline_lease_fields": true,
+    "guard_state_freshness_ns": 250000000,
+    "original_goal_issue_freshness_ns": 250000000,
+    "source_rrt_gain_yaw_sampling_and_budgets": true,
+    "jepa": {
+      "sample_count": 64,
+      "deadline_seconds": 0.36,
+      "maximum_plan_age_seconds": 0.6,
+      "planner_latency_compensation_seconds": 0.36
+    }
+  },
+  "source": {
+    "method": "Actual upstream Tracker class parsed as AST; only ROS Node/publishers and monotonic clock mocked. Actual core.guide/yaw/settling_reference imported from retained upstream source.",
+    "tracker_line_refs": {
+      "on_goal": {
+        "start_line": 33,
+        "end_line": 41
+      },
+      "tick": {
+        "start_line": 42,
+        "end_line": 69
+      }
+    },
+    "guide_path": "/home/hong/Desktop/MY_Stonefish_ws/stonefish_slam_ws/navigation/uw_navigation/core.py"
+  },
+  "validation": {
+    "passed": 44,
+    "breakdown": {
+      "navigation": 31,
+      "previous_navigation_retained": 23,
+      "new_turn_cruise_navigation": 8,
+      "sensor_alignment": 9,
+      "clock_control": 4
+    },
+    "log": {
+      "path": "Simulation/build/wavemap-nbv/turn-cruise-navigation-tests.log",
+      "sha256": "8fb5ed44c8d031066d289400bc9c96a2ce158889bc60f8676e765b777039838f",
+      "bytes": 8793
+    },
+    "syntax_compile_passed": true,
+    "container": {
+      "name": "pelagos-stonefish",
+      "image": "sha256:5e0aa4e246cfeeba57d60393cc6cc5db3d76b6c71ead186e19192fca82d0df59",
+      "ephemeral_rm": true,
+      "gpu": false,
+      "simulator_started": false,
+      "network": "none",
+      "project_mount": "/home/hong/Desktop/Pelagos:/pelagos:ro",
+      "upstream_mount": "/home/hong/Desktop/MY_Stonefish_ws/stonefish_slam_ws:/stonefish-workspace:ro"
+    },
+    "command": "docker run --rm --name pelagos-stonefish --network none --entrypoint /bin/bash [read-only project/upstream mounts] UI5e0aa4 -lc: source /opt/ros/jazzy/setup.bash; source /opt/uw_underlay/setup.bash; source /opt/pelagos/interfaces/setup.bash; append source controller/robot/navigation to sourced PYTHONPATH; cd /pelagos; /opt/research/bin/python3 -m unittest Simulation.tests.test_neutral_navigation Simulation.tests.test_sensor_alignment Simulation.tests.test_clock_control_tick -v",
+    "initial_environment_attempt": "Initial explicit PYTHONPATH replaced sourced ROS paths and could not import nav_msgs. Corrected command preserves sourced PYTHONPATH; all44 actual source tests then passed."
+  },
+  "limits": [
+    "No live turn/cruise success claimed by these source tests.",
+    "Reactive cruise retains source position guidance; an unrenewed goal can naturally reach zero positional error. The bridge owns continuous fresh rolling targets and must not treat source reached as reactive endpoint/observe completion.",
+    "The native source gain still uses its sampled view yaw while latest user execution skips that gaze; this adapter does not change gain or claim that gaze was executed."
+  ],
+  "artifacts": [
+    {
+      "path": "Simulation/adapters/estimated_navigation.py",
+      "sha256": "6b3e9cea2314c1a27912c1f6aa9f8200c87d644d17a6f29e9a8269aedf9c45d8",
+      "bytes": 5911
+    },
+    {
+      "path": "Simulation/tests/test_neutral_navigation.py",
+      "sha256": "42b35125bcf5c3b1f238da7e4c59764da08348571c7953a6f764e65250be0c45",
+      "bytes": 30324
+    },
+    {
+      "path": "Simulation/build/wavemap-nbv/turn-cruise-navigation-tests.log",
+      "sha256": "8fb5ed44c8d031066d289400bc9c96a2ce158889bc60f8676e765b777039838f",
+      "bytes": 8793
+    },
+    {
+      "path": "/home/hong/Desktop/MY_Stonefish_ws/stonefish_slam_ws/navigation/uw_navigation/node.py",
+      "sha256": "03f69eedf3b2ad23c4ff583e3c427c75e6b89a6bd9fd155e6090c0b8d6df1dc0",
+      "bytes": 5432
+    },
+    {
+      "path": "/home/hong/Desktop/MY_Stonefish_ws/stonefish_slam_ws/navigation/uw_navigation/core.py",
+      "sha256": "341039403e6372dda1e922c7ff7d47ea8095dabbfd2603f801afef6d354a6300",
+      "bytes": 3346
+    },
+    {
+      "path": "/home/hong/Desktop/MY_Stonefish_ws/stonefish_slam_ws/navigation/config/defaults.yaml",
+      "sha256": "a4d1dc48e17ee82de1afed6078058471151041bc030dd767bce9051175bcb8ea",
+      "bytes": 238
+    },
+    {
+      "path": "Simulation/config/nbv.yaml",
+      "sha256": "04f5099dffd560689c61f5fef05285ca7e1cd2daabf69d0f96fb598f0ef9d6cd",
+      "bytes": 2526
+    }
+  ]
+}

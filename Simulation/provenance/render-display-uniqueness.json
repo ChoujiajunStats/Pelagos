@@ -1,0 +1,28 @@
+{
+  "config": "Simulation/config/pelagos.rviz",
+  "removed_only": "Three duplicated alias display entries from Sensors and estimation evidence",
+  "enabled_topic_counts": {
+    "/pelagos/planner/path": 1,
+    "/pelagos/planner/map": 1,
+    "/mapping/occupied_cells": 1
+  },
+  "retained_displays": [
+    {
+      "topic": "/pelagos/planner/path",
+      "path": "/PlannerViz/NBV path",
+      "class": "rviz_default_plugins/Path"
+    },
+    {
+      "topic": "/mapping/occupied_cells",
+      "path": "/Mapping/Wavemap occupied cells",
+      "class": "rviz_default_plugins/MarkerArray"
+    },
+    {
+      "topic": "/pelagos/planner/map",
+      "path": "/Mapping/NBV OctoMap",
+      "class": "rviz_default_plugins/MarkerArray"
+    }
+  ],
+  "all_duplicate_enabled_topics": {},
+  "publish_rate_or_source_parameters_changed": false
+}

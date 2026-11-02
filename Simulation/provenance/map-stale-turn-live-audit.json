@@ -1,0 +1,2319 @@
+{
+  "run": "20261102T031510Z-29de60ff",
+  "status": "finite_checkpoint_four_turns_completed_task_continues",
+  "scope": "Finite read-only review of started pure-turn map-gap exemption; reuse existing trace and observer, no commands or extra experiment.",
+  "source_provenance": {
+    "Simulation/adapters/nbv_bridge.py": "2117e5372b9a1901b5b2f43cfb1ee9f416abb91f9cf9d8dacf5d917e015d4c05",
+    "Simulation/adapters/estimated_navigation.py": "6b3e9cea2314c1a27912c1f6aa9f8200c87d644d17a6f29e9a8269aedf9c45d8",
+    "Simulation/tests/test_obstacle_cruise.py": "f1b4290d9eb11789765f57a5cff858ee21af930ba5c0286f74d3193dc44d67aa",
+    "Simulation/demo": "d5acff4d327a6dc7b5faeb52dae1912a41acbed02f5b5835beed1270b642e9fc",
+    "Simulation/tools/trace_control.py": "113071dede3d2b7b86f2c1befb7c20fe7aeacffff2b00467087f6b7403b8c3b1"
+  },
+  "observation_note": "Mission event is accepted operator start baseline. Existing observer starts later; it is not task start. Evidence files are growing and hashes refer captured byte prefixes.",
+  "implementation_provenance": {
+    "okvis": "Simulation/build/wavemap-nbv/okvis-ingress-provenance.json",
+    "bridge_sha256": "2117e5372b9a1901b5b2f43cfb1ee9f416abb91f9cf9d8dacf5d917e015d4c05"
+  },
+  "recorded_at_utc": "2026-11-02T03:18:47.192576+00:00",
+  "asof": {
+    "last_evidence_wall_ns": 48536345117664,
+    "latest_terminal_sim_clock_s": 209.589999999,
+    "task_wall_elapsed_s": 203.278410117,
+    "last_raw_source_s": 209.789999999,
+    "trace_start_wall_ns": 48378045108590,
+    "trace_first_raw_source_s": 51.759999999,
+    "trace_task_start_offset_wall_s": 44.978401043
+  },
+  "acceptance_window": {
+    "required_complete_turn_resume_cycles": 3,
+    "reached": true
+  },
+  "raw_vs_visual_windows": [
+    {
+      "window_source_s": [
+        5,
+        30
+      ],
+      "complete_window": true,
+      "raw": {
+        "count": 624,
+        "first_source_s": 5.039999999,
+        "last_source_s": 29.97,
+        "delivered_rate_per_source_s": 24.989971920377457,
+        "source_gap_s": {
+          "n": 623,
+          "min": 0.03999999999999915,
+          "median": 0.03999999999999915,
+          "p95": 0.0400000000000027,
+          "max": 0.05000000000000071
+        }
+      },
+      "optimized_visual": {
+        "count": 415,
+        "first_source_s": 5.02,
+        "last_source_s": 29.94,
+        "delivered_rate_per_source_s": 16.613162118780096,
+        "source_gap_s": {
+          "n": 414,
+          "min": 0.04999999999999716,
+          "median": 0.05999999999999872,
+          "p95": 0.07000000000000028,
+          "max": 0.11999999999999922
+        }
+      }
+    },
+    {
+      "window_source_s": [
+        30,
+        60
+      ],
+      "complete_window": true,
+      "raw": {
+        "count": 748,
+        "first_source_s": 30.01,
+        "last_source_s": 59.969999999,
+        "delivered_rate_per_source_s": 24.933244326599908,
+        "source_gap_s": {
+          "n": 747,
+          "min": 0.03999999899999551,
+          "median": 0.03999999999999915,
+          "p95": 0.04000000000000625,
+          "max": 0.05000000000000426
+        }
+      },
+      "optimized_visual": {
+        "count": 483,
+        "first_source_s": 30.0,
+        "last_source_s": 59.97,
+        "delivered_rate_per_source_s": 16.08274941608275,
+        "source_gap_s": {
+          "n": 482,
+          "min": 0.04999999999999716,
+          "median": 0.060000000000002274,
+          "p95": 0.0799999999999983,
+          "max": 0.09000000000000341
+        }
+      }
+    },
+    {
+      "window_source_s": [
+        60,
+        90
+      ],
+      "complete_window": true,
+      "raw": {
+        "count": 746,
+        "first_source_s": 60.009999999,
+        "last_source_s": 89.99,
+        "delivered_rate_per_source_s": 24.849899932459984,
+        "source_gap_s": {
+          "n": 745,
+          "min": 0.03999999999999204,
+          "median": 0.04000000000000625,
+          "p95": 0.04000000000000625,
+          "max": 0.05000000000001137
+        }
+      },
+      "optimized_visual": {
+        "count": 481,
+        "first_source_s": 60.02,
+        "last_source_s": 89.99,
+        "delivered_rate_per_source_s": 16.01601601601602,
+        "source_gap_s": {
+          "n": 480,
+          "min": 0.04999999999999716,
+          "median": 0.060000000000002274,
+          "p95": 0.0799999999999983,
+          "max": 0.12000000000000455
+        }
+      }
+    },
+    {
+      "window_source_s": [
+        90,
+        120
+      ],
+      "complete_window": true,
+      "raw": {
+        "count": 745,
+        "first_source_s": 90.03,
+        "last_source_s": 119.96,
+        "delivered_rate_per_source_s": 24.858002004677587,
+        "source_gap_s": {
+          "n": 744,
+          "min": 0.03999999999999204,
+          "median": 0.04000000000000625,
+          "p95": 0.04000000000000625,
+          "max": 0.05000000000001137
+        }
+      },
+      "optimized_visual": {
+        "count": 471,
+        "first_source_s": 90.06,
+        "last_source_s": 119.95,
+        "delivered_rate_per_source_s": 15.724322515891602,
+        "source_gap_s": {
+          "n": 470,
+          "min": 0.04999999999999716,
+          "median": 0.060000000000002274,
+          "p95": 0.0899999999999892,
+          "max": 0.14000000000000057
+        }
+      }
+    },
+    {
+      "window_source_s": [
+        120,
+        150
+      ],
+      "complete_window": true,
+      "raw": {
+        "count": 745,
+        "first_source_s": 120.0,
+        "last_source_s": 149.98,
+        "delivered_rate_per_source_s": 24.816544362908616,
+        "source_gap_s": {
+          "n": 744,
+          "min": 0.03999999999999204,
+          "median": 0.03999999999999204,
+          "p95": 0.040000000000020464,
+          "max": 0.060000000000002274
+        }
+      },
+      "optimized_visual": {
+        "count": 477,
+        "first_source_s": 120.0,
+        "last_source_s": 149.93,
+        "delivered_rate_per_source_s": 15.903775476110923,
+        "source_gap_s": {
+          "n": 476,
+          "min": 0.04999999999998295,
+          "median": 0.060000000000002274,
+          "p95": 0.0800000000000125,
+          "max": 0.11000000000001364
+        }
+      }
+    },
+    {
+      "window_source_s": [
+        150,
+        180
+      ],
+      "complete_window": true,
+      "raw": {
+        "count": 741,
+        "first_source_s": 150.02,
+        "last_source_s": 179.979999999,
+        "delivered_rate_per_source_s": 24.699599466779034,
+        "source_gap_s": {
+          "n": 740,
+          "min": 0.03999999900000262,
+          "median": 0.03999999999999204,
+          "p95": 0.040000000000020464,
+          "max": 0.060000000000002274
+        }
+      },
+      "optimized_visual": {
+        "count": 475,
+        "first_source_s": 150.0,
+        "last_source_s": 179.99,
+        "delivered_rate_per_source_s": 15.805268422807599,
+        "source_gap_s": {
+          "n": 474,
+          "min": 0.04999999999998295,
+          "median": 0.060000000000002274,
+          "p95": 0.0800000000000125,
+          "max": 0.10000000000002274
+        }
+      }
+    },
+    {
+      "window_source_s": [
+        180,
+        210
+      ],
+      "complete_window": false,
+      "raw": {
+        "count": 736,
+        "first_source_s": 180.019999999,
+        "last_source_s": 209.789999999,
+        "delivered_rate_per_source_s": 24.689284514612016,
+        "source_gap_s": {
+          "n": 735,
+          "min": 0.03999999999999204,
+          "median": 0.03999999999999204,
+          "p95": 0.040000000000020464,
+          "max": 0.05000000000001137
+        }
+      },
+      "optimized_visual": {
+        "count": 471,
+        "first_source_s": 180.04,
+        "last_source_s": 209.77,
+        "delivered_rate_per_source_s": 15.80894719138916,
+        "source_gap_s": {
+          "n": 470,
+          "min": 0.04999999999998295,
+          "median": 0.060000000000002274,
+          "p95": 0.0800000000000125,
+          "max": 0.09999999999999432
+        }
+      }
+    }
+  ],
+  "original_acquisition_stamp_evidence": {
+    "native_success_log_samples": 42,
+    "all_success_log_acquisition_equals_published_state": true,
+    "raw_trace_stamps": 3913,
+    "estimated_trace_stamps": 3913,
+    "matching_original_stamps": 3913,
+    "estimated_minus_raw_receipt_s_for_matching_stamp": {
+      "n": 3913,
+      "min": 5.2655e-05,
+      "median": 0.0003658,
+      "p95": 0.000617131,
+      "max": 0.002286683
+    },
+    "method": "Original source binary still publishes state.timestamp; diagnostics corroborate true IMU acquisition equals successful propagated state. Header equality is by matched original stamps; depth1 read-only subscriptions may omit different messages and are not exact producer-call counters."
+  },
+  "clock_body_lag_diagnostics": {
+    "at_raw_or_estimated_receipt_clock_minus_stamp_s": {
+      "vio_raw_body": {
+        "n": 3913,
+        "min": -0.03,
+        "median": -0.01,
+        "p95": 0.0,
+        "max": 0.01
+      },
+      "estimated_body": {
+        "n": 3913,
+        "min": -0.03,
+        "median": -0.01,
+        "p95": 0.0,
+        "max": 0.01
+      }
+    },
+    "at_terminal_receipt_clock_minus_latest_received_body_s": {
+      "vio_raw_body": {
+        "n": 15782,
+        "min": 0.0,
+        "median": 0.02,
+        "p95": 0.03,
+        "max": 0.06
+      },
+      "estimated_body": {
+        "n": 15782,
+        "min": 0.0,
+        "median": 0.02,
+        "p95": 0.03,
+        "max": 0.06
+      }
+    },
+    "controller_feedback_vs_preceding_terminal_clock_s": {
+      "n": 1579,
+      "min": -0.010000000000005116,
+      "median": 0.009999999999990905,
+      "p95": 0.020000000000010232,
+      "max": 0.03999999999999204
+    },
+    "controller_pairing_scope": "Only controller records whose wall time falls inside captured terminal-trace coverage; exclude file-tail records newer than last captured terminal.",
+    "caveat": "Pairs use latest received terminal clock which can lag one terminal status tick; negative receipt lag is diagnostic clock sampling, not a future-stamped estimator. These are not substituted estimator stamps or exact in-Guard measurement. No Guard threshold changed."
+  },
+  "native_diagnostics": {
+    "ingress_start_marker_present": true,
+    "propagation_success_samples": [
+      {
+        "acquisition_ns": 1320000000,
+        "entry_steady_ns": 48327612961966,
+        "published_state_ns": 1320000000,
+        "publish_steady_ns": 48327613154102
+      },
+      {
+        "acquisition_ns": 6359999999,
+        "entry_steady_ns": 48332649336492,
+        "published_state_ns": 6359999999,
+        "publish_steady_ns": 48332649399185
+      },
+      {
+        "acquisition_ns": 11399999999,
+        "entry_steady_ns": 48337689289261,
+        "published_state_ns": 11399999999,
+        "publish_steady_ns": 48337689356661
+      },
+      {
+        "acquisition_ns": 16399999999,
+        "entry_steady_ns": 48342691063973,
+        "published_state_ns": 16399999999,
+        "publish_steady_ns": 48342691105336
+      },
+      {
+        "acquisition_ns": 21410000000,
+        "entry_steady_ns": 48347698130222,
+        "published_state_ns": 21410000000,
+        "publish_steady_ns": 48347698195878
+      },
+      {
+        "acquisition_ns": 26450000000,
+        "entry_steady_ns": 48352734962595,
+        "published_state_ns": 26450000000,
+        "publish_steady_ns": 48352735036729
+      },
+      {
+        "acquisition_ns": 31450000000,
+        "entry_steady_ns": 48357736470728,
+        "published_state_ns": 31450000000,
+        "publish_steady_ns": 48357736512148
+      },
+      {
+        "acquisition_ns": 36450000000,
+        "entry_steady_ns": 48362741399838,
+        "published_state_ns": 36450000000,
+        "publish_steady_ns": 48362741466021
+      },
+      {
+        "acquisition_ns": 41450000000,
+        "entry_steady_ns": 48367741938569,
+        "published_state_ns": 41450000000,
+        "publish_steady_ns": 48367741999775
+      },
+      {
+        "acquisition_ns": 46459999999,
+        "entry_steady_ns": 48372744743534,
+        "published_state_ns": 46459999999,
+        "publish_steady_ns": 48372744792705
+      },
+      {
+        "acquisition_ns": 51479999999,
+        "entry_steady_ns": 48377767455571,
+        "published_state_ns": 51479999999,
+        "publish_steady_ns": 48377767506154
+      },
+      {
+        "acquisition_ns": 56499999999,
+        "entry_steady_ns": 48382789791504,
+        "published_state_ns": 56499999999,
+        "publish_steady_ns": 48382789861439
+      },
+      {
+        "acquisition_ns": 61529999999,
+        "entry_steady_ns": 48387816280452,
+        "published_state_ns": 61529999999,
+        "publish_steady_ns": 48387816318727
+      },
+      {
+        "acquisition_ns": 66549999999,
+        "entry_steady_ns": 48392842776687,
+        "published_state_ns": 66549999999,
+        "publish_steady_ns": 48392842825738
+      },
+      {
+        "acquisition_ns": 71569999999,
+        "entry_steady_ns": 48397856436899,
+        "published_state_ns": 71569999999,
+        "publish_steady_ns": 48397856563912
+      },
+      {
+        "acquisition_ns": 76590000000,
+        "entry_steady_ns": 48402882953002,
+        "published_state_ns": 76590000000,
+        "publish_steady_ns": 48402883040635
+      },
+      {
+        "acquisition_ns": 81610000000,
+        "entry_steady_ns": 48407902051598,
+        "published_state_ns": 81610000000,
+        "publish_steady_ns": 48407902130786
+      },
+      {
+        "acquisition_ns": 86630000000,
+        "entry_steady_ns": 48412914330180,
+        "published_state_ns": 86630000000,
+        "publish_steady_ns": 48412914402386
+      },
+      {
+        "acquisition_ns": 91640000000,
+        "entry_steady_ns": 48417928990500,
+        "published_state_ns": 91640000000,
+        "publish_steady_ns": 48417929124752
+      },
+      {
+        "acquisition_ns": 96640000000,
+        "entry_steady_ns": 48422933587274,
+        "published_state_ns": 96640000000,
+        "publish_steady_ns": 48422933680998
+      },
+      {
+        "acquisition_ns": 101670000000,
+        "entry_steady_ns": 48427955645117,
+        "published_state_ns": 101670000000,
+        "publish_steady_ns": 48427955676203
+      },
+      {
+        "acquisition_ns": 106670000000,
+        "entry_steady_ns": 48432959310536,
+        "published_state_ns": 106670000000,
+        "publish_steady_ns": 48432959381096
+      },
+      {
+        "acquisition_ns": 111670000000,
+        "entry_steady_ns": 48437961763924,
+        "published_state_ns": 111670000000,
+        "publish_steady_ns": 48437961813019
+      },
+      {
+        "acquisition_ns": 116660000000,
+        "entry_steady_ns": 48442965658097,
+        "published_state_ns": 116660000000,
+        "publish_steady_ns": 48442965738029
+      },
+      {
+        "acquisition_ns": 121680000000,
+        "entry_steady_ns": 48447979336121,
+        "published_state_ns": 121680000000,
+        "publish_steady_ns": 48447979393399
+      },
+      {
+        "acquisition_ns": 126680000000,
+        "entry_steady_ns": 48452981562364,
+        "published_state_ns": 126680000000,
+        "publish_steady_ns": 48452981627040
+      },
+      {
+        "acquisition_ns": 131710000000,
+        "entry_steady_ns": 48458008802694,
+        "published_state_ns": 131710000000,
+        "publish_steady_ns": 48458008888895
+      },
+      {
+        "acquisition_ns": 136750000000,
+        "entry_steady_ns": 48463035538705,
+        "published_state_ns": 136750000000,
+        "publish_steady_ns": 48463035594680
+      },
+      {
+        "acquisition_ns": 141770000000,
+        "entry_steady_ns": 48468056634747,
+        "published_state_ns": 141770000000,
+        "publish_steady_ns": 48468056703148
+      },
+      {
+        "acquisition_ns": 146810000000,
+        "entry_steady_ns": 48473102942724,
+        "published_state_ns": 146810000000,
+        "publish_steady_ns": 48473103055223
+      },
+      {
+        "acquisition_ns": 151850000000,
+        "entry_steady_ns": 48478138470540,
+        "published_state_ns": 151850000000,
+        "publish_steady_ns": 48478138565355
+      },
+      {
+        "acquisition_ns": 156860000000,
+        "entry_steady_ns": 48483152868747,
+        "published_state_ns": 156860000000,
+        "publish_steady_ns": 48483152926350
+      },
+      {
+        "acquisition_ns": 161869999999,
+        "entry_steady_ns": 48488167035979,
+        "published_state_ns": 161869999999,
+        "publish_steady_ns": 48488167112008
+      },
+      {
+        "acquisition_ns": 166909999999,
+        "entry_steady_ns": 48493195744533,
+        "published_state_ns": 166909999999,
+        "publish_steady_ns": 48493195799587
+      },
+      {
+        "acquisition_ns": 171909999999,
+        "entry_steady_ns": 48498201796377,
+        "published_state_ns": 171909999999,
+        "publish_steady_ns": 48498201865519
+      },
+      {
+        "acquisition_ns": 176939999999,
+        "entry_steady_ns": 48503227013964,
+        "published_state_ns": 176939999999,
+        "publish_steady_ns": 48503227062171
+      },
+      {
+        "acquisition_ns": 181969999999,
+        "entry_steady_ns": 48508261083855,
+        "published_state_ns": 181969999999,
+        "publish_steady_ns": 48508261155971
+      },
+      {
+        "acquisition_ns": 187009999999,
+        "entry_steady_ns": 48513296780833,
+        "published_state_ns": 187009999999,
+        "publish_steady_ns": 48513296837349
+      },
+      {
+        "acquisition_ns": 192019999999,
+        "entry_steady_ns": 48518312487595,
+        "published_state_ns": 192019999999,
+        "publish_steady_ns": 48518312560540
+      },
+      {
+        "acquisition_ns": 197049999999,
+        "entry_steady_ns": 48523337900741,
+        "published_state_ns": 197049999999,
+        "publish_steady_ns": 48523338043888
+      },
+      {
+        "acquisition_ns": 202069999999,
+        "entry_steady_ns": 48528363676810,
+        "published_state_ns": 202069999999,
+        "publish_steady_ns": 48528363746926
+      },
+      {
+        "acquisition_ns": 207079999999,
+        "entry_steady_ns": 48533365458374,
+        "published_state_ns": 207079999999,
+        "publish_steady_ns": 48533365647641
+      }
+    ],
+    "propagation_entry_to_publish_s": {
+      "n": 42,
+      "min": 3.1086e-05,
+      "median": 6.87715e-05,
+      "p95": 0.000134252,
+      "max": 0.000192136
+    },
+    "processFrame_five_second_samples": [
+      {
+        "max_ms": 0.120302,
+        "true_calls": 0,
+        "true_mean_ms": 0.0,
+        "line": "I20261102 03:15:17.358315   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=0.120302 true_calls=0 true_mean_ms=0"
+      },
+      {
+        "max_ms": 20.1384,
+        "true_calls": 81,
+        "true_mean_ms": 7.54006,
+        "line": "I20261102 03:15:22.358316   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=20.1384 true_calls=81 true_mean_ms=7.54006"
+      },
+      {
+        "max_ms": 18.3992,
+        "true_calls": 89,
+        "true_mean_ms": 7.91536,
+        "line": "I20261102 03:15:27.376211   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=18.3992 true_calls=89 true_mean_ms=7.91536"
+      },
+      {
+        "max_ms": 31.8835,
+        "true_calls": 85,
+        "true_mean_ms": 11.4053,
+        "line": "I20261102 03:15:32.378382   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=31.8835 true_calls=85 true_mean_ms=11.4053"
+      },
+      {
+        "max_ms": 40.9405,
+        "true_calls": 83,
+        "true_mean_ms": 14.5633,
+        "line": "I20261102 03:15:37.397179   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=40.9405 true_calls=83 true_mean_ms=14.5633"
+      },
+      {
+        "max_ms": 45.9048,
+        "true_calls": 77,
+        "true_mean_ms": 17.6935,
+        "line": "I20261102 03:15:42.397179   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=45.9048 true_calls=77 true_mean_ms=17.6935"
+      },
+      {
+        "max_ms": 46.7667,
+        "true_calls": 80,
+        "true_mean_ms": 16.8715,
+        "line": "I20261102 03:15:47.397181   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=46.7667 true_calls=80 true_mean_ms=16.8715"
+      },
+      {
+        "max_ms": 48.0613,
+        "true_calls": 79,
+        "true_mean_ms": 16.0692,
+        "line": "I20261102 03:15:52.407220   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=48.0613 true_calls=79 true_mean_ms=16.0692"
+      },
+      {
+        "max_ms": 39.388,
+        "true_calls": 82,
+        "true_mean_ms": 13.0202,
+        "line": "I20261102 03:15:57.415771   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=39.388 true_calls=82 true_mean_ms=13.0202"
+      },
+      {
+        "max_ms": 35.1248,
+        "true_calls": 80,
+        "true_mean_ms": 11.2492,
+        "line": "I20261102 03:16:02.415773   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=35.1248 true_calls=80 true_mean_ms=11.2492"
+      },
+      {
+        "max_ms": 31.7213,
+        "true_calls": 83,
+        "true_mean_ms": 10.5137,
+        "line": "I20261102 03:16:07.419073   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=31.7213 true_calls=83 true_mean_ms=10.5137"
+      },
+      {
+        "max_ms": 39.3058,
+        "true_calls": 80,
+        "true_mean_ms": 11.556,
+        "line": "I20261102 03:16:12.421998   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=39.3058 true_calls=80 true_mean_ms=11.556"
+      },
+      {
+        "max_ms": 73.6374,
+        "true_calls": 80,
+        "true_mean_ms": 22.9261,
+        "line": "I20261102 03:16:17.485211   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=73.6374 true_calls=80 true_mean_ms=22.9261"
+      },
+      {
+        "max_ms": 72.4039,
+        "true_calls": 80,
+        "true_mean_ms": 48.9242,
+        "line": "I20261102 03:16:22.494745   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=72.4039 true_calls=80 true_mean_ms=48.9242"
+      },
+      {
+        "max_ms": 70.7096,
+        "true_calls": 81,
+        "true_mean_ms": 33.3577,
+        "line": "I20261102 03:16:27.530848   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=70.7096 true_calls=81 true_mean_ms=33.3577"
+      },
+      {
+        "max_ms": 75.2768,
+        "true_calls": 79,
+        "true_mean_ms": 46.4098,
+        "line": "I20261102 03:16:32.554708   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=75.2768 true_calls=79 true_mean_ms=46.4098"
+      },
+      {
+        "max_ms": 75.0935,
+        "true_calls": 81,
+        "true_mean_ms": 54.2589,
+        "line": "I20261102 03:16:37.580744   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=75.0935 true_calls=81 true_mean_ms=54.2589"
+      },
+      {
+        "max_ms": 72.7523,
+        "true_calls": 82,
+        "true_mean_ms": 60.1257,
+        "line": "I20261102 03:16:42.623628   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=72.7523 true_calls=82 true_mean_ms=60.1257"
+      },
+      {
+        "max_ms": 80.6159,
+        "true_calls": 78,
+        "true_mean_ms": 61.4941,
+        "line": "I20261102 03:16:47.641026   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=80.6159 true_calls=78 true_mean_ms=61.4941"
+      },
+      {
+        "max_ms": 90.3336,
+        "true_calls": 75,
+        "true_mean_ms": 65.8304,
+        "line": "I20261102 03:16:52.684863   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=90.3336 true_calls=75 true_mean_ms=65.8304"
+      },
+      {
+        "max_ms": 82.5961,
+        "true_calls": 80,
+        "true_mean_ms": 38.0596,
+        "line": "I20261102 03:16:57.713536   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=82.5961 true_calls=80 true_mean_ms=38.0596"
+      },
+      {
+        "max_ms": 76.4434,
+        "true_calls": 79,
+        "true_mean_ms": 46.869,
+        "line": "I20261102 03:17:02.772325   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=76.4434 true_calls=79 true_mean_ms=46.869"
+      },
+      {
+        "max_ms": 73.699,
+        "true_calls": 81,
+        "true_mean_ms": 39.738,
+        "line": "I20261102 03:17:07.799719   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=73.699 true_calls=81 true_mean_ms=39.738"
+      },
+      {
+        "max_ms": 60.4008,
+        "true_calls": 81,
+        "true_mean_ms": 21.0891,
+        "line": "I20261102 03:17:12.846005   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=60.4008 true_calls=81 true_mean_ms=21.0891"
+      },
+      {
+        "max_ms": 72.2762,
+        "true_calls": 81,
+        "true_mean_ms": 44.5964,
+        "line": "I20261102 03:17:17.890120   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=72.2762 true_calls=81 true_mean_ms=44.5964"
+      },
+      {
+        "max_ms": 70.8721,
+        "true_calls": 79,
+        "true_mean_ms": 22.2552,
+        "line": "I20261102 03:17:22.896698   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=70.8721 true_calls=79 true_mean_ms=22.2552"
+      },
+      {
+        "max_ms": 39.2308,
+        "true_calls": 80,
+        "true_mean_ms": 9.23174,
+        "line": "I20261102 03:17:27.896699   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=39.2308 true_calls=80 true_mean_ms=9.23174"
+      },
+      {
+        "max_ms": 27.6158,
+        "true_calls": 80,
+        "true_mean_ms": 7.98848,
+        "line": "I20261102 03:17:32.896697   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=27.6158 true_calls=80 true_mean_ms=7.98848"
+      },
+      {
+        "max_ms": 27.0726,
+        "true_calls": 80,
+        "true_mean_ms": 8.24289,
+        "line": "I20261102 03:17:37.896697   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=27.0726 true_calls=80 true_mean_ms=8.24289"
+      },
+      {
+        "max_ms": 27.6012,
+        "true_calls": 79,
+        "true_mean_ms": 8.65928,
+        "line": "I20261102 03:17:42.898335   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=27.6012 true_calls=79 true_mean_ms=8.65928"
+      },
+      {
+        "max_ms": 27.6309,
+        "true_calls": 80,
+        "true_mean_ms": 8.14771,
+        "line": "I20261102 03:17:47.898336   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=27.6309 true_calls=80 true_mean_ms=8.14771"
+      },
+      {
+        "max_ms": 26.7941,
+        "true_calls": 80,
+        "true_mean_ms": 8.42829,
+        "line": "I20261102 03:17:52.917840   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=26.7941 true_calls=80 true_mean_ms=8.42829"
+      },
+      {
+        "max_ms": 27.3931,
+        "true_calls": 80,
+        "true_mean_ms": 8.29821,
+        "line": "I20261102 03:17:57.917841   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=27.3931 true_calls=80 true_mean_ms=8.29821"
+      },
+      {
+        "max_ms": 26.1705,
+        "true_calls": 77,
+        "true_mean_ms": 8.34855,
+        "line": "I20261102 03:18:02.937990   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=26.1705 true_calls=77 true_mean_ms=8.34855"
+      },
+      {
+        "max_ms": 26.0197,
+        "true_calls": 80,
+        "true_mean_ms": 7.82308,
+        "line": "I20261102 03:18:07.941702   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=26.0197 true_calls=80 true_mean_ms=7.82308"
+      },
+      {
+        "max_ms": 23.3125,
+        "true_calls": 80,
+        "true_mean_ms": 7.17616,
+        "line": "I20261102 03:18:12.941707   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=23.3125 true_calls=80 true_mean_ms=7.17616"
+      },
+      {
+        "max_ms": 19.8752,
+        "true_calls": 78,
+        "true_mean_ms": 6.80625,
+        "line": "I20261102 03:18:17.941706   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=19.8752 true_calls=78 true_mean_ms=6.80625"
+      },
+      {
+        "max_ms": 20.1859,
+        "true_calls": 79,
+        "true_mean_ms": 6.54924,
+        "line": "I20261102 03:18:22.941706   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=20.1859 true_calls=79 true_mean_ms=6.54924"
+      },
+      {
+        "max_ms": 17.5252,
+        "true_calls": 78,
+        "true_mean_ms": 6.31382,
+        "line": "I20261102 03:18:27.947827   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=17.5252 true_calls=78 true_mean_ms=6.31382"
+      },
+      {
+        "max_ms": 24.5118,
+        "true_calls": 79,
+        "true_mean_ms": 7.97156,
+        "line": "I20261102 03:18:32.947830   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=24.5118 true_calls=79 true_mean_ms=7.97156"
+      },
+      {
+        "max_ms": 25.0993,
+        "true_calls": 81,
+        "true_mean_ms": 9.08934,
+        "line": "I20261102 03:18:37.961958   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=25.0993 true_calls=81 true_mean_ms=9.08934"
+      },
+      {
+        "max_ms": 23.7093,
+        "true_calls": 79,
+        "true_mean_ms": 9.00841,
+        "line": "I20261102 03:18:42.965718   134 okvis_node_subscriber.cpp:166] Pelagos visual processFrame max_ms=23.7093 true_calls=79 true_mean_ms=9.00841"
+      }
+    ],
+    "frame_drop_log_count": 17,
+    "native_tracking_failure_log_count": 0,
+    "note": "entry_steady is method entry, not DDS receipt;5s output samples do not represent every invocation. Main timing surrounds processFrame only, excludes display/publishImages."
+  },
+  "guard": {
+    "trace_states": [
+      {
+        "state": "ARMED",
+        "reason": "explicit_arm",
+        "samples": 7892
+      }
+    ],
+    "trace_generations": [
+      1
+    ],
+    "latest_status": {
+      "state": "ARMED",
+      "reason": "explicit_arm",
+      "generation": 1,
+      "health": null,
+      "ready": true,
+      "state_diagnostic": null,
+      "fault_context": null
+    }
+  },
+  "latest_vio_status": {
+    "native_rates_hz": {
+      "cam0": 15.907934640369897,
+      "cam1": 15.937717948285552,
+      "odometry": 24.915465375550042,
+      "visual_update": 15.902644370692231,
+      "landmarks": 15.901588190174433
+    },
+    "sparse_landmarks": 103,
+    "receive_ages_sec": {
+      "cam0": 0.051294193996000104,
+      "cam1": 0.05044320399611024,
+      "odometry": 0.03887499799748184,
+      "visual_update": 0.05561271999613382,
+      "landmarks": 0.05277154500072356
+    },
+    "inputs_verified": true
+  },
+  "latest_task": {
+    "enabled": true,
+    "reason": "turning_to_nbv_direction",
+    "healthy": true,
+    "obstacle_phase": "turning",
+    "mode": "explore",
+    "control_mode": "autonomy",
+    "plans_requested": 12,
+    "paths_generated": 5,
+    "guard": "ARMED",
+    "guard_reason": "explicit_arm",
+    "guard_fault": null,
+    "body_pose": [
+      10.24467540091897,
+      -4.930481736462452,
+      0.2541615428089802,
+      -0.0029998408815457163,
+      0.0010623100437310185,
+      -0.9639640306566566,
+      -0.2660135711805489
+    ]
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "trigger": {
+        "wall_ns": 48369271500615,
+        "kind": "obstacle_triggered_planning",
+        "mode": "explore",
+        "task_revision": 1,
+        "clearance_m": 2.9026337093073344,
+        "trigger_distance_m": 3.0,
+        "map_revision": 186,
+        "cruise_path_valid": true,
+        "body": [
+          12.864651875952218,
+          -0.14219319409317818,
+          0.012960936250522817,
+          -0.002496657237899448,
+          -0.003346517950427894,
+          -0.007153826710557784,
+          0.9999656945533878
+        ]
+      },
+      "braking_complete": {
+        "wall_ns": 48376971458545,
+        "kind": "obstacle_braking_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          13.42565036575312,
+          -0.036940761596662,
+          0.012356974943473265,
+          -0.0009162734090891575,
+          -0.003721844784162316,
+          0.00869056443235067,
+          0.9999548901846971
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48376925516909,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 0,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.0,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "map_revision": 216
+      },
+      "brake_duration_s": 7.69995793,
+      "brake_actual_final_1s": null,
+      "turn_selected": {
+        "wall_ns": 48377072810897,
+        "kind": "nbv_turn_selected",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": -1.4282821901211964,
+        "source_view_yaw_executed": false,
+        "body": [
+          13.41782101981409,
+          -0.03767496485352014,
+          0.015802539309601172,
+          -0.0010771218740399417,
+          -0.003421449906292527,
+          0.009027825744900629,
+          0.9999528148124426
+        ],
+        "source_path_points": 50,
+        "source_path_first": [
+          13.419149424292238,
+          -0.03661691489947777,
+          0.014517381526960027,
+          0.0,
+          0.0,
+          0.008451921417951607,
+          0.9999642818742801
+        ],
+        "source_path_last": [
+          13.55832535516834,
+          -1.0065727510349713,
+          0.029205342973924894,
+          0.0,
+          0.0,
+          0.562766678856831,
+          0.8266157905390221
+        ]
+      },
+      "turn_aligned": {
+        "wall_ns": 48388621558889,
+        "kind": "nbv_turn_aligned",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": -1.4282821901211964,
+        "body": [
+          13.32316850319213,
+          -0.04837132238443431,
+          0.04040473314828849,
+          -0.0026292305003553836,
+          -0.0013282539439778075,
+          -0.667904331062547,
+          0.7442413099501587
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48388575572485,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.03467071826533741,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.02773657461226993
+          ]
+        }
+      },
+      "turn_actual_final_1s": {
+        "ending_source_stamp_ns": 62259999999,
+        "samples": 25,
+        "source_span_s": 0.97,
+        "max_actual_speed3d_mps": 0.01611582328594847,
+        "max_actual_abs_yaw_rate_radps": 0.037648992709738274,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": true
+      },
+      "direction_commit": {
+        "wall_ns": 48388671374972,
+        "kind": "avoidance_turn_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          13.32295879220293,
+          -0.048593596742024354,
+          0.04204373231571516,
+          -0.002598337020958373,
+          -0.0012164459138534007,
+          -0.6676640626143415,
+          0.7444571635744912
+        ],
+        "diagnostics": {
+          "direction_source": "last_valid_native_nbv_first_edge_geometry",
+          "source_edge_direction_valid": "true",
+          "source_edge_map_revision": "217",
+          "source_edge_points": "50",
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "turn_clearance_minimum_m": "3",
+          "forward_obstacle_found": "true",
+          "nearest_obstacle_front_clearance_m": "7.5784588157027537",
+          "no_obstacle_semantics": "no_known_occupied_hit;unknown_is_not_observed_free",
+          "source_view_yaw_executed": "false",
+          "gain_execution_limit": "source_gain_preserved_but_sampled_view_yaw_not_executed_by_heading_only_policy",
+          "forward_direction": [
+            "0.14203220935488667",
+            "-0.98986203660195482",
+            "0"
+          ],
+          "forward_origin": [
+            "13.323168503192131",
+            "-0.048371322384434312",
+            "0.040404733148288491"
+          ]
+        },
+        "map_revision": 258
+      },
+      "status": "turn_and_resume_complete",
+      "pure_turn_navigation": {
+        "captured_index1_samples": 211,
+        "nonzero_translation_targets": 0,
+        "source_max_abs_translation_target": 0.0
+      },
+      "source_plan": {
+        "wall_ns": 48377071285715,
+        "valid": true,
+        "reason": "planned",
+        "map_revision": 217,
+        "source_revision": 50080000000,
+        "diagnostics": {
+          "source_tree_initialized_this_callback": "true",
+          "accepted_tree_nodes": "15",
+          "positive_gain_found": "true",
+          "turn_direction_source": "actual_native_rrt_first_edge_then_source_getBestEdge",
+          "turn_selector_eligible_nodes": "1",
+          "selected_turn_cruisable": "true",
+          "selected_turn_forward_obstacle_found": "false",
+          "source_path_validation": "accepted",
+          "turn_checked_source_first_edges": [
+            {
+              "source_first_edge_displacement": [
+                "0.14201625599602252",
+                "-0.98975085319948253",
+                "0.014987715762209038"
+              ],
+              "horizontal_execution_direction": [
+                "0.1420322093548875",
+                "-0.98986203660195471",
+                "0"
+              ],
+              "cruisable": "true",
+              "forward_obstacle_found": "false"
+            }
+          ],
+          "forward_task_direction": [
+            "0.99999999393795369",
+            "0.00011010945705762947",
+            "0"
+          ],
+          "turn_clearance_minimum_m": "3"
+        }
+      },
+      "resumed_cruise_progress_m": 4.51782081148935,
+      "progress_end": "next real3m trigger",
+      "source_endpoint_length_m": 0.9800000000000008,
+      "started_turn_continuity": {
+        "first_captured_index1_wall_ns": 48378075456184,
+        "active_capture_samples": 211,
+        "waypoint_index_counts": {
+          "1": 211
+        },
+        "neutral0_after_first_turn_before_aligned": 0,
+        "nonzero_translation_references": 0,
+        "note": "Initial validation neutral before first actual index1 and post-aligned neutral are excluded as required; source status wall timestamps define interval."
+      },
+      "forward_commit_fresh_map_evidence": {
+        "source_edge_map_revision": 217,
+        "commit_map_revision": 258,
+        "current_map_collision_valid": "true",
+        "current_horizontal_clearance_valid": "true",
+        "known_hit": "true",
+        "clearance_m": "7.5784588157027537",
+        "first_cruise_result": {
+          "wall_ns": 48388721382697,
+          "map_revision": 258,
+          "source_revision": 61760000000,
+          "path_valid": true,
+          "obstacle_clearance_m": 7.578234264856908
+        },
+        "source_semantics": "Submission gates on fresh map; native setdir checks current source collision+horizontal>3m; rolling cruise result/publish revalidates exact installed revision before any translation. No-known-hit is not measured free space."
+      }
+    },
+    {
+      "cycle": 2,
+      "trigger": {
+        "wall_ns": 48405271542539,
+        "kind": "obstacle_triggered_planning",
+        "mode": "explore",
+        "task_revision": 1,
+        "clearance_m": 2.9790490143419746,
+        "trigger_distance_m": 3.0,
+        "map_revision": 303,
+        "cruise_path_valid": true,
+        "body": [
+          13.995467259800662,
+          -4.515996678462226,
+          0.07129811251019098,
+          -0.004182215513335287,
+          -0.009818564192663966,
+          -0.6488748549569048,
+          0.7608202990688737
+        ]
+      },
+      "braking_complete": {
+        "wall_ns": 48411021461397,
+        "kind": "obstacle_braking_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          14.14611746956509,
+          -4.879041344531382,
+          0.07189551227464382,
+          -0.0028536920503284546,
+          -0.0006025530306936351,
+          -0.6600398054025429,
+          0.751224965410296
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48410975536477,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 0,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.0,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "map_revision": 317
+      },
+      "brake_duration_s": 5.749918858,
+      "brake_actual_final_1s": {
+        "ending_source_stamp_ns": 84650000000,
+        "samples": 25,
+        "source_span_s": 0.99,
+        "max_actual_speed3d_mps": 0.038818497237134625,
+        "max_actual_abs_yaw_rate_radps": 0.013517815242262376,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": true
+      },
+      "turn_selected": {
+        "wall_ns": 48411173068522,
+        "kind": "nbv_turn_selected",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": -2.5165126620669778,
+        "source_view_yaw_executed": false,
+        "body": [
+          14.144344097249483,
+          -4.869169698257392,
+          0.07182432132660366,
+          -0.0026941646540569364,
+          -0.0006489310242721659,
+          -0.6595965458398224,
+          0.7516147397979351
+        ],
+        "source_path_points": 50,
+        "source_path_first": [
+          14.147270841888293,
+          -4.875821067222837,
+          0.07296719577650439,
+          0.0,
+          0.0,
+          -0.6597957314426951,
+          0.7514450031572497
+        ],
+        "source_path_last": [
+          13.35563054797891,
+          -5.447073515139135,
+          -0.012918110351512305,
+          0.0,
+          0.0,
+          0.9212961807377735,
+          0.3888616043761478
+        ]
+      },
+      "turn_aligned": {
+        "wall_ns": 48423221520879,
+        "kind": "nbv_turn_aligned",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": -2.5165126620669778,
+        "body": [
+          14.036687318871172,
+          -4.748108413134361,
+          0.10152685220260162,
+          -0.003262895953206532,
+          -0.000257838154252616,
+          -0.9564179862969924,
+          0.29198274352620707
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48423175546981,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.032800389304542765,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.026240311443634215
+          ]
+        }
+      },
+      "turn_actual_final_1s": {
+        "ending_source_stamp_ns": 96880000000,
+        "samples": 26,
+        "source_span_s": 1.0,
+        "max_actual_speed3d_mps": 0.0084443942034709,
+        "max_actual_abs_yaw_rate_radps": 0.033962515043096886,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": true
+      },
+      "direction_commit": {
+        "wall_ns": 48423271602044,
+        "kind": "avoidance_turn_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          14.039455661676655,
+          -4.747540835030366,
+          0.10287086170862747,
+          -0.003237847336209972,
+          -0.0003024731506466741,
+          -0.9563770077705627,
+          0.2921171748844045
+        ],
+        "diagnostics": {
+          "direction_source": "last_valid_native_nbv_first_edge_geometry",
+          "source_edge_direction_valid": "true",
+          "source_edge_map_revision": "318",
+          "source_edge_points": "50",
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "turn_clearance_minimum_m": "3",
+          "forward_obstacle_found": "true",
+          "nearest_obstacle_front_clearance_m": "4.2996882147928064",
+          "no_obstacle_semantics": "no_known_occupied_hit;unknown_is_not_observed_free",
+          "source_view_yaw_executed": "false",
+          "gain_execution_limit": "source_gain_preserved_but_sampled_view_yaw_not_executed_by_heading_only_policy",
+          "forward_direction": [
+            "-0.81091631408887821",
+            "-0.58516214124335475",
+            "0"
+          ],
+          "forward_origin": [
+            "14.036687318871172",
+            "-4.7481084131343607",
+            "0.10152685220260162"
+          ]
+        },
+        "map_revision": 349
+      },
+      "status": "turn_and_resume_complete",
+      "pure_turn_navigation": {
+        "captured_index1_samples": 240,
+        "nonzero_translation_targets": 0,
+        "source_max_abs_translation_target": 0.0
+      },
+      "source_plan": {
+        "wall_ns": 48411171247184,
+        "valid": true,
+        "reason": "planned",
+        "map_revision": 318,
+        "source_revision": 84040000000,
+        "diagnostics": {
+          "source_tree_initialized_this_callback": "true",
+          "accepted_tree_nodes": "15",
+          "positive_gain_found": "true",
+          "turn_direction_source": "actual_native_rrt_first_edge_then_source_getBestEdge",
+          "turn_selector_eligible_nodes": "1",
+          "selected_turn_cruisable": "true",
+          "selected_turn_forward_obstacle_found": "true",
+          "source_path_validation": "accepted",
+          "turn_checked_source_first_edges": [
+            {
+              "source_first_edge_displacement": [
+                "-0.80779621827488057",
+                "-0.58291066113907863",
+                "-0.087638067477567985"
+              ],
+              "horizontal_execution_direction": [
+                "-0.81091631408887865",
+                "-0.58516214124335419",
+                "0"
+              ],
+              "cruisable": "true",
+              "forward_obstacle_found": "true",
+              "nearest_obstacle_front_clearance_m": "4.3127395282677474"
+            }
+          ],
+          "forward_task_direction": [
+            "0.14203220935488667",
+            "-0.98986203660195482",
+            "0"
+          ],
+          "turn_clearance_minimum_m": "3"
+        }
+      },
+      "resumed_cruise_progress_m": 1.2964276732835436,
+      "progress_end": "next real3m trigger",
+      "source_endpoint_length_m": 0.9800000000000003,
+      "started_turn_continuity": {
+        "first_captured_index1_wall_ns": 48411225511945,
+        "active_capture_samples": 240,
+        "waypoint_index_counts": {
+          "1": 240
+        },
+        "neutral0_after_first_turn_before_aligned": 0,
+        "nonzero_translation_references": 0,
+        "note": "Initial validation neutral before first actual index1 and post-aligned neutral are excluded as required; source status wall timestamps define interval."
+      },
+      "forward_commit_fresh_map_evidence": {
+        "source_edge_map_revision": 318,
+        "commit_map_revision": 349,
+        "current_map_collision_valid": "true",
+        "current_horizontal_clearance_valid": "true",
+        "known_hit": "true",
+        "clearance_m": "4.2996882147928064",
+        "first_cruise_result": {
+          "wall_ns": 48423371241839,
+          "map_revision": 350,
+          "source_revision": 96250000000,
+          "path_valid": true,
+          "obstacle_clearance_m": 4.303102060040936
+        },
+        "source_semantics": "Submission gates on fresh map; native setdir checks current source collision+horizontal>3m; rolling cruise result/publish revalidates exact installed revision before any translation. No-known-hit is not measured free space."
+      }
+    },
+    {
+      "cycle": 3,
+      "trigger": {
+        "wall_ns": 48439271620622,
+        "kind": "obstacle_triggered_planning",
+        "mode": "explore",
+        "task_revision": 1,
+        "clearance_m": 2.9939411694326763,
+        "trigger_distance_m": 3.0,
+        "map_revision": 384,
+        "cruise_path_valid": true,
+        "body": [
+          13.075077513060524,
+          -5.631013436460181,
+          0.13098423212208943,
+          -0.003388739342452316,
+          -0.0005962697790917195,
+          -0.9497213314152813,
+          0.31307755199439785
+        ]
+      },
+      "braking_complete": {
+        "wall_ns": 48445621400112,
+        "kind": "obstacle_braking_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          12.757859995604626,
+          -5.826551280747963,
+          0.12995407634815007,
+          -0.0031623371238506818,
+          -0.0003179788676931538,
+          -0.9211576206887808,
+          0.3891767418029231
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48445575528500,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 0,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.0,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "map_revision": 398
+      },
+      "brake_duration_s": 6.34977949,
+      "brake_actual_final_1s": {
+        "ending_source_stamp_ns": 119260000000,
+        "samples": 26,
+        "source_span_s": 1.0,
+        "max_actual_speed3d_mps": 0.03489310579953187,
+        "max_actual_abs_yaw_rate_radps": 0.038991510130199254,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": true
+      },
+      "turn_selected": {
+        "wall_ns": 48446872517518,
+        "kind": "nbv_turn_selected",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": 2.8667759196385183,
+        "source_view_yaw_executed": false,
+        "body": [
+          12.726966773111286,
+          -5.818701426174273,
+          0.1373619961838895,
+          -0.0034225611750280864,
+          -0.0005229821233696029,
+          -0.9156217928765732,
+          0.4020258013787074
+        ],
+        "source_path_points": 50,
+        "source_path_first": [
+          12.727192794182567,
+          -5.819441852295795,
+          0.13707180722633797,
+          0.0,
+          0.0,
+          0.9162440214098985,
+          -0.4006206350534352
+        ],
+        "source_path_last": [
+          11.786543162651698,
+          -5.55422496421164,
+          0.20944772156114072,
+          0.0,
+          0.0,
+          -0.5805379412039361,
+          0.8142331968316542
+        ]
+      },
+      "turn_aligned": {
+        "wall_ns": 48490321558532,
+        "kind": "nbv_turn_aligned",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": 2.8667759196385183,
+        "body": [
+          12.60090166916085,
+          -5.775695153577831,
+          0.19601496048228872,
+          -0.002756131334575423,
+          0.0010546395393083686,
+          -0.9914406110282183,
+          -0.13052511742764986
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48490275535361,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": -0.012153988726051335,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            -0.009723190980841068
+          ]
+        }
+      },
+      "turn_actual_final_1s": {
+        "ending_source_stamp_ns": 163959999999,
+        "samples": 25,
+        "source_span_s": 0.99,
+        "max_actual_speed3d_mps": 0.04470843228317165,
+        "max_actual_abs_yaw_rate_radps": 0.02368551102925959,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": false
+      },
+      "direction_commit": {
+        "wall_ns": 48490371358241,
+        "kind": "avoidance_turn_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          12.5931486584409,
+          -5.7744948008898564,
+          0.1928209312131698,
+          -0.0027135452565939023,
+          0.0011952400991986144,
+          -0.9915655976769856,
+          -0.12957188574967976
+        ],
+        "diagnostics": {
+          "direction_source": "last_valid_native_nbv_first_edge_geometry",
+          "source_edge_direction_valid": "true",
+          "source_edge_map_revision": "400",
+          "source_edge_points": "50",
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "turn_clearance_minimum_m": "3",
+          "forward_obstacle_found": "true",
+          "nearest_obstacle_front_clearance_m": "4.7283326015829283",
+          "no_obstacle_semantics": "no_known_occupied_hit;unknown_is_not_observed_free",
+          "source_view_yaw_executed": "false",
+          "gain_execution_limit": "source_gain_preserved_but_sampled_view_yaw_not_executed_by_heading_only_policy",
+          "forward_direction": [
+            "-0.96247494679991852",
+            "0.27137055253378928",
+            "0"
+          ],
+          "forward_origin": [
+            "12.60090166916085",
+            "-5.7756951535778311",
+            "0.19601496048228872"
+          ]
+        },
+        "map_revision": 499
+      },
+      "status": "turn_and_resume_complete",
+      "pure_turn_navigation": {
+        "captured_index1_samples": 868,
+        "nonzero_translation_targets": 0,
+        "source_max_abs_translation_target": 0.0
+      },
+      "source_plan": {
+        "wall_ns": 48446871251312,
+        "valid": true,
+        "reason": "planned",
+        "map_revision": 400,
+        "source_revision": 119580000000,
+        "diagnostics": {
+          "source_tree_initialized_this_callback": "true",
+          "accepted_tree_nodes": "15",
+          "positive_gain_found": "true",
+          "turn_direction_source": "actual_native_rrt_first_edge_then_source_getBestEdge",
+          "turn_selector_eligible_nodes": "1",
+          "selected_turn_cruisable": "true",
+          "selected_turn_forward_obstacle_found": "true",
+          "source_path_validation": "accepted",
+          "turn_checked_source_first_edges": [
+            {
+              "source_first_edge_displacement": [
+                "-0.95984656278660019",
+                "0.27062947763689316",
+                "0.073852973811023154"
+              ],
+              "horizontal_execution_direction": [
+                "-0.96247494679991841",
+                "0.27137055253378956",
+                "0"
+              ],
+              "cruisable": "true",
+              "forward_obstacle_found": "true",
+              "nearest_obstacle_front_clearance_m": "4.8595475754808115"
+            }
+          ],
+          "forward_task_direction": [
+            "-0.81091631408887821",
+            "-0.58516214124335475",
+            "0"
+          ],
+          "turn_clearance_minimum_m": "3"
+        }
+      },
+      "resumed_cruise_progress_m": 1.7298333693799028,
+      "progress_end": "next real3m trigger",
+      "source_endpoint_length_m": 0.9800000000000009,
+      "started_turn_continuity": {
+        "first_captured_index1_wall_ns": 48446925575399,
+        "active_capture_samples": 868,
+        "waypoint_index_counts": {
+          "1": 868
+        },
+        "neutral0_after_first_turn_before_aligned": 0,
+        "nonzero_translation_references": 0,
+        "note": "Initial validation neutral before first actual index1 and post-aligned neutral are excluded as required; source status wall timestamps define interval."
+      },
+      "forward_commit_fresh_map_evidence": {
+        "source_edge_map_revision": 400,
+        "commit_map_revision": 499,
+        "current_map_collision_valid": "true",
+        "current_horizontal_clearance_valid": "true",
+        "known_hit": "true",
+        "clearance_m": "4.7283326015829283",
+        "first_cruise_result": {
+          "wall_ns": 48490421361687,
+          "map_revision": 499,
+          "source_revision": 162960000000,
+          "path_valid": true,
+          "obstacle_clearance_m": 4.720277315836813
+        },
+        "source_semantics": "Submission gates on fresh map; native setdir checks current source collision+horizontal>3m; rolling cruise result/publish revalidates exact installed revision before any translation. No-known-hit is not measured free space."
+      }
+    },
+    {
+      "cycle": 4,
+      "trigger": {
+        "wall_ns": 48502321774044,
+        "kind": "obstacle_triggered_planning",
+        "mode": "explore",
+        "task_revision": 1,
+        "clearance_m": 2.9959544087793333,
+        "trigger_distance_m": 3.0,
+        "map_revision": 526,
+        "cruise_path_valid": true,
+        "body": [
+          10.92761128360512,
+          -5.335952176872654,
+          0.23709633688738874,
+          -0.007392472512633779,
+          -0.00019185304199196765,
+          -0.9901494790844154,
+          -0.13981889575955422
+        ]
+      },
+      "braking_complete": {
+        "wall_ns": 48510071576689,
+        "kind": "obstacle_braking_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          10.577132925473602,
+          -5.116888109743801,
+          0.21681851486385934,
+          -0.002953691498320166,
+          0.0014333273340265593,
+          -0.9949983472844304,
+          -0.09983741873936049
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48510025599719,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 0,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.0,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "map_revision": 544
+      },
+      "brake_duration_s": 7.749802645,
+      "brake_actual_final_1s": {
+        "ending_source_stamp_ns": 183709999999,
+        "samples": 26,
+        "source_span_s": 1.0,
+        "max_actual_speed3d_mps": 0.03950730038733602,
+        "max_actual_abs_yaw_rate_radps": 0.01403464415421874,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": true
+      },
+      "turn_selected": {
+        "wall_ns": 48514573164026,
+        "kind": "nbv_turn_selected",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": 2.4917711217459564,
+        "source_view_yaw_executed": false,
+        "body": [
+          10.505233132815185,
+          -5.097152359266958,
+          0.22775033419742935,
+          -0.0035237167632150993,
+          0.0005893734157747191,
+          -0.9957055668453872,
+          -0.09250762245488565
+        ],
+        "source_path_points": 50,
+        "source_path_first": [
+          10.514386855955442,
+          -5.101030625631167,
+          0.22729671987198413,
+          0.0,
+          0.0,
+          0.9957023995908542,
+          0.09261064436129818
+        ],
+        "source_path_last": [
+          9.734425332853725,
+          -4.508320057304133,
+          0.25475950695374117,
+          0.0,
+          0.0,
+          0.40827216696807783,
+          0.9128602509032749
+        ]
+      },
+      "turn_aligned": {
+        "wall_ns": 48521521622084,
+        "kind": "nbv_turn_aligned",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": 2.4917711217459564,
+        "body": [
+          10.459356473817692,
+          -5.046387297810898,
+          0.2277016453157764,
+          -0.0026062058787634968,
+          0.0008543549507524986,
+          -0.934590864406079,
+          -0.3557139214835905
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48521475636848,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.07863824489885651,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.06291059591908521
+          ]
+        }
+      },
+      "turn_actual_final_1s": {
+        "ending_source_stamp_ns": 195159999999,
+        "samples": 25,
+        "source_span_s": 0.98,
+        "max_actual_speed3d_mps": 0.021829714994542976,
+        "max_actual_abs_yaw_rate_radps": 0.03869941984951941,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": true
+      },
+      "direction_commit": {
+        "wall_ns": 48521571316611,
+        "kind": "avoidance_turn_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          10.451012695152404,
+          -5.046359550967513,
+          0.22852508478300532,
+          -0.002652114385687915,
+          0.0008256183374557913,
+          -0.9348403955602795,
+          -0.3550573467376028
+        ],
+        "diagnostics": {
+          "direction_source": "last_valid_native_nbv_first_edge_geometry",
+          "source_edge_direction_valid": "true",
+          "source_edge_map_revision": "554",
+          "source_edge_points": "50",
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "turn_clearance_minimum_m": "3",
+          "forward_obstacle_found": "true",
+          "nearest_obstacle_front_clearance_m": "3.1516984950829539",
+          "no_obstacle_semantics": "no_known_occupied_hit;unknown_is_not_observed_free",
+          "source_view_yaw_executed": "false",
+          "gain_execution_limit": "source_gain_preserved_but_sampled_view_yaw_not_executed_by_heading_only_policy",
+          "forward_direction": [
+            "-0.79619179237246329",
+            "0.60504432049125489",
+            "0"
+          ],
+          "forward_origin": [
+            "10.459356473817692",
+            "-5.0463872978108979",
+            "0.22770164531577641"
+          ]
+        },
+        "map_revision": 570
+      },
+      "status": "turn_and_resume_complete",
+      "pure_turn_navigation": {
+        "captured_index1_samples": 138,
+        "nonzero_translation_targets": 0,
+        "source_max_abs_translation_target": 0.0
+      },
+      "source_plan": {
+        "wall_ns": 48514571240987,
+        "valid": true,
+        "reason": "planned",
+        "map_revision": 554,
+        "source_revision": 187420000000,
+        "diagnostics": {
+          "source_tree_initialized_this_callback": "true",
+          "accepted_tree_nodes": "23",
+          "positive_gain_found": "true",
+          "turn_direction_source": "actual_native_rrt_first_edge_then_source_getBestEdge",
+          "turn_selector_eligible_nodes": "1",
+          "selected_turn_cruisable": "true",
+          "selected_turn_forward_obstacle_found": "true",
+          "source_path_validation": "accepted",
+          "turn_checked_source_first_edges": [
+            {
+              "source_first_edge_displacement": [
+                "-0.79587910520583272",
+                "0.60480670237452383",
+                "0.028023252124241838"
+              ],
+              "horizontal_execution_direction": [
+                "-0.79619179237246318",
+                "0.60504432049125489",
+                "0"
+              ],
+              "cruisable": "true",
+              "forward_obstacle_found": "true",
+              "nearest_obstacle_front_clearance_m": "3.2208154875776538"
+            }
+          ],
+          "forward_task_direction": [
+            "-0.96247494679991852",
+            "0.27137055253378928",
+            "0"
+          ],
+          "turn_clearance_minimum_m": "3"
+        }
+      },
+      "resumed_cruise_progress_m": 0.12757960774154253,
+      "progress_end": "next real3m trigger",
+      "source_endpoint_length_m": 0.9800000000000015,
+      "started_turn_continuity": {
+        "first_captured_index1_wall_ns": 48514625559749,
+        "active_capture_samples": 138,
+        "waypoint_index_counts": {
+          "1": 138
+        },
+        "neutral0_after_first_turn_before_aligned": 0,
+        "nonzero_translation_references": 0,
+        "note": "Initial validation neutral before first actual index1 and post-aligned neutral are excluded as required; source status wall timestamps define interval."
+      },
+      "forward_commit_fresh_map_evidence": {
+        "source_edge_map_revision": 554,
+        "commit_map_revision": 570,
+        "current_map_collision_valid": "true",
+        "current_horizontal_clearance_valid": "true",
+        "known_hit": "true",
+        "clearance_m": "3.1516984950829539",
+        "first_cruise_result": {
+          "wall_ns": 48521621311897,
+          "map_revision": 570,
+          "source_revision": 194360000000,
+          "path_valid": true,
+          "obstacle_clearance_m": 3.14121888609273
+        },
+        "source_semantics": "Submission gates on fresh map; native setdir checks current source collision+horizontal>3m; rolling cruise result/publish revalidates exact installed revision before any translation. No-known-hit is not measured free space."
+      }
+    },
+    {
+      "cycle": 5,
+      "trigger": {
+        "wall_ns": 48526321636831,
+        "kind": "obstacle_triggered_planning",
+        "mode": "explore",
+        "task_revision": 1,
+        "clearance_m": 2.993522922639787,
+        "trigger_distance_m": 3.0,
+        "map_revision": 580,
+        "cruise_path_valid": true,
+        "body": [
+          10.324495272484345,
+          -5.012994328988322,
+          0.20986552020069665,
+          -0.0034888223999429576,
+          0.00250580272563709,
+          -0.9544148785358878,
+          -0.2984523223234967
+        ]
+      },
+      "braking_complete": {
+        "wall_ns": 48533621796827,
+        "kind": "obstacle_braking_complete",
+        "mode": "explore",
+        "task_revision": 1,
+        "body": [
+          10.197780249485074,
+          -4.896504736877198,
+          0.23795192999101358,
+          -0.003721884075217194,
+          0.0010603676216431007,
+          -0.9589092482471271,
+          -0.2836865820330025
+        ],
+        "navigation": {
+          "run": "20261102T031510Z-29de60ff",
+          "wall_ns": 48533575566045,
+          "state": "TRACKING",
+          "reached": true,
+          "mission_id": "nbv-reactive",
+          "generation": 1,
+          "waypoint_index": 0,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.0,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "map_revision": 596
+      },
+      "brake_duration_s": 7.300159996,
+      "brake_actual_final_1s": {
+        "ending_source_stamp_ns": 207279999999,
+        "samples": 26,
+        "source_span_s": 1.0,
+        "max_actual_speed3d_mps": 0.03682785511606482,
+        "max_actual_abs_yaw_rate_radps": 0.016874733225556077,
+        "reused_source_speed_limit_mps": 0.04,
+        "reused_source_yaw_rate_limit_radps": 0.04,
+        "source_required_dwell_s": 1.0,
+        "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+        "all_captured_raw_samples_below_existing_motion_limits": true
+      },
+      "turn_selected": {
+        "wall_ns": 48536172830558,
+        "kind": "nbv_turn_selected",
+        "mode": "explore",
+        "task_revision": 1,
+        "yaw_rad": 1.006182428221016,
+        "source_view_yaw_executed": false,
+        "body": [
+          10.234796063147682,
+          -4.925056675273198,
+          0.25073385126723235,
+          -0.002768100332685788,
+          0.001511212420731448,
+          -0.9638030874179597,
+          -0.2665964413512985
+        ],
+        "source_path_points": 50,
+        "source_path_first": [
+          10.241220957345034,
+          -4.922841246796998,
+          0.24884407579307305,
+          0.0,
+          0.0,
+          0.9637343317975706,
+          0.26686351889063076
+        ],
+        "source_path_last": [
+          10.76549070875552,
+          -4.095128399170538,
+          0.22804336354360347,
+          0.0,
+          0.0,
+          0.45380189331485027,
+          0.8911025988200557
+        ]
+      },
+      "turn_aligned": null,
+      "turn_actual_final_1s": null,
+      "direction_commit": null,
+      "status": "turn_in_progress",
+      "pure_turn_navigation": {
+        "captured_index1_samples": 0,
+        "nonzero_translation_targets": 0,
+        "source_max_abs_translation_target": null
+      },
+      "source_plan": {
+        "wall_ns": 48536171251452,
+        "valid": true,
+        "reason": "planned",
+        "map_revision": 602,
+        "source_revision": 208530000000,
+        "diagnostics": {
+          "source_tree_initialized_this_callback": "true",
+          "accepted_tree_nodes": "20",
+          "positive_gain_found": "true",
+          "turn_direction_source": "actual_native_rrt_first_edge_then_source_getBestEdge",
+          "turn_selector_eligible_nodes": "1",
+          "selected_turn_cruisable": "true",
+          "selected_turn_forward_obstacle_found": "true",
+          "source_path_validation": "accepted",
+          "turn_checked_source_first_edges": [
+            {
+              "source_first_edge_displacement": [
+                "0.53496913409233215",
+                "0.84460494655761131",
+                "-0.021225216581091388"
+              ],
+              "horizontal_execution_direction": [
+                "0.53508967924780626",
+                "0.8447952622751147",
+                "0"
+              ],
+              "cruisable": "true",
+              "forward_obstacle_found": "true",
+              "nearest_obstacle_front_clearance_m": "7.4917891301701864"
+            }
+          ],
+          "forward_task_direction": [
+            "-0.79619179237246329",
+            "0.60504432049125489",
+            "0"
+          ],
+          "turn_clearance_minimum_m": "3"
+        }
+      },
+      "started_turn_continuity": {
+        "first_captured_index1_wall_ns": null,
+        "active_capture_samples": 0,
+        "waypoint_index_counts": {},
+        "neutral0_after_first_turn_before_aligned": 0,
+        "nonzero_translation_references": 0,
+        "note": "Initial validation neutral before first actual index1 and post-aligned neutral are excluded as required; source status wall timestamps define interval."
+      }
+    }
+  ],
+  "events_by_kind": {
+    "operator_command": 1,
+    "obstacle_triggered_planning": 5,
+    "obstacle_braking_complete": 5,
+    "nbv_plan": 12,
+    "nbv_turn_selected": 5,
+    "nbv_turn_aligned": 4,
+    "avoidance_turn_complete": 4,
+    "map_progress_unavailable": 32,
+    "map_progress_restored": 32
+  },
+  "no_endpoint_observe_wait": {
+    "nbv_edge_reached_event_count": 0,
+    "real_index_ge12_reached_nav_samples": 0,
+    "sampled_gaze_limit": "Original source RRT/gain/viewyaw remain; heading-only execution explicitly does not perform NBV sampled view gaze, so source information-gain prediction is not fully executed."
+  },
+  "evidence_snapshots": {
+    "vio-raw-body.jsonl": {
+      "bytes": 2076747,
+      "sha256_of_captured_prefix": "861c5836faf0d524f359e4fbcc4396518e3e94367a8095554c13f5743204b5b9",
+      "complete_records": 5178
+    },
+    "vio-optimized-body.jsonl": {
+      "bytes": 825959,
+      "sha256_of_captured_prefix": "51ec8eea614f27352f93df3e2c368a4a79a4e72b464ed3188b708ec81786ab47",
+      "complete_records": 3346
+    },
+    "control-timing-trace.jsonl": {
+      "bytes": 17265216,
+      "sha256_of_captured_prefix": "103dabb7d98729706c7e2090160d987f2565bcb54a146905743874cc2fd7283f",
+      "complete_records": 61391
+    },
+    "mission-events.jsonl": {
+      "bytes": 67259,
+      "sha256_of_captured_prefix": "377224a183669ac38d96ddacae48c09ab42d2bbbddec9e4f54a00d6109526dc8",
+      "complete_records": 100
+    },
+    "planner-execution-results.jsonl": {
+      "bytes": 420901,
+      "sha256_of_captured_prefix": "355a1df031deea0283c8fd3bbc1c6e55180b8ababfab8e59b5797d0828af282a",
+      "complete_records": 12
+    },
+    "controller-evidence.jsonl": {
+      "bytes": 5478469,
+      "sha256_of_captured_prefix": "fe40059ef8cfdd4b123f248a93d1d91bfa45348b4dd264cea7ab6f8faa8986dd",
+      "complete_records": 2087
+    },
+    "cruise-evidence.jsonl": {
+      "bytes": 2469999,
+      "sha256_of_captured_prefix": "e5bd1060d13a3dd6c72b496693de7599443c22c0c69528b84193d9561f3d512e",
+      "complete_records": 1532
+    }
+  },
+  "limits": [
+    "Evidence applies to this concrete run and finite observation checkpoint, not unrestricted long-duration reliability.",
+    "Before/after rates are not same-pose replay; scheduling source repair and raw/visual decoupling are directly observed, but no claim that every possible VIO fault is eliminated.",
+    "Current user task is left running unless operator/runtime stops it; this auditor never publishes control, pauses, clears faults, or starts trials."
+  ],
+  "conclusion": "Four genuine turn-to-cruise handoffs completed in this captured finite window. Started turns retained index1/zeroXYZ during observed map gaps; each handoff checked a newer map with horizontal clearance>3m before rolling cruise. Guard remained ARMED/gen1. Current fifth turn is unfinished and long-term navigation is not certified.",
+  "started_turn_map_gap_evidence": {
+    "existing_observer_started_wall_ns": 48377108164703,
+    "observer_task_start_offset_s": 44.041457156,
+    "turn_samples": 368,
+    "enabled_turn_healthy_false_samples": 13,
+    "gap_navigation_index_counts": {
+      "1": 13
+    },
+    "gap_guard_state_counts": {
+      "ARMED": 13
+    },
+    "gap_nonzero_translation_reference_samples": 0,
+    "examples": [
+      {
+        "wall_ns": 48422443513387,
+        "map_revision": 347,
+        "validated_revision": 318,
+        "healthy": false,
+        "guard": "ARMED",
+        "navigation": {
+          "state": "TRACKING",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": 0.029408324626959192,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            0.023526659701567355
+          ],
+          "reached": false
+        }
+      },
+      {
+        "wall_ns": 48447164482162,
+        "map_revision": 400,
+        "validated_revision": 400,
+        "healthy": false,
+        "guard": "ARMED",
+        "navigation": {
+          "state": "TRACKING",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": -1.1102611086384055,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            -0.12
+          ],
+          "reached": false
+        }
+      },
+      {
+        "wall_ns": 48449397570870,
+        "map_revision": 405,
+        "validated_revision": 400,
+        "healthy": false,
+        "guard": "ARMED",
+        "navigation": {
+          "state": "TRACKING",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": -1.0297037155955098,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            -0.12
+          ],
+          "reached": false
+        }
+      },
+      {
+        "wall_ns": 48454006402566,
+        "map_revision": 415,
+        "validated_revision": 400,
+        "healthy": false,
+        "guard": "ARMED",
+        "navigation": {
+          "state": "TRACKING",
+          "generation": 1,
+          "waypoint_index": 1,
+          "distance_m": 0.0,
+          "yaw_error_rad": -0.52200874373726,
+          "target_velocity": [
+            0.0,
+            0.0,
+            0.0,
+            -0.12
+          ],
+          "reached": false
+        }
+      }
+    ],
+    "interpretation": "healthy combines current state and map progress; enabled pure-turn samples with Guard ARMED and source TRACKING corroborate the map-only exemption. state freshness remains enforced by production bridge and source tracker. Snapshot sampling is not every tick."
+  },
+  "deployment_limit": "ZeroXYZ is a velocity reference, not a position-hold guarantee against water drift. This finite checkpoint does not claim all future turn settling or navigation reliability.",
+  "current_incomplete_turn": {
+    "cycle": 5,
+    "turn_elapsed_wall_s": 0.172287106,
+    "recent30s_navigation_waypoint_index_counts": {},
+    "recent30s_actual_speed3d_mps": {
+      "n": 300,
+      "min": 0.002011148777709312,
+      "median": 0.019527679891390665,
+      "p95": 0.0463575063728565,
+      "max": 0.06770436395577986
+    },
+    "recent30s_actual_abs_yawrate_radps": {
+      "n": 300,
+      "min": 0.0001293767242366557,
+      "median": 0.014672814671398419,
+      "p95": 0.12229860007301911,
+      "max": 0.17020163122225213
+    },
+    "recent30s_turn_yaw_error_abs_rad": {
+      "n": 0,
+      "min": null,
+      "median": null,
+      "p95": null,
+      "max": null
+    },
+    "latest_captured_navigation": {
+      "received_ns": 48535875796922,
+      "stage": "navigation",
+      "run": "20261102T031510Z-29de60ff",
+      "state": "TRACKING",
+      "generation": 1,
+      "wall_ns": 48535875497667,
+      "mission_id": "nbv-reactive",
+      "waypoint_index": 0,
+      "reached": false,
+      "distance_m": 0.0,
+      "yaw_error_rad": 0.0,
+      "target_velocity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "map_progress_gaps": 32,
+    "causal_limit": "Next turn is in progress at checkpoint; this finite audit makes no blockage claim for it."
+  },
+  "settle_observation_limit": "Four source index1 reached statuses satisfy retained source tick/dwell logic. Independent25Hz raw windows are fully below.04/.04 for turns1,2,4; turn3 includes a brief3Dspeed peak.0447084m/s>.04 although source20Hz reached=true. Cannot claim continuous all-raw-sample settling for turn3 or infer which25Hz samples source consumed from this trace."
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "Deployment/artifacts/weights/LAS2_M.pth",
+    "bytes": 41925933,
+    "sha256": "c41b61efce9b36e6b8b38b580421cd20cc9e84a47f0f45361767281938f69696"
+  },
+  {
+    "path": "Deployment/artifacts/weights/LAS2_S.pth",
+    "bytes": 24380949,
+    "sha256": "dda5ad5495710466f7e5c5a2dff395223893ef68a17d57d88e7ea7dfbb9d08e1"
+  },
+  {
+    "path": "TP/Controller/disaware_learning/checkpoints/stage2_zhat_response_potential_full4096_four_modal_e5.pt",
+    "bytes": 674999,
+    "sha256": "e4e09e92f5ae00a6183c6f698ad32d9bcf671705d93d6b81e44e14d43f67974d"
+  }
+]

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>海目云 ROV</title>
+    <link rel="stylesheet" href="widget.css">
+  </head>
+  <body>
+    <main class="console">
+      <header class="topbar">
+        <div>
+          <h1>海目云 ROV</h1>
+          <p id="endpoint">192.168.1.7:8887</p>
+        </div>
+        <div class="status-group">
+          <span id="modeBadge" class="badge observe">只读</span>
+          <span id="linkBadge" class="link-status"><i></i><span>连接中</span></span>
+        </div>
+      </header>
+
+      <section class="telemetry" aria-label="遥测">
+        <div class="metric primary"><span>深度</span><strong id="depth">--</strong><small>m</small></div>
+        <div class="metric"><span>航向</span><strong id="heading">--</strong><small>deg</small></div>
+        <div class="metric"><span>俯仰</span><strong id="pitch">--</strong><small>deg</small></div>
+        <div class="metric"><span>横滚</span><strong id="roll">--</strong><small>deg</small></div>
+        <div class="metric"><span>电量</span><strong id="battery">--</strong><small>%</small></div>
+        <div class="metric"><span>水温</span><strong id="temperature">--</strong><small>C</small></div>
+      </section>
+
+      <div id="alert" class="alert hidden" role="alert"></div>
+
+      <section class="control-strip" aria-label="安全控制">
+        <button id="takeover" class="command takeover" type="button">接管控制</button>
+        <button id="arm" class="command arm" type="button" disabled>
+          <span class="arm-progress"></span><span class="button-label">长按 ARM</span>
+        </button>
+        <button id="disarm" class="command stop" type="button" disabled aria-label="解除 Arm">
+          <span class="stop-icon"></span><span>DISARM</span>
+        </button>
+        <button id="release" class="command quiet" type="button" disabled>释放控制</button>
+      </section>
+
+      <section class="axis-panel" aria-label="运动轴">
+        <div class="axis-row"><span>前后</span><div class="axis-track"><i id="surgeBar"></i><b></b></div><output id="surgeValue">0.00</output><label><input data-invert="surge" type="checkbox">反向</label></div>
+        <div class="axis-row"><span>横移</span><div class="axis-track"><i id="swayBar"></i><b></b></div><output id="swayValue">0.00</output><label><input data-invert="sway" type="checkbox">反向</label></div>
+        <div class="axis-row"><span>升降</span><div class="axis-track"><i id="heaveBar"></i><b></b></div><output id="heaveValue">0.00</output><label><input data-invert="heave" type="checkbox">反向</label></div>
+        <div class="axis-row"><span>转向</span><div class="axis-track"><i id="yawBar"></i><b></b></div><output id="yawValue">0.00</output><label><input data-invert="yaw" type="checkbox">反向</label></div>
+      </section>
+
+      <section class="aux-grid" aria-label="辅助控制">
+        <div class="field light-field">
+          <div class="field-title"><span>灯光</span><output id="lightValue">0%</output></div>
+          <input id="light" type="range" min="0" max="100" value="0">
+        </div>
+        <fieldset class="field gear-field">
+          <legend>档位</legend>
+          <div class="segments" id="gear">
+            <button type="button" data-value="1" class="selected">1</button>
+            <button type="button" data-value="2">2</button>
+            <button type="button" data-value="3">3</button>
+          </div>
+        </fieldset>
+        <div class="field toggles">
+          <label><span>定航</span><input id="headingHold" type="checkbox" role="switch"></label>
+          <label><span>定深</span><input id="depthHold" type="checkbox" role="switch"></label>
+          <label><span>机械手</span><input id="gripper" type="checkbox" role="switch"></label>
+        </div>
+        <div class="field gimbals">
+          <div><span>云台 1</span><button data-gimbal="1" data-direction="down" type="button">-</button><button data-gimbal="1" data-direction="up" type="button">+</button></div>
+          <div><span>云台 2</span><button data-gimbal="2" data-direction="down" type="button">-</button><button data-gimbal="2" data-direction="up" type="button">+</button></div>
+        </div>
+      </section>
+
+      <footer>
+        <span id="controlState">未接管</span>
+        <span id="lastFrame">等待遥测</span>
+      </footer>
+    </main>
+    <script src="widget.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+FROM ros:noetic-ros-base-focal@sha256:72b8bc59035dc0a5b8e07aae28c16caa84192971d72d207c72ed734fb1d5e97d
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake git python3-catkin-tools python3-numpy python3-yaml \
+    libgoogle-glog-dev libgflags-dev libeigen3-dev libboost-all-dev \
+    libsqlite3-dev libzmq3-dev libpugixml-dev \
+    ros-noetic-cv-bridge ros-noetic-tf ros-noetic-pcl-ros \
+    ros-noetic-pcl-conversions ros-noetic-grid-map-core \
+    ros-noetic-grid-map-filters ros-noetic-grid-map-msgs ros-noetic-grid-map-ros \
+    && rm -rf /var/lib/apt/lists/*

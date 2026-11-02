@@ -1,0 +1,12 @@
+--- a/src/stonefish_ros2/ROS2SimulationManager.cpp
++++ b/src/stonefish_ros2/ROS2SimulationManager.cpp
+@@ -535,7 +535,8 @@
+ {
+     //Fill in the image message
+     sensor_msgs::msg::Image::SharedPtr img = cameraMsgPrototypes_[cam->getName()].first;
+-    img->header.stamp = UWClockNow();
++    if(cam->getCaptureTime() < 0) return;
++    img->header.stamp = rclcpp::Time(static_cast<int64_t>(std::llround(cam->getCaptureTime()*1e9)), RCL_ROS_TIME);
+     memcpy(img->data.data(), (float*)cam->getImageDataPointer(), img->step * img->height);
+ 
+     //Fill in the info message

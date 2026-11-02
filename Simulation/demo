@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Start the prepared Porth planning demo without rebuilding images.
+set -euo pipefail
+
+demo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+if (( $# )); then
+  printf 'Usage: %s\n' "$0" >&2
+  exit 2
+fi
+
+"${demo_dir}/sim" doctor
+docker image inspect "${PELAGOS_SIM_IMAGE:-pelagos-stonefish:local}" >/dev/null
+docker image inspect "${PELAGOS_NBV_IMAGE:-pelagos-nbvplanner:local}" >/dev/null
+printf '\nRestarting the project simulation from spawn; saved runs are kept.\n'
+printf 'RViz toolbar: Explore to start, Pause to stop, Manual for joystick takeover.\n\n'
+"${demo_dir}/sim" stop
+exec "${demo_dir}/sim" run --autonomy

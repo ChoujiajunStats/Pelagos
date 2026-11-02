@@ -1,0 +1,14 @@
+[Unit]
+Description=ZED X stereo and IMU capture
+Conflicts=hmu-stereo.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/nvidia/Dapeng_Deployment/Deployment/contexts/sensing/scripts/start_zed_x.sh
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

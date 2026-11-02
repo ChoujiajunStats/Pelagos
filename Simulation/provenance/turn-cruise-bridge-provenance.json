@@ -1,0 +1,1981 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-02T02:28:14.436111+00:00",
+  "status": "031510_four_reactive_cycles_finite_verified_task_active_offline_render_dedup_not_loaded",
+  "authorization": {
+    "strategy": "User explicitly requested planner only choose a turn, then continuous forward cruise until the next approximately3m obstacle; remove exact NBV endpoint/observe execution.",
+    "ui": "User explicitly requested fully English RViz, remove custom panel and web UI, native toolbar Explore/Preview/Manual/Auto/Pause.",
+    "parameter_changes_in_this_revision": false
+  },
+  "scope": {
+    "owner": "review_pending_fixes documentation/provenance archive; root owns bridge/config/UI, native agent owns native build.",
+    "written_files": [
+      "Simulation/README.md",
+      "Simulation/EXPERIMENT_HANDOVER.md",
+      "Simulation/build/wavemap-nbv/turn-cruise-bridge-provenance.json"
+    ],
+    "production_source_modified_by_archive": false,
+    "configuration_modified_by_archive": false,
+    "containers_mutated_by_archive": false
+  },
+  "source_hash_scope": "Current bridge2117e537snapshot is for new031510run and was modified before thatfreshprocessstart. Prior023622/030254bridgea3c55388 is retained in historicalsource/runtime records and never replaced by2117. Native/UI/OKVIS buildidentities remain separately recorded; no currentfilehash isbackdated or claimed extractedfromin-processPython.",
+  "policy": {
+    "phases": [
+      "cruise",
+      "braking",
+      "planning",
+      "turning",
+      "setting_cruise_direction",
+      "cruise"
+    ],
+    "cruise": "Actual installed occupied voxel boxes/source footprint determine front clearance. Unknown allowed in rolling cruise without writing map free. Rolling source1m goal and original overshoot remain occupied-checked; no5m cap or endpoint/observe wait.",
+    "braking": "At clearance<=existing3m or invalid occupied corridor stop renewing straight target, retain token with fresh neutral0. Await current source actual3D speed/yawrate/dwell and matching fresh run/mission/generation/index0 before planning.",
+    "plan_turn": "Read genuine existing source RRT tree. Reject first-edge horizontal directions with known occupied footprint clearance<=frozen3m at current actual body altitude, keep original maximum cumulative gain among remaining positive-forward candidates. No known hit means no known hit, not observed free. Return original source first-edge path geometry.",
+    "turn": "Cache source geometry, clear moving target, validate current edge before first pure-turn intent, send index1 with current XYZ/geometry-derived yaw only. Source adapter recomputes actual XYZ every tick. Match nbv-reactive mission/run/generation/index1, TRACKING reached, report wall>=turn start and age<existing250ms.",
+    "commit": "After source pure-turn settle, original full path is matched to native cached source geometry and current map/3m clearance is rechecked. Success updates actual current origin/direction and clears unexecuted branch memory; bridge continuously renews neutral0 while computing the first rolling carrot, then resumes current-heading cruise.",
+    "retry": "No cruisable turn or rejected commit retains neutral; bridge waits genuine newer map source_revision before another RRT request, retaining existing planning interval.",
+    "arrivals": "Reactive cruise initialized=false; old precise edge-reached branch is bypassed. mission nbv-reactive real indices>=12 call source Tracker directly with rolling native goal, no adapter align/observe or endpoint stop.",
+    "gain_limit": "Source gain/view-yaw sampling remains, but sampled endpoint gaze is not executed under user heading-only strategy; gain is not proof identical gaze was performed.",
+    "map_gap": "Freshbody/Guard/authorization/leases always required. Before firstturn currentmapvalidation/freshness required. Once stationarypureturn1 has genuinely started, mapgap doesnotinjectneutral0 or interruptthatrotation; finaldirectioncommit andallforwardgoalsstillrequirefreshcurrentmap. Afteraligned,neutral0untilmaprestores; existing3m/currentpathchecks retained.",
+    "preview": "Preview now invokes plan_turn with the same3m candidate eligibility as reactive execution. It remains nonexecuting and cannot authorize ARM/goals.",
+    "turn_visualization": "During turning/setting_cruise_direction, visible yellow arrow is anchored at latest estimated body XYZ with requested turn yaw; it does not present original endpoint/view yaw as execution destination."
+  },
+  "interfaces": {
+    "mission_id": "nbv-reactive",
+    "reserved0": "full neutral",
+    "reserved1": "external pure turn preserving requested yaw/latest actual XYZ",
+    "reactive_real_indices": ">=12 original source Tracker direct guidance",
+    "native_operations": [
+      "plan_turn",
+      "set_cruise_direction",
+      "plan_forward_cruise"
+    ],
+    "schema": "Existing Step.srv/JSON, no protocol schema change",
+    "source_refs": [
+      {
+        "artifact": {
+          "path": "Simulation/adapters/nbv_bridge.py",
+          "sha256": "2117e5372b9a1901b5b2f43cfb1ee9f416abb91f9cf9d8dacf5d917e015d4c05",
+          "bytes": 57885
+        },
+        "methods": {
+          "poll": {
+            "start_line": 342,
+            "end_line": 467
+          },
+          "apply_cruise_result": {
+            "start_line": 469,
+            "end_line": 503
+          },
+          "navigation_mission_id": {
+            "start_line": 505,
+            "end_line": 506
+          },
+          "begin_avoidance_turn": {
+            "start_line": 508,
+            "end_line": 523
+          },
+          "tick_avoidance_turn": {
+            "start_line": 525,
+            "end_line": 565
+          },
+          "publish_goal": {
+            "start_line": 601,
+            "end_line": 609
+          },
+          "publish_neutral_goal": {
+            "start_line": 611,
+            "end_line": 614
+          },
+          "tick": {
+            "start_line": 616,
+            "end_line": 809
+          }
+        }
+      },
+      {
+        "artifact": {
+          "path": "Simulation/adapters/estimated_navigation.py",
+          "sha256": "6b3e9cea2314c1a27912c1f6aa9f8200c87d644d17a6f29e9a8269aedf9c45d8",
+          "bytes": 5911
+        },
+        "methods": {
+          "tick": {
+            "start_line": 76,
+            "end_line": 99
+          }
+        }
+      },
+      {
+        "artifact": {
+          "path": "Simulation/tools/prepare_scene.py",
+          "sha256": "72cccd156a74c49e0e3bdcdae3862020d11e842bdc326a44819af112de8049a0",
+          "bytes": 18015
+        },
+        "methods": {}
+      }
+    ]
+  },
+  "frozen_configuration": {
+    "artifact": {
+      "path": "Simulation/config/nbv.yaml",
+      "sha256": "9aa342e51e597fbe486162c80e446acc49e24d5013cc63c9e6484b5587b6cfdd",
+      "bytes": 2638
+    },
+    "map_resolution_m": 0.1,
+    "obstacle_plan_distance_m": 3.0,
+    "startup_unknown_policy": "obstacle_triggered",
+    "obstacle_response": "turn_then_cruise",
+    "horizontal_speed_multiplier": 4.0,
+    "horizontal_speed_cap_m_s": 0.48,
+    "jepa": {
+      "sample_count": 64,
+      "deadline_seconds": 0.36,
+      "maximum_plan_age_seconds": 0.6,
+      "planner_latency_compensation_seconds": 0.36
+    },
+    "source_gain_budget": "Unchanged gain/yaw sampling and15/200",
+    "settling": {
+      "yaw_tolerance_rad": 0.1,
+      "actual_speed_m_s": 0.04,
+      "actual_yaw_rate_rad_s": 0.04,
+      "dwell_sec": 1.0
+    },
+    "original_watchdogs": "NavigationGoal200ms; source state/Guard/goal issue250ms; existing terminal output200ms unchanged",
+    "map_freshness": "Existing derived250ms+one5Hz publication interval=450ms source-progress/receive allowance; body lease not widened."
+  },
+  "validation": {
+    "host": {
+      "artifact": {
+        "path": "Simulation/build/wavemap-nbv/turn-cruise-bridge-tests.log",
+        "sha256": "0a7b25072cb2ae662ae7c64d52f9413eae4a23c0dafc8bdd9232f37909ae926c",
+        "bytes": 98
+      },
+      "passed": 68,
+      "result": "OK",
+      "evidence_scope": "Root ran68host; archive read savedlog only.",
+      "new_cases": [
+        "already-startedstationaryturn survivesmapprogressgap",
+        "turn cannot start onstalemap",
+        "alignedturn neutralwaitsforfreshmapcommit",
+        "exemptioncannotbypassstalebodyrevocation"
+      ]
+    },
+    "source": {
+      "artifact": {
+        "path": "Simulation/build/wavemap-nbv/turn-cruise-navigation-tests.log",
+        "sha256": "8fb5ed44c8d031066d289400bc9c96a2ce158889bc60f8676e765b777039838f",
+        "bytes": 8793
+      },
+      "provenance": {
+        "path": "Simulation/build/wavemap-nbv/turn-cruise-navigation-provenance.json",
+        "sha256": "e69e7faefb51b70205eb74573864df8ebc379fe142a90da519e6361ffe1b2e51",
+        "bytes": 6861
+      },
+      "passed": 44,
+      "breakdown": {
+        "navigation": 31,
+        "sensor_alignment": 9,
+        "clock_control": 4
+      },
+      "result": "OK"
+    },
+    "native": {
+      "provenance": {
+        "path": "Simulation/build/wavemap-nbv/plan-turn-provenance.json",
+        "sha256": "a0b2ec9c835ce9b7fd350c724148dd4cc60762bdeea979b5ee400f4ef9406c65",
+        "bytes": 9693
+      },
+      "prior_direction_interface_provenance": {
+        "path": "Simulation/build/wavemap-nbv/turn-cruise-native-provenance.json",
+        "sha256": "0e46bf36a59219b795e066dc3f36e79267e3bfbed7837a9e03667f1c8e158781",
+        "bytes": 7773
+      },
+      "cpp_checks": "3PASS; independent native owner",
+      "full_planner_build": "PASS",
+      "image": "sha256:0302d2bbaaf64aeaebc6f6b31dc79418848b5716e146bb1667fd022e721f85ce",
+      "integration_fingerprint": "0810f9e630b0bff919d2be762af5aac292ead889ab7685ca782aa204165fc28a"
+    },
+    "ui": {
+      "status": "runtime023622_b29260_verified_latest41978_feedback_built_not_loaded_in_old_run",
+      "current_independent_provenance": {
+        "path": "Simulation/build/rviz-native-tools/ui-native-tools-provenance.json",
+        "sha256": "6382bfc6ed1fb3d659a28ecef54b6e34fb91ea7266a5f86a282a45aa9c171099",
+        "bytes": 24844
+      },
+      "runtime023622": {
+        "status": "PASS_actual_English_RViz_loaded",
+        "mission_protocol_scenarios": 12,
+        "installed_tool_classes": 5,
+        "actual_rviz_only_test": {
+          "result": "PASS",
+          "ros_domain": 213,
+          "duration_seconds": 12.012242426004377,
+          "alive_through_test": true,
+          "exit_code": 0,
+          "full_configuration": "Simulation/config/pelagos.rviz",
+          "rendering": "Actual display and GPU OpenGL4.6; screenshot inspected with all five English toolbar tools and no custom mission panel.",
+          "scope": "RViz only. No Stonefish, planner, controller or actuator processes; no mission requests.",
+          "driver": {
+            "path": "Simulation/build/rviz-native-tools/check_actual_init.py",
+            "sha256": "7c9bfa4c3baf7f9162a3f9e64f1133c28d8ae10d0c9afa30675f5b98d429b72c",
+            "bytes": 2252
+          },
+          "result_artifact": {
+            "path": "Simulation/build/rviz-native-tools/actual-init-result.json",
+            "sha256": "2fc4e8d7f3760a7a09e43084076fb13e54ad186db485c06b80b3ef60d181e92b",
+            "bytes": 1366
+          },
+          "log": {
+            "path": "Simulation/build/rviz-native-tools/actual-init-fixed.log",
+            "sha256": "fc643f2f38a3687276bd1d5005d991695565f07acc3ebc8e1561277bf4f3a530",
+            "bytes": 490
+          },
+          "screenshot": {
+            "path": "Simulation/build/rviz-native-tools/actual-rviz-toolbar.png",
+            "sha256": "5b2cd7a56c964979ce1e900683c5d1cb3cae2596cc8cbe23e5963f5b0ab1a1f8",
+            "bytes": 1789481
+          },
+          "test_instrumentation": "SIGSEGV backtrace preload used only by the isolated test; no preload is configured in production startup."
+        },
+        "build": {
+          "command": "./Simulation/sim build",
+          "result": "complete",
+          "log": {
+            "path": "Simulation/build/rviz-native-tools/image-build-lifecycle-fix.log",
+            "sha256": "ae767b321f661e134010041439fd17c238c139567e7af51916b5b78e35c61c7d",
+            "bytes": 13586
+          },
+          "image_manifest_list": "sha256:b29260c04d30c6dff84656065677513de0b0a1cc666ca49c75bbb5d76329330f",
+          "image_config": "sha256:d629c011be0bf203aa74add8bf365b727332f2f1819b667c2e65c12acc3826d7"
+        },
+        "actual_live_screenshot": {
+          "path": "Simulation/build/rviz-native-tools/rviz-live-english.png",
+          "sha256": "cd1aa5dd65fbdc5d49343e7accee5ce258fd73ad0ac5ed5fa545c56587f49724",
+          "bytes": 1699151
+        },
+        "screenshot_independently_viewed_by_archive": true,
+        "actual_controls_observed": [
+          "Explore",
+          "Plan Preview",
+          "Manual",
+          "Auto (active)",
+          "Pause"
+        ],
+        "lifecycle_fixes_summary": "Initialize refresh deferred until toolAdded/QAction exists; stop timer/reject spin/publish on invalid ROS context during shutdown.",
+        "prior_023034": "Pre-task actual RViz initialization SIGSEGV-11; task never started. Final image lifecycle fix/actual12s exit0validated; not this mission Guard failure.",
+        "custom_mission_panel_observed": false,
+        "scope": "Historical023622runtime UIb29260/lifecycle/12protocol evidence; not the new41978feedback build.",
+        "provenance_sha256_at_previous_capture": "e4fe8abddfde37a4d0b343175592b4aeae8e09de580d4d192f39068d56c93759",
+        "provenance_snapshot_note": "Same independent UI provenance path was later updated to41978/15checks. The old hash is retained only as a historical capture identity; it is not a claim that the current path still has those bytes.",
+        "mission_protocol_log": {
+          "path": "Simulation/build/rviz-native-tools/mission-flow-check.log",
+          "sha256": "fdbba4bc7f85c49832730c1ba617210da29b9adecb983e9cb6da689e8712cf0a",
+          "bytes": 98
+        }
+      },
+      "latest_feedback_build": {
+        "image": {
+          "command": "./Simulation/sim build",
+          "result": "complete",
+          "log": {
+            "path": "Simulation/build/rviz-native-tools/image-build-guard-feedback.log",
+            "sha256": "fd14ecd564e75a1327c05ef3b128e8f1400654633531a15639656813c3d5e553",
+            "bytes": 13675
+          },
+          "image_manifest_list": "sha256:41978a32ff2915300592fb47c56f7700f4a417ac318f462dd778ce615968b332",
+          "image_config": "sha256:1fbf8f9fcc98c4e058a07d006dce010037704f1881fb20324c36d02adc35689c"
+        },
+        "mission_protocol": {
+          "scenarios": 15,
+          "result": "PASS",
+          "source": {
+            "path": "Simulation/rviz_panel/tests/check_mission_flow.cpp",
+            "sha256": "10511c7e5637fbd8844385650b575cb4ebcfb435e71cea2ad2cf217121a287ad",
+            "bytes": 5149
+          },
+          "log": {
+            "path": "Simulation/build/rviz-native-tools/mission-feedback-check.log",
+            "sha256": "e9f2d2b8a0f05b4c5d83416c9963c15e9a73970d22c9e4b09b64b1e626693ecf",
+            "bytes": 102
+          },
+          "covers": [
+            "Manual->matchedselectionack->freshactualAuto->singleStart",
+            "Pause/Manualcancelqueuedstartandignorelateacks",
+            "Previewonlyno-motionaction",
+            "freshness,timeout,newrunandwrongresponseisolation",
+            "planning-onlyrestrictions",
+            "ChineseacceptedandrejectedreasoninputsproduceEnglish-onlyvisiblemessages",
+            "Guard FAULT after an accepted start shows FAULT/Stopped and suppresses old acceptance text while ownership remains selected",
+            "Localized unknown guard reason produces only fixed English safety-fault feedback",
+            "Running/Paused/Offline states are distinguished"
+          ]
+        },
+        "meaning": "Auto/Manual labels identify selected ownership; fixed English status/tooltip separates Guard:FAULT and Task:Stopped; an earlier accepted request cannot conceal fault.",
+        "loaded_in_023622": false,
+        "fresh_runtime_verified": false,
+        "source_scope": "Existing live viewer was not restarted. This feedback revision passed all15 protocol/feedback cases and main-image compilation; root will load the new image in a later session. Earlier full12s initialization/clean-exit evidence applies to lifecycle-fix imageb29260c0, whose startup/shutdown protections are retained.",
+        "loaded_as_standalone41978_image_in030254": false,
+        "feedback_source_revision_loaded_via_efeb_in030254": true,
+        "runtime_scope": "41978is separate15check feedbackbuild;030254and031510mainefebfreshprocessesinclude thatUIrevision. Historical023622runtime remainsb29260; no standalone41978image-runtimeclaim.",
+        "fresh_runtime_verified_scope": "No independent live newfeedbackFAULT rendering claimed; healthy fresh viewer/source loading reported by parent. Standalone41978image itself was not the runtime.",
+        "feedback_source_revision_loaded_via_efeb_in031510": true
+      },
+      "render_display_deduplication": {
+        "authorization": "Root explicitly authorized removing only the three duplicate Sensors display instances; no source frequencies or planner/map parameters.",
+        "change": "Removed the YAML alias entries for NBVpath,NBVOctoMap,Wavemapoccupied from Sensors and estimation evidence. Unique original layers remain in PlannerViz/Mapping.",
+        "config": {
+          "path": "Simulation/config/pelagos.rviz",
+          "bytes": 11013,
+          "sha256": "0c5b08aacf8608f88ed81f407456b004e02978857ae644b36e4d07507bf49174"
+        },
+        "uniqueness_check": {
+          "path": "Simulation/build/rviz-native-tools/render-display-uniqueness.json",
+          "bytes": 824,
+          "sha256": "059cd870eae45ed529188cd384d5a11345454507693b9564c7b76eb4ce99b08d"
+        },
+        "enabled_instances_after": {
+          "/pelagos/planner/path": 1,
+          "/pelagos/planner/map": 1,
+          "/mapping/occupied_cells": 1
+        },
+        "full_map_geometry_retained": true,
+        "numeric_render_map_planner_values_changed": false,
+        "current_live_viewer_restarted_or_reloaded_by_this_subtask": false,
+        "build_needed": "No binary change. The workspace-mounted config will be used when root reloads/reopens RViz.",
+        "application_status": "Next viewer launch/config load only. The currently running RViz was not restarted or reloaded."
+      },
+      "pre_dedup_config_capture": {
+        "path": "Simulation/config/pelagos.rviz",
+        "sha256": "393d539d1de9c5cdb64bd8c60cff6c23e22a947c9872d3623a60947963ca1486",
+        "bytes": 11052
+      },
+      "render_dedup_runtime_scope": "OnlySensors3duplicatedaliases removedoffline. Current031510RVizwasnotrestarted/reloaded; dedupwillapplynextconfigurationload. No binarybuild and no runtimeeffect/rootcauseclaim for four-cycle result."
+    },
+    "fresh_live": {
+      "status": "finite_checkpoint_four_turns_completed_task_continues",
+      "run": "20261102T031510Z-29de60ff",
+      "recorded_at_utc": "2026-11-02T03:18:47.192576+00:00",
+      "actual_task_accepted": {
+        "wall_ns": 48333066707547,
+        "kind": "operator_command",
+        "mode": "explore",
+        "task_revision": 1,
+        "action": "start_exploration",
+        "request_id": "131bc3e71324477ab34eda78d8cdfd12-1"
+      },
+      "origin": "User terminal launched session; parent reports root did not restart it or sendExplore.",
+      "runtime_images": {
+        "main": "sha256:efeb177dd20c332620794ac087c8950bd784b2870f6f48e90345aa1d098c06b2",
+        "native": "sha256:0302d2bbaaf64aeaebc6f6b31dc79418848b5716e146bb1667fd022e721f85ce"
+      },
+      "runtime_bridge": {
+        "path": "Simulation/adapters/nbv_bridge.py",
+        "sha256": "2117e5372b9a1901b5b2f43cfb1ee9f416abb91f9cf9d8dacf5d917e015d4c05",
+        "bytes": 57885
+      },
+      "startup_order_evidence": {
+        "bridge_file_mtime_local": "2026-11-02 11:12:50.021519 +08:00",
+        "process_start_local": "2026-11-02 11:15:11 +08:00",
+        "source": "Parent inspected freshprocess/start andarchive independently readcurrentfilemtime; no in-processPythonfingerprint extracted.",
+        "mounted_python_scope": "New bridge available before freshprocessstart, not backdated to023622/030254or implied baked intoefeb."
+      },
+      "planner_snapshot": {
+        "enabled": true,
+        "reason": "turning_to_nbv_direction",
+        "healthy": true,
+        "obstacle_phase": "turning",
+        "mode": "explore",
+        "control_mode": "autonomy",
+        "plans_requested": 12,
+        "paths_generated": 5,
+        "guard": "ARMED",
+        "guard_reason": "explicit_arm",
+        "guard_fault": null,
+        "body_pose": [
+          10.24467540091897,
+          -4.930481736462452,
+          0.2541615428089802,
+          -0.0029998408815457163,
+          0.0010623100437310185,
+          -0.9639640306566566,
+          -0.2660135711805489
+        ]
+      },
+      "guard_snapshot": {
+        "state": "ARMED",
+        "reason": "explicit_arm",
+        "generation": 1,
+        "health": null,
+        "ready": true,
+        "state_diagnostic": null,
+        "fault_context": null
+      },
+      "snapshot_only": true,
+      "turn_mapgap_smoothness_live_accepted": false,
+      "long_term_exploration_accepted": false,
+      "pending": "Longer-term/allfutureconvergence notaccepted. Fifthturn hadjustbegun atfixedcheckpoint; no newblockageclaim and taskcontinues--leave-running.",
+      "pre_audit_retest_snapshot": {
+        "recorded_at_utc": "2026-11-02T03:18:01.518236+00:00",
+        "planner_snapshot": {
+          "wall_ns": 48490871206533,
+          "enabled": true,
+          "healthy": true,
+          "reason": "cruising_until_obstacle_3m",
+          "obstacle_phase": "cruise",
+          "cruise_active": true,
+          "body_pose": [
+            12.591639010737705,
+            -5.7819005546993445,
+            0.1962180978841877,
+            -0.003058851933197788,
+            0.0008448727007451994,
+            -0.9920427753520619,
+            -0.12586127874270503
+          ],
+          "navigation": {
+            "state": "TRACKING",
+            "generation": 1,
+            "waypoint_index": 19,
+            "distance_m": 0.9938099380185327,
+            "yaw_error_rad": -0.021826906124632114,
+            "target_velocity": [
+              0.4797806956730279,
+              -0.014508068772421657,
+              -0.0034386830309710015,
+              -0.01746152489970569
+            ],
+            "reached": false
+          }
+        },
+        "guard_snapshot": {
+          "wall_ns": 48490849650498,
+          "state": "ARMED",
+          "reason": "explicit_arm",
+          "generation": 1,
+          "fault_context": null
+        },
+        "pending": "Await root/independent live checkpoint for already-started pureturn mapgap continuity and actualmotionsettle. Keep usertask running; archive never restarts or publishescontrols."
+      },
+      "source_live_audit": {
+        "path": "Simulation/build/wavemap-nbv/map-stale-turn-live-audit.json",
+        "sha256": "12730f0d5c027dc2911893a93e747c83a4fe3d44502bccde2c90170e840c8f51",
+        "bytes": 81279
+      },
+      "asof": {
+        "last_evidence_wall_ns": 48536345117664,
+        "latest_terminal_sim_clock_s": 209.589999999,
+        "task_wall_elapsed_s": 203.278410117,
+        "last_raw_source_s": 209.789999999,
+        "trace_start_wall_ns": 48378045108590,
+        "trace_first_raw_source_s": 51.759999999,
+        "trace_task_start_offset_wall_s": 44.978401043
+      },
+      "completed_reactive_cycles": 4,
+      "committed_map_revisions": [
+        258,
+        349,
+        499,
+        570
+      ],
+      "started_turn_map_gap_evidence": {
+        "existing_observer_started_wall_ns": 48377108164703,
+        "observer_task_start_offset_s": 44.041457156,
+        "turn_samples": 368,
+        "enabled_turn_healthy_false_samples": 13,
+        "gap_navigation_index_counts": {
+          "1": 13
+        },
+        "gap_guard_state_counts": {
+          "ARMED": 13
+        },
+        "gap_nonzero_translation_reference_samples": 0,
+        "examples": [
+          {
+            "wall_ns": 48422443513387,
+            "map_revision": 347,
+            "validated_revision": 318,
+            "healthy": false,
+            "guard": "ARMED",
+            "navigation": {
+              "state": "TRACKING",
+              "generation": 1,
+              "waypoint_index": 1,
+              "distance_m": 0.0,
+              "yaw_error_rad": 0.029408324626959192,
+              "target_velocity": [
+                0.0,
+                0.0,
+                0.0,
+                0.023526659701567355
+              ],
+              "reached": false
+            }
+          },
+          {
+            "wall_ns": 48447164482162,
+            "map_revision": 400,
+            "validated_revision": 400,
+            "healthy": false,
+            "guard": "ARMED",
+            "navigation": {
+              "state": "TRACKING",
+              "generation": 1,
+              "waypoint_index": 1,
+              "distance_m": 0.0,
+              "yaw_error_rad": -1.1102611086384055,
+              "target_velocity": [
+                0.0,
+                0.0,
+                0.0,
+                -0.12
+              ],
+              "reached": false
+            }
+          },
+          {
+            "wall_ns": 48449397570870,
+            "map_revision": 405,
+            "validated_revision": 400,
+            "healthy": false,
+            "guard": "ARMED",
+            "navigation": {
+              "state": "TRACKING",
+              "generation": 1,
+              "waypoint_index": 1,
+              "distance_m": 0.0,
+              "yaw_error_rad": -1.0297037155955098,
+              "target_velocity": [
+                0.0,
+                0.0,
+                0.0,
+                -0.12
+              ],
+              "reached": false
+            }
+          },
+          {
+            "wall_ns": 48454006402566,
+            "map_revision": 415,
+            "validated_revision": 400,
+            "healthy": false,
+            "guard": "ARMED",
+            "navigation": {
+              "state": "TRACKING",
+              "generation": 1,
+              "waypoint_index": 1,
+              "distance_m": 0.0,
+              "yaw_error_rad": -0.52200874373726,
+              "target_velocity": [
+                0.0,
+                0.0,
+                0.0,
+                -0.12
+              ],
+              "reached": false
+            }
+          }
+        ],
+        "interpretation": "healthy combines current state and map progress; enabled pure-turn samples with Guard ARMED and source TRACKING corroborate the map-only exemption. state freshness remains enforced by production bridge and source tracker. Snapshot sampling is not every tick."
+      },
+      "no_endpoint_observe_wait": {
+        "nbv_edge_reached_event_count": 0,
+        "real_index_ge12_reached_nav_samples": 0,
+        "sampled_gaze_limit": "Original source RRT/gain/viewyaw remain; heading-only execution explicitly does not perform NBV sampled view gaze, so source information-gain prediction is not fully executed."
+      },
+      "deployment_limit": "ZeroXYZ is a velocity reference, not a position-hold guarantee against water drift. This finite checkpoint does not claim all future turn settling or navigation reliability.",
+      "after_checkpoint_parent_observation": "Root later directly observed enabled/GuardARMED/cruise. This archive fixes the independentlyauditedfour-cyclewindow and doesnotchase laterroundcounts.",
+      "cycles": [
+        {
+          "cycle": 1,
+          "trigger_clearance_m": 2.9026337093073344,
+          "commit_map_revision": 258,
+          "commit_wall_ns": 48388671374972,
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "nearest_obstacle_front_clearance_m": "7.5784588157027537",
+          "resumed_cruise_progress_m": 4.51782081148935,
+          "pure_turn_navigation": {
+            "captured_index1_samples": 211,
+            "nonzero_translation_targets": 0,
+            "source_max_abs_translation_target": 0.0
+          },
+          "source_report_reached": true,
+          "independent_raw_turn_window": {
+            "ending_source_stamp_ns": 62259999999,
+            "samples": 25,
+            "source_span_s": 0.97,
+            "max_actual_speed3d_mps": 0.01611582328594847,
+            "max_actual_abs_yaw_rate_radps": 0.037648992709738274,
+            "reused_source_speed_limit_mps": 0.04,
+            "reused_source_yaw_rate_limit_radps": 0.04,
+            "source_required_dwell_s": 1.0,
+            "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+            "all_captured_raw_samples_below_existing_motion_limits": true
+          }
+        },
+        {
+          "cycle": 2,
+          "trigger_clearance_m": 2.9790490143419746,
+          "commit_map_revision": 349,
+          "commit_wall_ns": 48423271602044,
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "nearest_obstacle_front_clearance_m": "4.2996882147928064",
+          "resumed_cruise_progress_m": 1.2964276732835436,
+          "pure_turn_navigation": {
+            "captured_index1_samples": 240,
+            "nonzero_translation_targets": 0,
+            "source_max_abs_translation_target": 0.0
+          },
+          "source_report_reached": true,
+          "independent_raw_turn_window": {
+            "ending_source_stamp_ns": 96880000000,
+            "samples": 26,
+            "source_span_s": 1.0,
+            "max_actual_speed3d_mps": 0.0084443942034709,
+            "max_actual_abs_yaw_rate_radps": 0.033962515043096886,
+            "reused_source_speed_limit_mps": 0.04,
+            "reused_source_yaw_rate_limit_radps": 0.04,
+            "source_required_dwell_s": 1.0,
+            "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+            "all_captured_raw_samples_below_existing_motion_limits": true
+          }
+        },
+        {
+          "cycle": 3,
+          "trigger_clearance_m": 2.9939411694326763,
+          "commit_map_revision": 499,
+          "commit_wall_ns": 48490371358241,
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "nearest_obstacle_front_clearance_m": "4.7283326015829283",
+          "resumed_cruise_progress_m": 1.7298333693799028,
+          "pure_turn_navigation": {
+            "captured_index1_samples": 868,
+            "nonzero_translation_targets": 0,
+            "source_max_abs_translation_target": 0.0
+          },
+          "source_report_reached": true,
+          "independent_raw_turn_window": {
+            "ending_source_stamp_ns": 163959999999,
+            "samples": 25,
+            "source_span_s": 0.99,
+            "max_actual_speed3d_mps": 0.04470843228317165,
+            "max_actual_abs_yaw_rate_radps": 0.02368551102925959,
+            "reused_source_speed_limit_mps": 0.04,
+            "reused_source_yaw_rate_limit_radps": 0.04,
+            "source_required_dwell_s": 1.0,
+            "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+            "all_captured_raw_samples_below_existing_motion_limits": false
+          }
+        },
+        {
+          "cycle": 4,
+          "trigger_clearance_m": 2.9959544087793333,
+          "commit_map_revision": 570,
+          "commit_wall_ns": 48521571316611,
+          "current_map_collision_valid": "true",
+          "current_horizontal_clearance_valid": "true",
+          "nearest_obstacle_front_clearance_m": "3.1516984950829539",
+          "resumed_cruise_progress_m": 0.12757960774154253,
+          "pure_turn_navigation": {
+            "captured_index1_samples": 138,
+            "nonzero_translation_targets": 0,
+            "source_max_abs_translation_target": 0.0
+          },
+          "source_report_reached": true,
+          "independent_raw_turn_window": {
+            "ending_source_stamp_ns": 195159999999,
+            "samples": 25,
+            "source_span_s": 0.98,
+            "max_actual_speed3d_mps": 0.021829714994542976,
+            "max_actual_abs_yaw_rate_radps": 0.03869941984951941,
+            "reused_source_speed_limit_mps": 0.04,
+            "reused_source_yaw_rate_limit_radps": 0.04,
+            "source_required_dwell_s": 1.0,
+            "note": "Window ends at latest raw stamp received before actual source navigation reached-status wall time. Discrete raw samples span~1s; source Tracker checks its own latest state at20Hz over1s wall dwell. Source reached status is distinct from a claim that every independent25Hz raw sample met the predicates.",
+            "all_captured_raw_samples_below_existing_motion_limits": true
+          }
+        }
+      ],
+      "source_dwell_scope": "Each real source Tracker reachedreport passed its own20Hzlatest-state dwellcriteria. Independent~25Hzrawnear1s windows differ:cycles1/2/4allcapturedrawsamplesbelowlimits;cycle3speedpeak.0447084323m/s exceeds.04. Do notclaimeveryrawsample/continuousphysicalsecond passed for allfour.",
+      "raw_body_receipt_lag_diagnostics": {
+        "at_raw_or_estimated_receipt_clock_minus_stamp_s": {
+          "vio_raw_body": {
+            "n": 3913,
+            "min": -0.03,
+            "median": -0.01,
+            "p95": 0.0,
+            "max": 0.01
+          },
+          "estimated_body": {
+            "n": 3913,
+            "min": -0.03,
+            "median": -0.01,
+            "p95": 0.0,
+            "max": 0.01
+          }
+        },
+        "at_terminal_receipt_clock_minus_latest_received_body_s": {
+          "vio_raw_body": {
+            "n": 15782,
+            "min": 0.0,
+            "median": 0.02,
+            "p95": 0.03,
+            "max": 0.06
+          },
+          "estimated_body": {
+            "n": 15782,
+            "min": 0.0,
+            "median": 0.02,
+            "p95": 0.03,
+            "max": 0.06
+          }
+        },
+        "controller_feedback_vs_preceding_terminal_clock_s": {
+          "n": 1579,
+          "min": -0.010000000000005116,
+          "median": 0.009999999999990905,
+          "p95": 0.020000000000010232,
+          "max": 0.03999999999999204
+        },
+        "controller_pairing_scope": "Only controller records whose wall time falls inside captured terminal-trace coverage; exclude file-tail records newer than last captured terminal.",
+        "caveat": "Pairs use latest received terminal clock which can lag one terminal status tick; negative receipt lag is diagnostic clock sampling, not a future-stamped estimator. These are not substituted estimator stamps or exact in-Guard measurement. No Guard threshold changed."
+      },
+      "raw_vs_visual_windows": [
+        {
+          "window_source_s": [
+            5,
+            30
+          ],
+          "complete_window": true,
+          "raw": {
+            "count": 624,
+            "first_source_s": 5.039999999,
+            "last_source_s": 29.97,
+            "delivered_rate_per_source_s": 24.989971920377457,
+            "source_gap_s": {
+              "n": 623,
+              "min": 0.03999999999999915,
+              "median": 0.03999999999999915,
+              "p95": 0.0400000000000027,
+              "max": 0.05000000000000071
+            }
+          },
+          "optimized_visual": {
+            "count": 415,
+            "first_source_s": 5.02,
+            "last_source_s": 29.94,
+            "delivered_rate_per_source_s": 16.613162118780096,
+            "source_gap_s": {
+              "n": 414,
+              "min": 0.04999999999999716,
+              "median": 0.05999999999999872,
+              "p95": 0.07000000000000028,
+              "max": 0.11999999999999922
+            }
+          }
+        },
+        {
+          "window_source_s": [
+            30,
+            60
+          ],
+          "complete_window": true,
+          "raw": {
+            "count": 748,
+            "first_source_s": 30.01,
+            "last_source_s": 59.969999999,
+            "delivered_rate_per_source_s": 24.933244326599908,
+            "source_gap_s": {
+              "n": 747,
+              "min": 0.03999999899999551,
+              "median": 0.03999999999999915,
+              "p95": 0.04000000000000625,
+              "max": 0.05000000000000426
+            }
+          },
+          "optimized_visual": {
+            "count": 483,
+            "first_source_s": 30.0,
+            "last_source_s": 59.97,
+            "delivered_rate_per_source_s": 16.08274941608275,
+            "source_gap_s": {
+              "n": 482,
+              "min": 0.04999999999999716,
+              "median": 0.060000000000002274,
+              "p95": 0.0799999999999983,
+              "max": 0.09000000000000341
+            }
+          }
+        },
+        {
+          "window_source_s": [
+            60,
+            90
+          ],
+          "complete_window": true,
+          "raw": {
+            "count": 746,
+            "first_source_s": 60.009999999,
+            "last_source_s": 89.99,
+            "delivered_rate_per_source_s": 24.849899932459984,
+            "source_gap_s": {
+              "n": 745,
+              "min": 0.03999999999999204,
+              "median": 0.04000000000000625,
+              "p95": 0.04000000000000625,
+              "max": 0.05000000000001137
+            }
+          },
+          "optimized_visual": {
+            "count": 481,
+            "first_source_s": 60.02,
+            "last_source_s": 89.99,
+            "delivered_rate_per_source_s": 16.01601601601602,
+            "source_gap_s": {
+              "n": 480,
+              "min": 0.04999999999999716,
+              "median": 0.060000000000002274,
+              "p95": 0.0799999999999983,
+              "max": 0.12000000000000455
+            }
+          }
+        },
+        {
+          "window_source_s": [
+            90,
+            120
+          ],
+          "complete_window": true,
+          "raw": {
+            "count": 745,
+            "first_source_s": 90.03,
+            "last_source_s": 119.96,
+            "delivered_rate_per_source_s": 24.858002004677587,
+            "source_gap_s": {
+              "n": 744,
+              "min": 0.03999999999999204,
+              "median": 0.04000000000000625,
+              "p95": 0.04000000000000625,
+              "max": 0.05000000000001137
+            }
+          },
+          "optimized_visual": {
+            "count": 471,
+            "first_source_s": 90.06,
+            "last_source_s": 119.95,
+            "delivered_rate_per_source_s": 15.724322515891602,
+            "source_gap_s": {
+              "n": 470,
+              "min": 0.04999999999999716,
+              "median": 0.060000000000002274,
+              "p95": 0.0899999999999892,
+              "max": 0.14000000000000057
+            }
+          }
+        },
+        {
+          "window_source_s": [
+            120,
+            150
+          ],
+          "complete_window": true,
+          "raw": {
+            "count": 745,
+            "first_source_s": 120.0,
+            "last_source_s": 149.98,
+            "delivered_rate_per_source_s": 24.816544362908616,
+            "source_gap_s": {
+              "n": 744,
+              "min": 0.03999999999999204,
+              "median": 0.03999999999999204,
+              "p95": 0.040000000000020464,
+              "max": 0.060000000000002274
+            }
+          },
+          "optimized_visual": {
+            "count": 477,
+            "first_source_s": 120.0,
+            "last_source_s": 149.93,
+            "delivered_rate_per_source_s": 15.903775476110923,
+            "source_gap_s": {
+              "n": 476,
+              "min": 0.04999999999998295,
+              "median": 0.060000000000002274,
+              "p95": 0.0800000000000125,
+              "max": 0.11000000000001364
+            }
+          }
+        },
+        {
+          "window_source_s": [
+            150,
+            180
+          ],
+          "complete_window": true,
+          "raw": {
+            "count": 741,
+            "first_source_s": 150.02,
+            "last_source_s": 179.979999999,
+            "delivered_rate_per_source_s": 24.699599466779034,
+            "source_gap_s": {
+              "n": 740,
+              "min": 0.03999999900000262,
+              "median": 0.03999999999999204,
+              "p95": 0.040000000000020464,
+              "max": 0.060000000000002274
+            }
+          },
+          "optimized_visual": {
+            "count": 475,
+            "first_source_s": 150.0,
+            "last_source_s": 179.99,
+            "delivered_rate_per_source_s": 15.805268422807599,
+            "source_gap_s": {
+              "n": 474,
+              "min": 0.04999999999998295,
+              "median": 0.060000000000002274,
+              "p95": 0.0800000000000125,
+              "max": 0.10000000000002274
+            }
+          }
+        },
+        {
+          "window_source_s": [
+            180,
+            210
+          ],
+          "complete_window": false,
+          "raw": {
+            "count": 736,
+            "first_source_s": 180.019999999,
+            "last_source_s": 209.789999999,
+            "delivered_rate_per_source_s": 24.689284514612016,
+            "source_gap_s": {
+              "n": 735,
+              "min": 0.03999999999999204,
+              "median": 0.03999999999999204,
+              "p95": 0.040000000000020464,
+              "max": 0.05000000000001137
+            }
+          },
+          "optimized_visual": {
+            "count": 471,
+            "first_source_s": 180.04,
+            "last_source_s": 209.77,
+            "delivered_rate_per_source_s": 15.80894719138916,
+            "source_gap_s": {
+              "n": 470,
+              "min": 0.04999999999998295,
+              "median": 0.060000000000002274,
+              "p95": 0.0800000000000125,
+              "max": 0.09999999999999432
+            }
+          }
+        }
+      ],
+      "finite_conclusion": "Four genuine turn-to-cruise handoffs completed in this captured finite window. Started turns retained index1/zeroXYZ during observed map gaps; each handoff checked a newer map with horizontal clearance>3m before rolling cruise. Guard remained ARMED/gen1. Current fifth turn is unfinished and long-term navigation is not certified.",
+      "runtime_render_config_scope": "Currentviewerretainsconfigurationloadedbeforeoffline3aliasdedup; new0c5b08configisnotclaimedloadedinthischeckpoint."
+    },
+    "historical_live_trials": [
+      {
+        "status": "stopped_by_guard_state_clock_mismatch",
+        "artifact": {
+          "path": "Simulation/build/wavemap-nbv/turn-cruise-live-audit.json",
+          "sha256": "7fef31372e53b4bcfcb9ea870df8e157587357e5a6ed0589bc74720ce8d7c2fb",
+          "bytes": 40510
+        },
+        "run": "20261102T023622Z-181e7b43",
+        "actual_task_accepted": {
+          "wall_ns": 46015068645558,
+          "kind": "operator_command",
+          "mode": "explore",
+          "task_revision": 1,
+          "action": "start_exploration",
+          "request_id": "5281870bf95c43ca88f6c5e9e86fc696-1"
+        },
+        "complete_task_start_basis": "Accepted missionevent wall46015068645558. Observer began during first turn; use actual mission events/full trace for the complete task, not observer start.",
+        "root_reported_origin": "Native RViz Explore workflow request5281870b…-1; no human clicker inferred.",
+        "trace": "Simulation/runs/20261102T023622Z-181e7b43/control-timing-trace.jsonl",
+        "mission_events": "Simulation/runs/20261102T023622Z-181e7b43/mission-events.jsonl",
+        "runtime_images": "/pelagos-stonefish sha256:b29260c04d30c6dff84656065677513de0b0a1cc666ca49c75bbb5d76329330f\n/pelagos-nbvplanner sha256:0302d2bbaaf64aeaebc6f6b31dc79418848b5716e146bb1667fd022e721f85ce",
+        "two_completed_turn_cruise_cycles": true,
+        "cycles": [
+          {
+            "index": 1,
+            "trigger_clearance_m": 2.9963094751993262,
+            "trigger_map_revision": 310,
+            "completed_turn_and_resumed_cruise": true,
+            "pureturn_nonzero_translation_reference_count": 0,
+            "actual_turn_settle": {
+              "method": "exact quaternion yaw derived from requested turn yaw minus source guide yaw error",
+              "match_error": 2.220446049250313e-16,
+              "raw_stamp_ns": 100540000000,
+              "raw_body": {
+                "stamp_ns": 100540000000,
+                "frame": "world",
+                "child": "body",
+                "position": [
+                  12.754075101588851,
+                  0.26956158216214443,
+                  0.12301810809269033
+                ],
+                "quaternion_xyzw": [
+                  -0.002058045205355176,
+                  -0.0016276169575950605,
+                  -0.6784756789555149,
+                  0.7346181786335164
+                ],
+                "body_velocity": [
+                  0.011770322849913315,
+                  -0.003090163485096969,
+                  0.00047147171162883106,
+                  0.0005749253426139085,
+                  0.00044580473519433624,
+                  0.02615932328254373
+                ]
+              },
+              "preceding_source_second_samples": 21,
+              "maximum_actual_3d_linear_speed_m_s": 0.02947127544669271,
+              "maximum_actual_yaw_rate_rad_s": 0.02776158625717972,
+              "source_limits": {
+                "speed_m_s": 0.04,
+                "yaw_rate_rad_s": 0.04,
+                "dwell_s": 1.0
+              },
+              "pass_observed_window": true
+            },
+            "direction_commit_wall_ns": 46099226552044,
+            "direction_commit_map_revision": 413,
+            "direction_commit_diagnostics": {
+              "direction_source": "last_valid_native_nbv_first_edge_geometry",
+              "source_edge_direction_valid": "true",
+              "source_edge_map_revision": "332",
+              "source_edge_points": "50",
+              "current_map_collision_valid": "true",
+              "current_horizontal_clearance_valid": "true",
+              "turn_clearance_minimum_m": "3",
+              "forward_obstacle_found": "true",
+              "nearest_obstacle_front_clearance_m": "8.8088655385704726",
+              "no_obstacle_semantics": "no_known_occupied_hit;unknown_is_not_observed_free",
+              "source_view_yaw_executed": "false",
+              "gain_execution_limit": "source_gain_preserved_but_sampled_view_yaw_not_executed_by_heading_only_policy",
+              "forward_direction": [
+                "0.14203220935488667",
+                "-0.98986203660195482",
+                "0"
+              ],
+              "forward_origin": [
+                "12.754075101588851",
+                "0.26956158216214443",
+                "0.12301810809269033"
+              ]
+            },
+            "new_direction": [
+              0.14203220935488667,
+              -0.9898620366019548,
+              0.0
+            ],
+            "projected_progress_to_next_trigger_m": 6.1238525164798645,
+            "original_nbv_source_edge_length_m": 0.9800000000000006
+          },
+          {
+            "index": 2,
+            "trigger_clearance_m": 2.9793098517283614,
+            "trigger_map_revision": 541,
+            "completed_turn_and_resumed_cruise": true,
+            "pureturn_nonzero_translation_reference_count": 0,
+            "actual_turn_settle": {
+              "method": "exact quaternion yaw derived from requested turn yaw minus source guide yaw error",
+              "match_error": 0.0,
+              "raw_stamp_ns": 189179999999,
+              "raw_body": {
+                "stamp_ns": 189179999999,
+                "frame": "world",
+                "child": "body",
+                "position": [
+                  13.673740767165379,
+                  -6.243731375069032,
+                  0.3224213151296355
+                ],
+                "quaternion_xyzw": [
+                  -0.0030011872468815714,
+                  -0.00043492073603326026,
+                  -0.955569967374017,
+                  0.29474877637045865
+                ],
+                "body_velocity": [
+                  0.012957784434739142,
+                  -0.01077885075090915,
+                  0.0036396620671197573,
+                  0.00029391473736614253,
+                  -0.0006751030186412053,
+                  0.01430552247806739
+                ]
+              },
+              "preceding_source_second_samples": 14,
+              "maximum_actual_3d_linear_speed_m_s": 0.01724340282340969,
+              "maximum_actual_yaw_rate_rad_s": 0.02635718764421492,
+              "source_limits": {
+                "speed_m_s": 0.04,
+                "yaw_rate_rad_s": 0.04,
+                "dwell_s": 1.0
+              },
+              "pass_observed_window": true
+            },
+            "direction_commit_wall_ns": 46187976572336,
+            "direction_commit_map_revision": 639,
+            "direction_commit_diagnostics": {
+              "direction_source": "last_valid_native_nbv_first_edge_geometry",
+              "source_edge_direction_valid": "true",
+              "source_edge_map_revision": "558",
+              "source_edge_points": "50",
+              "current_map_collision_valid": "true",
+              "current_horizontal_clearance_valid": "true",
+              "turn_clearance_minimum_m": "3",
+              "forward_obstacle_found": "true",
+              "nearest_obstacle_front_clearance_m": "3.341820448620628",
+              "no_obstacle_semantics": "no_known_occupied_hit;unknown_is_not_observed_free",
+              "source_view_yaw_executed": "false",
+              "gain_execution_limit": "source_gain_preserved_but_sampled_view_yaw_not_executed_by_heading_only_policy",
+              "forward_direction": [
+                "-0.87489463067119067",
+                "-0.48431331307607162",
+                "0"
+              ],
+              "forward_origin": [
+                "13.673740767165379",
+                "-6.2437313750690322",
+                "0.32242131512963551"
+              ]
+            },
+            "new_direction": [
+              -0.8748946306711907,
+              -0.4843133130760716,
+              0.0
+            ],
+            "projected_progress_to_next_trigger_m": 0.3374852596151863,
+            "original_nbv_source_edge_length_m": 0.9800000000000013
+          },
+          {
+            "index": 3,
+            "trigger_clearance_m": 2.994801704125083,
+            "trigger_map_revision": 679,
+            "completed_turn_and_resumed_cruise": false,
+            "pureturn_nonzero_translation_reference_count": 0
+          }
+        ],
+        "no_endpoint_wait": {
+          "nbv_edge_reached_events": 0,
+          "observe_execution_phase_samples": 0,
+          "evidence": "Rolling cruise goals stayed ahead at ~1m and did not require original NBV endpoint/source view arrival. First resumed course passed well beyond the original .98m source edge; second retriggered3m before that original edge endpoint."
+        },
+        "second_short_segment_explanation": "Second committed mapped clearance3.341820449m left only~.34m before the unchanged3mtrigger. Actual .337485260m segment is not an endpoint wait/distance cap/global route optimization.",
+        "elapsed_accepted_to_guard_fault_seconds": 228.703412756,
+        "guard": {
+          "armed_generations": [
+            1
+          ],
+          "final_state": "FAULT",
+          "final_reason": "state_clock_mismatch",
+          "fault_context": {
+            "reason": "state_clock_mismatch",
+            "wall_ns": 46243772058314,
+            "clock_ns": 245239999999,
+            "state_stamp_ns": 244979999999,
+            "state_age_sec": 0.107761849,
+            "estimator": {
+              "run": "20261102T023622Z-181e7b43",
+              "source": "OKVIS2_STEREO_IMU",
+              "epoch": 1,
+              "state": "TRACKING",
+              "reason": "",
+              "image_stamp": 245.15,
+              "imu_stamp": 245.219999999,
+              "visual_stamp": 244.92000000000002,
+              "body_stamp": 244.97999999900003,
+              "covariance_available": false,
+              "covariance_note": "Upstream OKVIS ROS2 publisher does not export estimator covariance",
+              "native_loss_evidence": null
+            },
+            "estimator_age_sec": 0.016558539,
+            "motion": {
+              "stamp_ns": 244979999999,
+              "roll_deg": -0.09802105715371215,
+              "pitch_deg": -0.3503027526830244,
+              "linear_velocity": [
+                0.0032304635560239377,
+                -0.005047578866877855,
+                0.005914047328582542
+              ],
+              "angular_velocity": [
+                2.044932924168548e-05,
+                0.00026907293084878,
+                -0.004957086526982667
+              ]
+            }
+          },
+          "clock_minus_state_at_fault_seconds": 0.26,
+          "explicit_stopped_events": [
+            {
+              "wall_ns": 46243776892596,
+              "kind": "stopped",
+              "mode": "explore",
+              "task_revision": 2,
+              "reason": "guard: state_clock_mismatch"
+            }
+          ],
+          "no_automatic_clear_or_rearm_after_fault": "Planner disabled, guard latchedFAULT in final snapshot."
+        },
+        "final_snapshot": {
+          "planner": {
+            "wall_ns": 46357126941791,
+            "enabled": false,
+            "reason": "guard: state_clock_mismatch",
+            "obstacle_phase": "inactive",
+            "body_pose": [
+              12.446885640795244,
+              -7.131684082055998,
+              0.9443198264250812,
+              -0.0027140774416318496,
+              -0.0013894382621783964,
+              -0.7931420385910661,
+              0.6090290714445118
+            ],
+            "navigation": {
+              "state": "IDLE",
+              "reached": false
+            }
+          },
+          "vio_sparse_landmarks": 727,
+          "vio_pose_error": {
+            "estimated_stamp_ns": 358219999999,
+            "matched": true,
+            "alignment": "one fixed initial SE3, no subsequent fit",
+            "estimated_raw_camera_pose": [
+              [
+                12.474317159830854,
+                -7.305861275441236,
+                0.791830365605014
+              ],
+              [
+                -0.09134278847868874,
+                -0.6989289318323753,
+                0.7032466338758867,
+                0.09273087502459601
+              ]
+            ],
+            "estimated_aligned_camera_pose": [
+              [
+                7.305386845964117,
+                12.474767933688442,
+                -7.218516033022975
+              ],
+              [
+                -0.42987422368107897,
+                0.558656800350282,
+                -0.5629681926683796,
+                0.43148296059134605
+              ]
+            ],
+            "position_error_m": 0.02997398731711284,
+            "rotation_error_deg": 0.10598813684160774,
+            "gt_stamp_ns": 358219999999,
+            "gt_camera_pose": [
+              [
+                7.317314924317035,
+                12.450013830842186,
+                -7.206541257251793
+              ],
+              [
+                0.4291934317325018,
+                -0.559171509154249,
+                0.5631902461173802,
+                -0.43120409110545654
+              ]
+            ],
+            "position_rmse_m": 0.024253726464791805,
+            "error_pairs": 2976,
+            "stamp_difference_ms": 0.0
+          },
+          "native_tracking_failure_log_count": 0,
+          "mapping": {
+            "localization_lost": false,
+            "integrated_frames": 2705,
+            "integration_hz": 4.9089759,
+            "octomap_projection_ms": 346.540234
+          }
+        },
+        "current_task_enabled": false,
+        "current_guard_state": "FAULT",
+        "current_reason": "state_clock_mismatch",
+        "native_lost_at_fault": false,
+        "original_clock_state_limit_seconds": 0.25,
+        "actual_clock_minus_body_seconds": 0.26,
+        "continuous_navigation_success_claimed": "Two local turn/cruise execution cycles verified; current task stopped under unchanged sourceGuard. No long-term/global exploration acceptance.",
+        "automatic_fault_clear_or_rearm": false,
+        "task_continuation_policy": "User continuous autonomy and--leave-running remain; actual Guardfault/manual/pause revoke. No observer-time/distance stop, no automatic recovery performed."
+      },
+      {
+        "status": "historical_finite_ingress_window_passed_later_pipeline_ended_after_rviz_error",
+        "run": "20261102T030254Z-ff077951",
+        "recorded_at_utc": "2026-11-02T03:10:35.504741+00:00",
+        "actual_task_accepted": {
+          "wall_ns": 47594974199219,
+          "kind": "operator_command",
+          "mode": "explore",
+          "task_revision": 1,
+          "action": "start_exploration",
+          "request_id": "e7e53fbf5cb04f56abcad56d4eb07fd9-1"
+        },
+        "origin": "Parent reports actual user RViz Explore workflow; no root CLIstart.",
+        "runtime_images": {
+          "main": "sha256:efeb177dd20c332620794ac087c8950bd784b2870f6f48e90345aa1d098c06b2",
+          "native": "sha256:0302d2bbaaf64aeaebc6f6b31dc79418848b5716e146bb1667fd022e721f85ce"
+        },
+        "planner_snapshot": {
+          "enabled": true,
+          "reason": "turning_to_nbv_direction",
+          "healthy": true,
+          "obstacle_phase": "turning",
+          "mode": "explore",
+          "control_mode": "autonomy",
+          "plans_requested": 8,
+          "paths_generated": 4,
+          "guard": "ARMED",
+          "guard_reason": "explicit_arm",
+          "guard_fault": null,
+          "body_pose": [
+            8.680553554880733,
+            0.5578843010753677,
+            1.3226785425240564,
+            -0.002156660148801009,
+            0.0009699204509064611,
+            -0.9654785150262581,
+            0.26047196604243844
+          ]
+        },
+        "guard_snapshot": {
+          "state": "ARMED",
+          "reason": "explicit_arm",
+          "generation": 1,
+          "health": null,
+          "ready": true,
+          "state_diagnostic": null,
+          "fault_context": null
+        },
+        "snapshot_only": true,
+        "load_freshness_improvement_claimed": true,
+        "long_term_exploration_accepted": false,
+        "old_fault_source_clock_seconds": 245.0,
+        "pending": "Fourth pureturn remains unsettled after232.93s at checkpoint; actualmotion oscillation and frequent neutral/mapgaps remain unresolved. Continue userdemo--leave-running, no task/container/source/parameter mutation by archive.",
+        "initial_retest_snapshot": {
+          "recorded_at_utc": "2026-11-02T03:08:31.207301+00:00",
+          "planner_snapshot": {
+            "wall_ns": 47920562076987,
+            "enabled": true,
+            "healthy": true,
+            "reason": "turning_to_nbv_direction",
+            "obstacle_phase": "turning",
+            "cruise_active": false,
+            "body_pose": [
+              8.142090257727993,
+              0.6154604436032174,
+              0.6745663189377876,
+              -0.0029999625056325295,
+              -0.0008430724280503983,
+              -0.9597515964964517,
+              0.2808329796807315
+            ],
+            "navigation": {
+              "state": "TRACKING",
+              "generation": 1,
+              "waypoint_index": 1,
+              "distance_m": 0.0,
+              "yaw_error_rad": -0.08716935143373261,
+              "target_velocity": [
+                0.0,
+                0.0,
+                0.0,
+                -0.06973548114698609
+              ],
+              "reached": false
+            }
+          },
+          "guard_snapshot": {
+            "wall_ns": 47920489506025,
+            "state": "ARMED",
+            "reason": "explicit_arm",
+            "generation": 1,
+            "fault_context": null
+          },
+          "pending": "Independent source body/clock latency review after crossing old245s source-clock failure; retain live task--leave-running and do not restart for observation windows."
+        },
+        "source_live_audit": {
+          "path": "Simulation/build/wavemap-nbv/okvis-ingress-live-audit.json",
+          "sha256": "0be791a985d9a125377bb25a93c581e430826a6709ceaa2b3d4019c033facf1e",
+          "bytes": 88485
+        },
+        "asof": {
+          "last_evidence_wall_ns": 48044490191747,
+          "latest_terminal_sim_clock_s": 453.239999999,
+          "task_wall_elapsed_s": 449.515992528,
+          "last_raw_source_s": 453.429999999,
+          "trace_start_wall_ns": 47634472544225,
+          "trace_first_raw_source_s": 43.989999999,
+          "trace_task_start_offset_wall_s": 39.498345006
+        },
+        "acceptance_window": {
+          "absolute_sim_clock_gt_seconds": 245.24,
+          "task_wall_elapsed_gt_seconds": 228.703412756,
+          "both_surpassed": true
+        },
+        "raw_after_old_fault_window": {
+          "window_source_s": [
+            245.24,
+            453.239999999
+          ],
+          "complete_window": true,
+          "raw": {
+            "count": 5137,
+            "first_source_s": 245.279999999,
+            "last_source_s": 453.229999999,
+            "delivered_rate_per_source_s": 24.6982447703775,
+            "source_gap_s": {
+              "n": 5136,
+              "min": 0.03999999999996362,
+              "median": 0.040000000000020464,
+              "p95": 0.040000000000020464,
+              "max": 0.060000000000002274
+            }
+          },
+          "optimized_visual": {
+            "count": 3304,
+            "first_source_s": 245.26,
+            "last_source_s": 453.18,
+            "delivered_rate_per_source_s": 15.885917660638706,
+            "source_gap_s": {
+              "n": 3303,
+              "min": 0.049999999999954525,
+              "median": 0.060000000000002274,
+              "p95": 0.08000000000004093,
+              "max": 0.10000000000002274
+            }
+          }
+        },
+        "original_acquisition_stamp_evidence": {
+          "native_success_log_samples": 91,
+          "all_success_log_acquisition_equals_published_state": true,
+          "raw_trace_stamps": 10138,
+          "estimated_trace_stamps": 10138,
+          "matching_original_stamps": 10138,
+          "estimated_minus_raw_receipt_s_for_matching_stamp": {
+            "n": 10138,
+            "min": -0.000370087,
+            "median": 0.00037412000000000003,
+            "p95": 0.0006342,
+            "max": 0.00366091
+          },
+          "method": "Original source binary still publishes state.timestamp; diagnostics corroborate true IMU acquisition equals successful propagated state. Header equality is by matched original stamps; depth1 read-only subscriptions may omit different messages and are not exact producer-call counters."
+        },
+        "clock_body_lag_diagnostics": {
+          "at_raw_or_estimated_receipt_clock_minus_stamp_s": {
+            "vio_raw_body": {
+              "n": 10137,
+              "min": -0.03,
+              "median": -0.01,
+              "p95": 0.0,
+              "max": 0.02
+            },
+            "estimated_body": {
+              "n": 10137,
+              "min": -0.03,
+              "median": -0.01,
+              "p95": 0.0,
+              "max": 0.02
+            }
+          },
+          "at_terminal_receipt_clock_minus_latest_received_body_s": {
+            "vio_raw_body": {
+              "n": 40926,
+              "min": 0.0,
+              "median": 0.02,
+              "p95": 0.03,
+              "max": 0.07
+            },
+            "estimated_body": {
+              "n": 40926,
+              "min": 0.0,
+              "median": 0.02,
+              "p95": 0.04,
+              "max": 0.07
+            }
+          },
+          "controller_feedback_vs_preceding_terminal_clock_s": {
+            "n": 4093,
+            "min": -0.030000000000001137,
+            "median": 0.0,
+            "p95": 0.010000000000019327,
+            "max": 0.03000000000002956
+          },
+          "controller_pairing_scope": "Only controller records whose wall time falls inside captured terminal-trace coverage; exclude file-tail records newer than last captured terminal.",
+          "caveat": "Pairs use latest received terminal clock which can lag one terminal status tick; negative receipt lag is diagnostic clock sampling, not a future-stamped estimator. These are not substituted estimator stamps or exact in-Guard measurement. No Guard threshold changed."
+        },
+        "load_freshness_scope": "Concrete finite loaded-run old-fault-window checkpoint only. No universalVIO/fullnavigation guarantee and no same-pose replay.",
+        "completed_reactive_cycles": 3,
+        "resumed_course_progress_m": [
+          4.6991038135987395,
+          1.066841124373919,
+          7.924378095614479
+        ],
+        "known_remaining_turn_blockage": {
+          "cycle": 4,
+          "turn_elapsed_wall_s": 232.925519042,
+          "recent30s_navigation_waypoint_index_counts": {
+            "0": 103,
+            "1": 482
+          },
+          "recent30s_actual_speed3d_mps": {
+            "n": 301,
+            "min": 0.003970176565295659,
+            "median": 0.026856854867658177,
+            "p95": 0.060035467349839354,
+            "max": 0.07128594115470557
+          },
+          "recent30s_actual_abs_yawrate_radps": {
+            "n": 301,
+            "min": 0.0002682848814681859,
+            "median": 0.030519200859405314,
+            "p95": 0.10008309257151528,
+            "max": 0.13408169376016277
+          },
+          "recent30s_turn_yaw_error_abs_rad": {
+            "n": 482,
+            "min": 2.4061724386292838e-06,
+            "median": 0.04519458495855644,
+            "p95": 0.15932104966205118,
+            "max": 0.18518729788695332
+          },
+          "latest_captured_navigation": {
+            "received_ns": 48043693247784,
+            "stage": "navigation",
+            "run": "20261102T030254Z-ff077951",
+            "state": "TRACKING",
+            "generation": 1,
+            "wall_ns": 48043692943680,
+            "mission_id": "nbv-reactive",
+            "waypoint_index": 1,
+            "reached": false,
+            "distance_m": 0.0,
+            "yaw_error_rad": -0.025940624751527697,
+            "target_velocity": [
+              0.0,
+              0.0,
+              0.0,
+              -0.02075249980122216
+            ]
+          },
+          "map_progress_gaps": 436,
+          "causal_limit": "Frequent neutral0 insertions and actual yaw/speed settling may restart source1s dwell. This is a new remaining control/map-scheduling issue; counts alone do not prove sole cause. Parent notified; no change or extra trial by auditor."
+        },
+        "no_endpoint_observe_wait": {
+          "nbv_edge_reached_event_count": 0,
+          "real_index_ge12_reached_nav_samples": 0,
+          "sampled_gaze_limit": "Original source RRT/gain/viewyaw remain; heading-only execution explicitly does not perform NBV sampled view gaze, so source information-gain prediction is not fully executed."
+        },
+        "terminal_pipeline_outcome": {
+          "status": "ended_with_rviz_minus6_then_stonefish0_cause_undetermined",
+          "rviz_exit_code": -6,
+          "stonefish_exit_code": 0,
+          "supervisor_log": {
+            "path": "Simulation/build/wavemap-nbv/presentation-demo-live.log",
+            "sha256": "a462e46c9e86992d401fc07f3041ba96dc36eb457a8d0bb69d80af86eed9af03",
+            "bytes": 1222
+          },
+          "rviz_log": {
+            "path": "Simulation/runs/20261102T030254Z-ff077951/logs/rviz.log",
+            "sha256": "a005b91e8c43091f56c36256b7854ac5cc1311638b2c583715c29a3b353f250d",
+            "bytes": 913
+          },
+          "actual_error": "Ogre::InternalErrorException: Cannot create GL index buffer",
+          "current_session_alive": false,
+          "prior_enabled_armed_fields": "Historical finite-checkpoint snapshots, not liveness after exit.",
+          "cause_limit": "Only sequence established:RVizGLindexbufferexception/-6 appears beforeStonefish0. Existing run_pipeline nonzeroRViz branchcontinues; cannotprovewhyStonefishreturned0, RVizcausedit, orRViztriggeredfinally. NoGPUOOM/VIO/Guardcausalattribution.",
+          "existing_nonzero_viewer_policy": {
+            "source": {
+              "path": "Simulation/tools/run_pipeline.py",
+              "sha256": "378c9eb3c3d5f56fd614ea92002b897f211005a5ce15af1acedcd69b65fd9e73",
+              "bytes": 8000
+            },
+            "mtime_local": "2026-11-02 10:26:58.568835 +08:00",
+            "location": "run_pipeline.py lines115-119",
+            "behavior": "Mark failedRViz viewer andcontinue essentialprocessmonitoring; existed before030254."
+          },
+          "parent_read_only_additional_checks": {
+            "kernel_window_local": "2026-11-02 11:10–11:16 +08:00",
+            "kernel_match_terms": [
+              "NVRM",
+              "Xid",
+              "oom"
+            ],
+            "kernel_matches_reported": 0,
+            "las2_cuda_error_reported": false,
+            "scope": "Parent reported journal/log inspection; archive didnot rerun journalquery. Absence is not proof ofGPUhealth orcause."
+          }
+        },
+        "historical_runtime_bridge": {
+          "path": "Simulation/adapters/nbv_bridge.py",
+          "sha256": "a3c55388a54b496b7575b559358b47037d5df9ab8573ee989f5b8b6be155160c",
+          "bytes": 57301
+        }
+      }
+    ],
+    "okvis_ingress": {
+      "provenance": {
+        "path": "Simulation/build/wavemap-nbv/okvis-ingress-provenance.json",
+        "sha256": "28d6a4a74e89afd4af32fb471518b4d894639e096c7a526dd213c3d97d5c0370",
+        "bytes": 14130
+      },
+      "source_regressions": "5PASS",
+      "complete_main_build": "PASS fullOKVIS/clients/downstream/currentUI",
+      "native_signal_exit": "Real native withoutsensorinputs SIGINT/SIGTERM each exit0",
+      "image": "sha256:efeb177dd20c332620794ac087c8950bd784b2870f6f48e90345aa1d098c06b2",
+      "loaded_in_new_run": "20261102T030254Z-ff077951",
+      "load_freshness_improvement": "Finite live checkpoint passed beyond oldfaultwindow; source453.24s/task449.516s, raw24.698Hz/maxgap60ms, originalstamp preserved, GuardARMEDgen1. Fullnavigation remains blocked by fourthturn.",
+      "parameters_rates_algorithms_features_stamps_guard_unchanged": true,
+      "live_audit": {
+        "path": "Simulation/build/wavemap-nbv/okvis-ingress-live-audit.json",
+        "sha256": "0be791a985d9a125377bb25a93c581e430826a6709ceaa2b3d4019c033facf1e",
+        "bytes": 88485
+      },
+      "loaded_in_runs": [
+        "20261102T030254Z-ff077951",
+        "20261102T031510Z-29de60ff"
+      ]
+    },
+    "historical_host_regressions": [
+      {
+        "previous": {
+          "artifact": {
+            "path": "Simulation/build/wavemap-nbv/turn-cruise-bridge-tests.log",
+            "sha256": "536db5e10a3c0d335ea57d70c459883f6a5d330b7740866cd3eabb96933aeaa4",
+            "bytes": 98
+          },
+          "passed": 64,
+          "result": "OK",
+          "evidence_scope": "Root ran host bridge regressions; archive read the saved terse log, no host rerun by archive."
+        },
+        "scope": "Historical64-host result captured before new4mapgap-turn tests; old loghash retained as historicalcapture, same pathnowcontains68tests."
+      }
+    ]
+  },
+  "historical_heading_trials": [
+    {
+      "run": "20261101T140825Z-caa854a1",
+      "adapter_sha256": "37d482658c09f9e862737e9860203b6617629cd4b388d6d54ed3adc5053007d4",
+      "outcome": "Operator pause after confirmed align settle then translation; generation recovery recomputed overshot endpoint bearing and turned back. No first full edge arrival, no nativeLost/GuardFAULT.",
+      "audit": {
+        "path": "Simulation/build/wavemap-nbv/heading-live-audit.json",
+        "sha256": "054dad16a3a16da19adba1e18d473194a8489db8c778910f8d8b0988a6e90e35",
+        "bytes": 18886
+      }
+    },
+    {
+      "run": "20261101T141248Z-ee3b570d",
+      "adapter_sha256": "fa6260772de2e447736d36fad16ed7dedd8a07d0e453fada1a365ea811de7482",
+      "outcome": "Fixed direction/phase,map-gapneutral and actual align settling verified; accepted+209.852s audit snapshot still0observe/0realreached with endpoint oscillation. Final pipeline ended after RViz exit0; cached enabled/ARMED not liveness evidence.",
+      "audit": {
+        "path": "Simulation/build/wavemap-nbv/heading-resume-live-audit.json",
+        "sha256": "ba2c1fcf1cec93ca6d29dee1ffe96289041fca465b291ce5954517ce8f89e85e",
+        "bytes": 45126
+      },
+      "final_supervisor_log": {
+        "path": "Simulation/build/wavemap-nbv/heading-resume-live.log",
+        "sha256": "e740cb8cbedfdbaa8478e955f1654fd08237c64f94a714c49f5f01e1de4623fa",
+        "bytes": 576
+      },
+      "final_supervisor_line": 11,
+      "final_exit": "rviz0",
+      "operator_pause": false,
+      "guard_fault_claimed": false,
+      "gpu_fault_claimed": false
+    }
+  ],
+  "prior_archives": {
+    "obstacle_cruise_provenance": "Simulation/build/wavemap-nbv/obstacle-cruise-provenance.json",
+    "gpu_fault_audit": {
+      "path": "Simulation/build/wavemap-nbv/gpu-fault-audit.json",
+      "sha256": "068101272299eb1b35aa09f51b30693e8fcbd261430024b01b30cfce8bb903b7",
+      "bytes": 7527
+    },
+    "braking_live_audit": {
+      "path": "Simulation/build/wavemap-nbv/braking-live-audit.json",
+      "sha256": "4a8f6131ac621e925a35d444f0b0fca4b54b210950c4c5574320f120fbbbe14f",
+      "bytes": 8418
+    }
+  },
+  "source_files": [
+    {
+      "path": "Simulation/adapters/nbv_bridge.py",
+      "sha256": "2117e5372b9a1901b5b2f43cfb1ee9f416abb91f9cf9d8dacf5d917e015d4c05",
+      "bytes": 57885
+    },
+    {
+      "path": "Simulation/adapters/estimated_navigation.py",
+      "sha256": "6b3e9cea2314c1a27912c1f6aa9f8200c87d644d17a6f29e9a8269aedf9c45d8",
+      "bytes": 5911
+    },
+    {
+      "path": "Simulation/config/nbv.yaml",
+      "sha256": "9aa342e51e597fbe486162c80e446acc49e24d5013cc63c9e6484b5587b6cfdd",
+      "bytes": 2638
+    },
+    {
+      "path": "Simulation/tools/prepare_scene.py",
+      "sha256": "72cccd156a74c49e0e3bdcdae3862020d11e842bdc326a44819af112de8049a0",
+      "bytes": 18015
+    },
+    {
+      "path": "Simulation/nbv/native.cpp",
+      "sha256": "14a3488335999e2eb258196108c7b196a467da816fc4bb9db598ae44a8af30ec",
+      "bytes": 43864
+    },
+    {
+      "path": "Simulation/nbv/patch_sources.py",
+      "sha256": "84619bd62b5629daaf3414b9b9cb72089d8fa76e400d62e2053abb2e69a2c8d5",
+      "bytes": 9909
+    },
+    {
+      "path": "Simulation/nbv/forward_selection.hpp",
+      "sha256": "7cb4bdacaad7914d264ad013ec8a488a96e7f31b6d14fda9a8d83f48eb9513e0",
+      "bytes": 1594
+    },
+    {
+      "path": "Simulation/nbv/cruise_direction.hpp",
+      "sha256": "8c2e27f5ea25ed1010ac99bc4e4037fa6b95cde228691b1d00442d99600c063f",
+      "bytes": 2741
+    },
+    {
+      "path": "Simulation/nbv/forward_obstacle.hpp",
+      "sha256": "992a69a22f544c4c58e5d0e2a144798b340ec7788e5fedaefd8c74cd6738430e",
+      "bytes": 2252
+    },
+    {
+      "path": "Simulation/nbv/server.py",
+      "sha256": "27cf2b16494bdaad28198ee8e4fd6ba3e90201847e97b325f7e339b4e084da88",
+      "bytes": 7764
+    },
+    {
+      "path": "Simulation/nbv/srv/Step.srv",
+      "sha256": "cbbf5451c0d52758de70c670dc019e09825124a6dac79f8ac7d022d562cd8579",
+      "bytes": 424
+    },
+    {
+      "path": "Simulation/nbv/source-lock.json",
+      "sha256": "78c93eb388e5011a973aa667306e06d660278a3870d6faf14aa918e9bc253e86",
+      "bytes": 10468
+    }
+  ],
+  "bridge_test_sources": [
+    {
+      "path": "Simulation/tests/test_obstacle_cruise.py",
+      "sha256": "f1b4290d9eb11789765f57a5cff858ee21af930ba5c0286f74d3193dc44d67aa",
+      "bytes": 38869
+    },
+    {
+      "path": "Simulation/tests/test_native_vio_loss.py",
+      "sha256": "ccfabf3cd738d013a92735d18cf69adefe2381a8dbed1309f40bd5366bdcbbae",
+      "bytes": 3469
+    },
+    {
+      "path": "Simulation/tests/test_map_revision.py",
+      "sha256": "0546dbaba8767e87da6b9b221d6c114da7dbced34f48c28ef8d268e9fcc88f73",
+      "bytes": 1538
+    },
+    {
+      "path": "Simulation/tests/test_map_goal_renewal.py",
+      "sha256": "02dfb87c2879713485abb7177940c6b8520c019548fd755b1bf47dcbf91425db",
+      "bytes": 3156
+    },
+    {
+      "path": "Simulation/tests/test_startup_handoff_revision.py",
+      "sha256": "af9c2c3de663699143c9c953565aaca29244263db9399d343106603f828ffe53",
+      "bytes": 2783
+    },
+    {
+      "path": "Simulation/tests/test_jepa_timing.py",
+      "sha256": "9d4e5a712900d6aff6b2b28b13da259710617fbf6f48dfe4986e40c78ffa3041",
+      "bytes": 993
+    },
+    {
+      "path": "Simulation/tests/test_map_relay_progress.py",
+      "sha256": "2d58a94a554c45120f8e63718a0892d5e0313f5940f8f675c4466bf70638a142",
+      "bytes": 7161
+    }
+  ],
+  "documentation": [
+    {
+      "path": "Simulation/README.md",
+      "sha256": "01b87f382dcfda42b64e4c656145336e2de731504aab35104f2e7247034797a6",
+      "bytes": 54297
+    },
+    {
+      "path": "Simulation/EXPERIMENT_HANDOVER.md",
+      "sha256": "9c3f3ec36311bc7eb1c1231e404eab8b19e78343c4fa816f7833a17614983e50",
+      "bytes": 55594
+    }
+  ],
+  "limits": [
+    "Two locally completed reactive cycles validate the requested policy, not long-term/global exploration or optimized route choice.",
+    "Historical023622task is disabled/GuardFAULT after .26s state_clock_mismatch under unchanged .25s source rule, not nativeLost. Earlier ARMED snapshots must not be reported current.",
+    "Final English RViz startup/protocol/actualrendering tests and live screenshot are separate from navigation mission acceptance.",
+    "Unknown no-known-hit semantics and unexecuted sampled gaze remain explicit.",
+    "Historical023622observer began after actual accepted mission; its timer cannot measure that full task duration.",
+    "Latest UI feedback41978/15checks was not loaded in old023622; the historicalb29260/12checks/runtime screenshot is kept separate.",
+    "030254loaded-run source clock453.24s/task449.516s crossed old245.24/228.703faultwindow withGuardARMED; this finite checkpoint does not establish unlimitedVIO reliability.",
+    "Historical030254fourthturn remainedunresolved atitscheckpoint andlaterRVizGLindex-bufferexception/-6wasfollowedbyStonefish0; itisnotcurrentactive.",
+    "031510independentauditfixesfourcompletedcyclesat sim209.59/task203.278s; noobserver360s orongoingroundcountchasingrequired andno longtermclaim.",
+    "Cycle3independentrawspeedpeak.044708>.04meanssource20Hzreached/dwellcannotbemisreportedasevery25Hzrawsampleovercontinuous1sbeingbelowmotionthreshold.",
+    "ThreeRVizaliasremovalsareoffline/YAMLonly,notloadedbycurrentviewerandnotproofofGLallocationrootcause."
+  ],
+  "updated_at_utc": "2026-11-02T03:21:56.550493+00:00",
+  "previous_pre_live_snapshot": {
+    "recorded_at_utc": "2026-11-02T02:28:14.436111+00:00",
+    "source_files": [
+      {
+        "path": "Simulation/adapters/nbv_bridge.py",
+        "sha256": "50a18ddbf8d7975860296ebef25346061cf2024f906704fd738b313c4c9f6cda",
+        "bytes": 56768
+      },
+      {
+        "path": "Simulation/adapters/estimated_navigation.py",
+        "sha256": "6b3e9cea2314c1a27912c1f6aa9f8200c87d644d17a6f29e9a8269aedf9c45d8",
+        "bytes": 5911
+      },
+      {
+        "path": "Simulation/config/nbv.yaml",
+        "sha256": "9aa342e51e597fbe486162c80e446acc49e24d5013cc63c9e6484b5587b6cfdd",
+        "bytes": 2638
+      },
+      {
+        "path": "Simulation/tools/prepare_scene.py",
+        "sha256": "72cccd156a74c49e0e3bdcdae3862020d11e842bdc326a44819af112de8049a0",
+        "bytes": 18015
+      },
+      {
+        "path": "Simulation/nbv/native.cpp",
+        "sha256": "14a3488335999e2eb258196108c7b196a467da816fc4bb9db598ae44a8af30ec",
+        "bytes": 43864
+      },
+      {
+        "path": "Simulation/nbv/patch_sources.py",
+        "sha256": "84619bd62b5629daaf3414b9b9cb72089d8fa76e400d62e2053abb2e69a2c8d5",
+        "bytes": 9909
+      },
+      {
+        "path": "Simulation/nbv/forward_selection.hpp",
+        "sha256": "7cb4bdacaad7914d264ad013ec8a488a96e7f31b6d14fda9a8d83f48eb9513e0",
+        "bytes": 1594
+      },
+      {
+        "path": "Simulation/nbv/cruise_direction.hpp",
+        "sha256": "8c2e27f5ea25ed1010ac99bc4e4037fa6b95cde228691b1d00442d99600c063f",
+        "bytes": 2741
+      },
+      {
+        "path": "Simulation/nbv/forward_obstacle.hpp",
+        "sha256": "992a69a22f544c4c58e5d0e2a144798b340ec7788e5fedaefd8c74cd6738430e",
+        "bytes": 2252
+      },
+      {
+        "path": "Simulation/nbv/server.py",
+        "sha256": "27cf2b16494bdaad28198ee8e4fd6ba3e90201847e97b325f7e339b4e084da88",
+        "bytes": 7764
+      },
+      {
+        "path": "Simulation/nbv/srv/Step.srv",
+        "sha256": "cbbf5451c0d52758de70c670dc019e09825124a6dac79f8ac7d022d562cd8579",
+        "bytes": 424
+      },
+      {
+        "path": "Simulation/nbv/source-lock.json",
+        "sha256": "78c93eb388e5011a973aa667306e06d660278a3870d6faf14aa918e9bc253e86",
+        "bytes": 10468
+      }
+    ]
+  },
+  "documentation_consistency_update": {
+    "scope": "Current usage instructions only plus this provenance; no source/config/runtime/old fault changes.",
+    "checked_commands": [
+      "./Simulation/sim --help",
+      "./Simulation/sim navigate --help"
+    ],
+    "current_ui": "Five native RViz tools. sim ui redirects to sim rviz. No MissionControl/custom mission panel, standalone editor/web UI, or2DGoalPose consumer.",
+    "route": "Core CLI navigate --route reads host JSON via stdin; fields run_id/currentrov01odom/epoch1/poses XYZ+xyzw; source route validation retained.",
+    "source_artifacts": [
+      {
+        "path": "Simulation/sim",
+        "sha256": "3f68740273d679cbf9d219e7a67660a76f610d99cd2223109b3ec380c02a238a",
+        "bytes": 19580
+      },
+      {
+        "path": "Simulation/adapters/autonomy_cli.py",
+        "sha256": "6155967846a54b0d154bfd2d25ab8225db6420884fdab528d1530126727ac36e",
+        "bytes": 4848
+      },
+      {
+        "path": "Simulation/adapters/mission_geometry.py",
+        "sha256": "9858e862d95c8ffe5d0d8514de238021dd2e082110aa12137bd583dafae535ef",
+        "bytes": 1864
+      },
+      {
+        "path": "Simulation/docker/command.sh",
+        "sha256": "66d29a9a99e337be82c2a109268f609d3e9a02e29c40d85d89ece41290ecdd5f",
+        "bytes": 1943
+      },
+      {
+        "path": "Simulation/config/pelagos.rviz",
+        "sha256": "0c5b08aacf8608f88ed81f407456b004e02978857ae644b36e4d07507bf49174",
+        "bytes": 11013
+      }
+    ],
+    "latest_bridge_sha256": "2117e5372b9a1901b5b2f43cfb1ee9f416abb91f9cf9d8dacf5d917e015d4c05",
+    "bridge_hash_still_matches_runtime_archive": true,
+    "pending_vio_work": "Concrete030254finiteVIOwindowpassed;031510fixedfour-turnwindowpassedstarted-turnmapgapbehaviorwithGuardARMED. Long-term/allfutureconvergence notaccepted; currentviewercontinueswithoutdedupreload.",
+    "referenced_runtime_run": "20261102T031510Z-29de60ff",
+    "previous_bridge_sha256": "a3c55388a54b496b7575b559358b47037d5df9ab8573ee989f5b8b6be155160c"
+  },
+  "demo_entrypoint": {
+    "artifact": {
+      "path": "Simulation/demo",
+      "sha256": "d5acff4d327a6dc7b5faeb52dae1912a41acbed02f5b5835beed1270b642e9fc",
+      "bytes": 650
+    },
+    "executable": true,
+    "owner": "Root implemented and actually called; archive read-only source review.",
+    "copy_command": "cd /home/hong/Desktop/Pelagos; ./Simulation/demo",
+    "actions": [
+      "doctor",
+      "verify prepared main/native image existence",
+      "stop projectpelagos-stonefish/pelagos-nbvplanner via simstop",
+      "exec simrun--autonomy fromspawn"
+    ],
+    "builds": false,
+    "parameter_changes": false,
+    "prior_run_records_preserved": true,
+    "starts_motion_automatically": false,
+    "user_start": "RViz Explore; Pause/Manual/Auto/PlanPreview remain native tools",
+    "archive_did_not_invoke_demo_or_restart_live": true
+  },
+  "source_file_history_before031510": {
+    "recorded_before_current_update": true,
+    "bridge": {
+      "path": "Simulation/adapters/nbv_bridge.py",
+      "sha256": "a3c55388a54b496b7575b559358b47037d5df9ab8573ee989f5b8b6be155160c",
+      "bytes": 57301
+    },
+    "applies_to_prior023622_030254_archive": true
+  }
+}

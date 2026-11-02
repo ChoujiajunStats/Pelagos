@@ -1,0 +1,391 @@
+# Native RViz controls; UI provenance: build/rviz-native-tools/ui-native-tools-provenance.json.
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+  Property Tree Widget:
+    Expanded:
+    - /Global Options1
+    - /PlannerViz1
+    - /Mapping1
+    Splitter Ratio: 0.48
+- Class: rviz_common/Views
+  Name: Views
+- Class: rviz_common/Selection
+  Name: Selection
+- Class: rviz_common/Tool Properties
+  Name: Tool Properties
+Visualization Manager:
+  Class: ''
+  Global Options:
+    Fixed Frame: pelagos_view
+    Background Color: 255; 255; 255
+    Frame Rate: 30
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: Reference grid
+    Enabled: true
+    Cell Size: 1
+    Plane: XY
+    Reference Frame: <Fixed Frame>
+    Color: 207; 219; 235
+    Alpha: 0.5
+  - Class: rviz_common/Group
+    Name: Axes
+    Enabled: true
+    Displays:
+    - Class: rviz_default_plugins/Odometry
+      Name: ROV body axes - estimated
+      Enabled: true
+      Topic:
+        Value: /rov01/state/odometry
+        Reliability Policy: Reliable
+        Depth: 1
+      Keep: 1
+      Position Tolerance: 0.0
+      Angle Tolerance: 0.0
+      Covariance:
+        Value: false
+      Shape:
+        Value: Axes
+        Axes Length: 0.6
+        Axes Radius: 0.025
+  - Class: rviz_common/Group
+    Name: PlannerViz
+    Enabled: true
+    Displays:
+    - &id001
+      Class: rviz_default_plugins/Path
+      Name: NBV path
+      Enabled: true
+      Color: 24; 93; 188
+      Line Style: Billboards
+      Line Width: 0.045
+      Buffer Length: 1
+      Topic:
+        Value: /pelagos/planner/path
+        Reliability Policy: Reliable
+        Depth: 1
+    - Class: rviz_default_plugins/Marker
+      Name: Next viewpoint
+      Enabled: true
+      Topic:
+        Value: /pelagos/planner/goal
+    - Class: rviz_default_plugins/Marker
+      Name: Execution status
+      Enabled: false
+      Topic:
+        Value: /pelagos/planner/text
+    - Class: rviz_default_plugins/MarkerArray
+      Name: RRT tree
+      Enabled: true
+      Topic:
+        Value: /pelagos/planner/tree
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+    - Class: rviz_default_plugins/PoseArray
+      Name: Candidate viewpoints
+      Enabled: true
+      Topic:
+        Value: /pelagos/planner/viewpoints
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+      Color: 73; 131; 207
+      Shape: Arrow (3D)
+      Arrow Length: 0.22
+      Head Length: 0.06
+      Head Radius: 0.035
+      Shaft Length: 0.16
+      Shaft Radius: 0.015
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Map and sampling bounds
+      Enabled: true
+      Topic:
+        Value: /pelagos/planner/workspace
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Root collision checks
+      Enabled: false
+      Topic:
+        Value: /pelagos/planner/checks
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+  - Class: rviz_common/Group
+    Name: Mission
+    Enabled: true
+    Displays:
+    - Class: rviz_default_plugins/Path
+      Name: Mission route (cyan)
+      Enabled: true
+      Color: 40; 210; 230
+      Line Style: Billboards
+      Line Width: 0.04
+      Pose Style: Arrows
+      Topic:
+        Value: /pelagos/mission/route
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Depth: 1
+  - Class: rviz_common/Group
+    Name: Mapping
+    Enabled: true
+    Displays:
+    - &id003
+      Class: rviz_default_plugins/MarkerArray
+      Name: Wavemap occupied cells
+      Enabled: true
+      Topic:
+        Value: /mapping/occupied_cells
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+    - &id002
+      Class: rviz_default_plugins/MarkerArray
+      Name: NBV OctoMap
+      Enabled: true
+      Topic:
+        Value: /pelagos/planner/map
+        Reliability Policy: Reliable
+        Depth: 1
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Wavemap point cloud
+      Enabled: false
+      Topic:
+        Value: /mapping/occupied
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+      Style: Points
+      Size (Pixels): 3
+      Color Transformer: AxisColor
+      Axis: Z
+      Alpha: 1
+      Decay Time: 0
+  - Class: rviz_common/Group
+    Name: Cave reference - GT display only
+    Enabled: true
+    Displays:
+    - Class: rviz_default_plugins/Marker
+      Name: Full Porth cave - global scene GT
+      Enabled: true
+      Topic:
+        Value: /pelagos/scene/porth
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Depth: 1
+  - Class: rviz_common/Group
+    Name: VIO trajectories and camera history
+    Enabled: true
+    Displays:
+    - Class: rviz_default_plugins/Marker
+      Name: Camera GT (red)
+      Enabled: true
+      Topic:
+        Value: /pelagos/pose/gt_camera
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 10
+    - Class: rviz_default_plugins/Marker
+      Name: Camera OKVIS2 (green)
+      Enabled: true
+      Topic:
+        Value: /pelagos/pose/estimated_camera
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 10
+    - Class: rviz_default_plugins/Path
+      Name: VIO GT trajectory (red)
+      Enabled: true
+      Color: 255; 0; 0
+      Line Style: Billboards
+      Line Width: 0.03
+      Alpha: 1
+      Buffer Length: 1
+      Topic:
+        Value: /pelagos/pose/gt_path
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+    - Class: rviz_default_plugins/Marker
+      Name: GT camera history - every 0.75 m (red)
+      Enabled: true
+      Topic:
+        Value: /pelagos/pose/gt_camera_history
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Depth: 1
+    - Class: rviz_default_plugins/Marker
+      Name: OKVIS2 camera history - every 0.75 m (green)
+      Enabled: true
+      Topic:
+        Value: /pelagos/pose/estimated_camera_history
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Depth: 1
+    - Class: rviz_default_plugins/Path
+      Name: OKVIS2 trajectory (green)
+      Enabled: true
+      Color: 0; 255; 0
+      Line Style: Billboards
+      Line Width: 0.012
+      Alpha: 1
+      Buffer Length: 1
+      Topic:
+        Value: /pelagos/pose/estimated_path
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+    - Class: rviz_default_plugins/Marker
+      Name: GT start position (red)
+      Enabled: true
+      Topic:
+        Value: /pelagos/pose/gt_start
+    - Class: rviz_default_plugins/Marker
+      Name: GT displacement - rise - control status
+      Enabled: false
+      Topic:
+        Value: /pelagos/pose/motion
+  - Class: rviz_common/Group
+    Name: Sensors and estimation evidence
+    Enabled: true
+    Displays:
+    - Class: rviz_default_plugins/Image
+      Name: Left camera RGB
+      Enabled: false
+      Topic:
+        Value: /rov01/sensors/stereo/left/image_raw
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+    - Class: rviz_default_plugins/Image
+      Name: LIVE depth comparison - GT | LAS2-S | Error
+      Enabled: true
+      Topic:
+        Value: /pelagos/depth/comparison
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 2
+    - Class: rviz_default_plugins/Image
+      Name: OKVIS2 native LEFT feature matches - IDs and reprojections
+      Enabled: false
+      Topic:
+        Value: /okvis/cam0_matches
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        Depth: 2
+    - Class: rviz_default_plugins/Image
+      Name: OKVIS2 native RIGHT feature matches
+      Enabled: false
+      Topic:
+        Value: /okvis/cam1_matches
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        Depth: 2
+    - Class: rviz_default_plugins/Image
+      Name: OKVIS2 native graph overview
+      Enabled: false
+      Topic:
+        Value: /okvis/top_debug_view
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        Depth: 2
+    - Class: rviz_default_plugins/Image
+      Name: VIO evidence - rates - error - input audit
+      Enabled: false
+      Topic:
+        Value: /pelagos/vio/evidence
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        Depth: 2
+    - Class: rviz_default_plugins/PointCloud2
+      Name: OKVIS2 native sparse landmarks
+      Enabled: true
+      Topic:
+        Value: /okvis/okvis_points_matched
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        Depth: 1
+      Style: Spheres
+      Size (m): 0.035
+      Color Transformer: FlatColor
+      Color: 0; 220; 255
+      Alpha: 1
+      Decay Time: 0
+    - Class: rviz_default_plugins/Image
+      Name: Depth GT (0.3-10 m)
+      Enabled: false
+      Topic:
+        Value: /pelagos/depth/gt_color
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+    - Class: rviz_default_plugins/Image
+      Name: Depth LAS2-S (0.3-10 m)
+      Enabled: false
+      Topic:
+        Value: /pelagos/depth/estimate_color
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+    - Class: rviz_default_plugins/Image
+      Name: Absolute depth error (0-2 m)
+      Enabled: false
+      Topic:
+        Value: /pelagos/depth/error_color
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+  Tools:
+  - Class: rviz_default_plugins/Interact
+  - Class: rviz_default_plugins/MoveCamera
+  - Class: rviz_default_plugins/Select
+  - Class: rviz_default_plugins/FocusCamera
+  - Class: rviz_default_plugins/Measure
+  - Class: pelagos_rviz/Explore
+  - Class: pelagos_rviz/Plan Preview
+  - Class: pelagos_rviz/Manual
+  - Class: pelagos_rviz/Auto
+  - Class: pelagos_rviz/Pause
+  Views:
+    Current: &id004
+      Class: rviz_default_plugins/Orbit
+      Name: Vehicle close-up
+      Distance: 9.0
+      Pitch: 0.65
+      Yaw: 0.75
+      Target Frame: pelagos_focus
+    Saved:
+    - *id004
+    - Class: rviz_default_plugins/Orbit
+      Name: Local top-down
+      Distance: 9.0
+      Pitch: 1.5707
+      Yaw: 0.0
+      Target Frame: pelagos_focus
+    - Class: rviz_default_plugins/Orbit
+      Name: Full cave
+      Distance: 110
+      Pitch: 1.1
+      Yaw: 0.75
+      Target Frame: pelagos_map_center
+Window Geometry:
+  Width: 1600
+  Height: 1000
+  X: 40
+  Y: 40
+Preferences:
+  PromptSaveOnExit: false

@@ -1,0 +1,120 @@
+{
+  "recorded_at_utc": "2026-11-02T02:27:08.989171+00:00",
+  "authorization": "Parent /root requested plan_turn over genuine existing source-tree branches with >existing3m actual horizontal occupied-footprint clearance or no known hit, then set_cruise_direction late recheck, retaining source RRT/gain/random sampling/15-200/extension and ordinary plan/preview behavior. Parent explicitly approved resetting only unexecuted source exact_root/history/branch memory for each turn-only request.",
+  "scope": "Native adapter/build-time source hook, pure-Eigen helpers/C++ checks and this provenance only. No bridge/navigation/controller/config/docs or live simulation mutations. One-off project image compiled tests; planner-only image rebuilt.",
+  "source": {
+    "repository": "https://github.com/ethz-asl/nbvplanner",
+    "commit": "5c07657af18f967d7049d187db0607024746a42c",
+    "lock_file": "Simulation/nbv/source-lock.json",
+    "original_source_files_modified": false,
+    "build_patch": "Temporary build checkout only, through Simulation/nbv/patch_sources.py"
+  },
+  "protocol": {
+    "new_operation": "plan_turn",
+    "request": "Same original Step/JSON fields body/camera/stamp; no schema/server changes. Use actual current body pose and existing installed map.",
+    "success": {
+      "valid": true,
+      "reason": "planned",
+      "path": "Unmodified original getBestEdge() first-edge samples, typically50poses. Native caches exact original source geometry for subsequent direction setting."
+    },
+    "no_candidate": {
+      "valid": false,
+      "reason": "no_cruisable_turn_direction",
+      "path": [],
+      "execution": "Caller keeps neutral and retries only after genuine new source map revision; native adds no spin/retry loop."
+    },
+    "direction_commit": {
+      "operation": "set_cruise_direction",
+      "request": "Latest actual body after turn/settle; original complete returned source path XYZ unchanged.",
+      "success_reason": "cruise_direction_set_from_source_edge",
+      "clearance_failure_reason": "source_turn_direction_no_longer_cruisable",
+      "failure_effect": "Old forward direction/origin remain unchanged."
+    },
+    "parameter": "pelagos_obstacle_plan_distance_m: existing frozen user value3.0m, read by native with same3.0 default and finite-positive validation. No new distance threshold."
+  },
+  "source_selection": {
+    "stage": "After original source tree expansion/loop termination and immediately before original getBestEdge()/memorizeBestBranch().",
+    "candidate_proof": "selectForwardNode traverses existing root children/descendants and follows parent pointers to each actual first edge. It never creates nodes/angles/routes. Candidate predicate evaluates first.stateXYZ-root.stateXYZ, not a higher descendant endpoint.",
+    "predicate": "Normalize only XY displacement; ray begins at request actual bodyXYZ/current altitude. Use unchanged nearestForwardObstacle with same source body footprint expanded by actual occupied voxel extents. Require front-contact clearance strictly greater than frozen threshold, or no known occupied hit. Source3D slope/view yaw do not replace actual horizontal execution direction.",
+    "gain": "Keep exact source node gain and sampled view yaw. Among eligible branches choose greatest original cumulative gain; original positive current-forward task condition remains when configured. Original getBestEdge extracts that chosen actual branch.",
+    "cost": "Read complete occupied boxes once per plan_turn; memoize clearance for each distinct actual first-edge displacement so descendants do not rescan all occupied cells.",
+    "post_extraction": "Independently recheck actual returned source first-edge horizontal direction as well as existing freePath/current-forward checks; fallback/another eligible tree branch cannot authorize unrelated returned geometry.",
+    "temporary_hook": "Install std::function first-edge predicate only for plan_turn. Restore prior predicate after callback and on exception. Ordinary plan/plan_map_window/preview/waypoint validation have no turn predicate and keep prior behavior.",
+    "root_reset": "plan_turn invokes existing pelagosResetExecution before original source initialize: previous getBestEdge sets exact_root_=current state and pushes history although heading-only policy did not travel to it. Reset unexecuted memory/iteration root so latest actual odometry creates this source tree; map and sampling/gain/budgets remain unchanged."
+  },
+  "source_locations": [
+    {
+      "path": "TP/Planner/nbvplanner/nbvplanner/include/nbvplanner/nbvp.hpp",
+      "role": "Original tree initialize/iterate termination and getBestEdge/memorize extraction call order."
+    },
+    {
+      "path": "TP/Planner/nbvplanner/nbvplanner/src/rrt.cpp",
+      "role": "Original getBestEdge first-parent traversal, samplePath, history push and exact_root update; unchanged source node gains/sampling."
+    },
+    {
+      "path": "Simulation/nbv/patch_sources.py",
+      "role": "Existing build-time forward selector hook extended with optional temporary predicate; no source sampling/gain/loop change."
+    },
+    {
+      "path": "Simulation/nbv/native.cpp",
+      "role": "Distinct plan_turn request, current-body clearance snapshot/filter/late extraction check; set_cruise_direction current-map recheck."
+    },
+    {
+      "path": "Simulation/nbv/cruise_direction.hpp",
+      "role": "Shared strictly-horizontal current-body clearance predicate used during selection and final direction commit."
+    }
+  ],
+  "unchanged": [
+    "Pinned upstream source files",
+    "RRT stochastic XYZ/yaw samples and original information gain formula",
+    "Source15/200 node/gain stopping conditions, failed-iteration fallback and shutdown behavior",
+    "Source extension/overshoot and existing unknown/occupied collision checks",
+    "0.1m full Wavemap→OctoMap map ownership/format and no synthetic free writes",
+    "Original normal plan/purepreview/waypoint algorithms",
+    "All JEPA/navigation/Guard/terminal numeric settings"
+  ],
+  "semantics": {
+    "no_known_hit": "No known occupied hit in installed full map; unknown is not asserted observed free. No infinite-distance scalar is serialized as evidence.",
+    "distance": "Translation until same source body footprint first touches a real occupied voxel, already a front-contact clearance; no extra body-half-length subtraction.",
+    "gain_limit": "NBV view yaw/information gain stays original, while user-authorized heading-only execution does not observe the same sampled view. Predicted gain is not claimed executed gaze."
+  },
+  "validations": {
+    "cpp_checks": "3 executables PASS: new turn eligibility + existing current-forward selection + cached-source direction contract",
+    "log": "Simulation/build/wavemap-nbv/plan-turn-checks.log",
+    "coverage": [
+      "strict boundary exactly3reject/belowreject/aboveaccept",
+      "actual current altitude even when source branch climbs inZ",
+      "no-known-hit distinguished from known free",
+      "later body drift can invalidate direction",
+      "actual first-edge eligibility rejects its high-gain descendant",
+      "highest original gain among legal actual branches",
+      "original gain/view yaw and parent pointers retained",
+      "ordinary selection without predicate unchanged",
+      "turn predicate works without adding a forward-task constraint",
+      "no eligible actual branch returns no node, never synthetic path",
+      "cached complete geometry/idempotent retry/input rejection/current-heading obstacle tests"
+    ],
+    "full_native_build": "PASS ./Simulation/sim build --planner-only",
+    "build_log": "Simulation/build/wavemap-nbv/nbv-build-plan-turn.log",
+    "image": "sha256:0302d2bbaaf64aeaebc6f6b31dc79418848b5716e146bb1667fd022e721f85ce",
+    "integration_fingerprint": "0810f9e630b0bff919d2be762af5aac292ead889ab7685ca782aa204165fc28a",
+    "current_source_fingerprint_matches_image": true,
+    "live_validation": "Pending root full fresh simulation; no real turning/cruising success claimed."
+  },
+  "file_sha256": {
+    "Simulation/nbv/native.cpp": "14a3488335999e2eb258196108c7b196a467da816fc4bb9db598ae44a8af30ec",
+    "Simulation/nbv/forward_selection.hpp": "7cb4bdacaad7914d264ad013ec8a488a96e7f31b6d14fda9a8d83f48eb9513e0",
+    "Simulation/nbv/cruise_direction.hpp": "8c2e27f5ea25ed1010ac99bc4e4037fa6b95cde228691b1d00442d99600c063f",
+    "Simulation/nbv/forward_obstacle.hpp": "992a69a22f544c4c58e5d0e2a144798b340ec7788e5fedaefd8c74cd6738430e",
+    "Simulation/nbv/patch_sources.py": "84619bd62b5629daaf3414b9b9cb72089d8fa76e400d62e2053abb2e69a2c8d5",
+    "Simulation/nbv/srv/Step.srv": "cbbf5451c0d52758de70c670dc019e09825124a6dac79f8ac7d022d562cd8579",
+    "Simulation/nbv/server.py": "27cf2b16494bdaad28198ee8e4fd6ba3e90201847e97b325f7e339b4e084da88",
+    "Simulation/tests/check_turn_direction.cpp": "6bb18e04a274ae8d1c3fcd716cb2811d3bc6f46615d83b2dd1aa7e0df8502fb1",
+    "Simulation/tests/check_forward_selection.cpp": "1ed778982692d73930243dd8d9258938eb2225b5a89c23957083b92d754b4464",
+    "Simulation/tests/check_cruise_direction.cpp": "44c8168174db53b14e2b2817f78e09c3476a4e015650670d5a06d015e317828b",
+    "Simulation/build/wavemap-nbv/plan-turn-checks.log": "d1bac2e3da7b895bfb1a93fd7949e6d2a290295f2f153aa7588d0a61d06654dd",
+    "Simulation/build/wavemap-nbv/nbv-build-plan-turn.log": "0bc7e128abb9480b86775830ef1471cd760a73b6f6c365b38d5b5be179d4e970",
+    "TP/Planner/nbvplanner/nbvplanner/include/nbvplanner/nbvp.hpp": "3f4a07f246003a00366d8f1585fca2e974c6474dd17c7d76d5500a885b5422a6",
+    "TP/Planner/nbvplanner/nbvplanner/src/rrt.cpp": "f017dd39be06bd4f5b147da57881404e39ea93ac8ad61b8212e868be48bad093"
+  }
+}

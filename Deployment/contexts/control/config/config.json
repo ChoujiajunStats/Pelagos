@@ -1,0 +1,86 @@
+{
+  "device": "cuda",
+  "solve_hz": 5.0,
+  "history_hz": 10.0,
+  "history_steps": 26,
+  "reference_speed_m_s": 0.05,
+  "reference_acceleration_m_s2": 0.05,
+  "position_tolerance_m": 0.08,
+  "body_dimensions_m": [
+    0.55,
+    0.55,
+    0.5
+  ],
+  "body_dimensions_source": "user_estimate_width_0.55_height_0.50_length_assumed_0.55",
+  "body_center_note": "centered_sphere_assumption_IMU_to_geometric_center_not_measured",
+  "collision_radius_m": 0.47,
+  "braking_distance_m": 0.1,
+  "motor_channels": [
+    "R1",
+    "L1",
+    "R3",
+    "L3",
+    "R2",
+    "L2"
+  ],
+  "motor_signs": [
+    1,
+    1,
+    -1,
+    -1,
+    -1,
+    1
+  ],
+  "hardware_response_validated": false,
+  "body_to_frd": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      -1,
+      0
+    ],
+    [
+      0,
+      0,
+      -1
+    ]
+  ],
+  "imu_to_body": [
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "max_pose_age_s": 1.0,
+  "max_imu_skew_s": 0.04,
+  "max_pressure_age_s": 0.5,
+  "max_map_age_s": 3.0,
+  "max_path_age_s": 3.0,
+  "max_pose_jump_m": 0.5,
+  "command_limits": [
+    0.15,
+    0.15,
+    0.15,
+    0.08
+  ],
+  "motor_calibration": {
+    "position_verified_by_user": true,
+    "polarity_verified_by_paired_IMU_pulses": true,
+    "physical_dynamics_validated": false
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-11-02T04:04:20.423343+00:00",
+  "purpose": "Small source-only provenance for the external Stonefish workspace required by Pelagos. Not a complete environment, runnable backup, or promise of blank-machine reproducibility.",
+  "repository": {
+    "url": "https://github.com/ChoujiajunStats/stonefish_slam_ws.git",
+    "head": "73fd4556f1eb8fc19e70f07fd83b6a1f38cb92c3",
+    "dirty": true,
+    "tracked_modified_count": 42,
+    "untracked_not_ignored_count": 169,
+    "complete_tracked_ordinary_diff_sha256": "4760c26563be689c24043d230d8d250c238608a508b39adaba135d97a7e796e4"
+  },
+  "tracked_changes": [
+    {
+      "path": ".dockerignore",
+      "status": "modified",
+      "head_sha256": "ab896d7d9352fec2351cdf96d7815d06ffd268e9a024fec139f0093d7e4a1947",
+      "worktree_sha256": "e12eda47551bf75f2803b498f17d1f73f17790e4763bf3f9629280ab8b7e2e86",
+      "worktree_bytes": 121,
+      "ordinary_diff_sha256": "4454533b6a3aac5d74d28885531eeff20aaeb2022639afe47faf81861f9b3e13",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": ".gitignore",
+      "status": "modified",
+      "head_sha256": "20fcefe6d50117e61b7c176149273065adcbe26fe9bd91107cd4c4f51d54cfcc",
+      "worktree_sha256": "f7e0ce1f3ebbe0eca92c6eb159c944d6020472959d165a797383d8e6bc3fe4a4",
+      "worktree_bytes": 477,
+      "ordinary_diff_sha256": "694088c38719b1a6943f2e0d536565aae7e1f9edc1de47a8ab1c0818d8a11654",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "README.md",
+      "status": "modified",
+      "head_sha256": "d631ce4e3eecbdca4909dbd94c88516576bcbb784dac199edfd0c2f9dae9215b",
+      "worktree_sha256": "fbd7880103765a2d67cc2b6d3dc7aefc87ffc90da7797a529ee7c5834d36b5e1",
+      "worktree_bytes": 29998,
+      "ordinary_diff_sha256": "e913f0a1b362d907c508f015d0ac366b5cb5edc12e37a2a4c28cb0e8d44c7802",
+      "patch_included": false,
+      "exclusion_reason": "README documentation omitted from source/config-only patch."
+    },
+    {
+      "path": "app/package.xml",
+      "status": "modified",
+      "head_sha256": "7f5751169b487ca7af495ec5db28b15a77f14b4183746a57581c625690a4a5cb",
+      "worktree_sha256": "a6c6cb1a183767b6994f32c2d4dcaab764c345d341b3103e32f6a6c82596b12f",
+      "worktree_bytes": 1582,
+      "ordinary_diff_sha256": "3929af546cb3e509134bd74bed361b1ac3f9572cb8226f35e493b13eb9e446ed",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "app/setup.py",
+      "status": "modified",
+      "head_sha256": "ba3a14cd717342b27e5da40bac699f2bc5dc2202794863a3c11e33ac40fc2e9c",
+      "worktree_sha256": "ba53dbce426dc0896abbdfe2c79f7bcb7607ac6f9c265bd09692e161f6fad0a3",
+      "worktree_bytes": 820,
+      "ordinary_diff_sha256": "aaaf96c6384f877a00223552ba2c70cc9511355cb7e7ed677def0b19b2928c94",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "app/uw_app/composition/estimation.py",
+      "status": "modified",
+      "head_sha256": "0325331d722b5e1aad68086a4b5e0e081034a0aeadc7d55d9b2a32f7512cb758",
+      "worktree_sha256": "31852f1ef12fd9d93a37b781d7c7fb735726f95002ef154ce4eae8c24f6939e1",
+      "worktree_bytes": 23433,
+      "ordinary_diff_sha256": "06794f19e7dce471c088b4da4a8f6e5f7247d2c86e456fbe1bf648757bd58248",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "app/uw_app/m2_runner.py",
+      "status": "modified",
+      "head_sha256": "83abed84f57e32a75079b68caf76eae788e548953d430c20e1e0d2dd15dfff5f",
+      "worktree_sha256": "50cf740aff183615bf09e8a0f897145c758a81ac921e27ac64b5db7d7db006bb",
+      "worktree_bytes": 19838,
+      "ordinary_diff_sha256": "f4d777db0e7e09f734c105b7a9db94abc1ca3aa21ea36e47f543cb935e78397e",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "app/uw_app/m3_config.py",
+      "status": "modified",
+      "head_sha256": "ef3f96d5f44ca902492dd89d0c560d3cd04001023670d88ebfcb42ea5c02f8a8",
+      "worktree_sha256": "4fb332b8bed876dee245b769ae9c0f68c7828443b79856f22086cea80c64a5ae",
+      "worktree_bytes": 8617,
+      "ordinary_diff_sha256": "9976d805062c206e23af8d91ce340cdc5550c70bb78ca669b5437d639d390420",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "benchmark/package.xml",
+      "status": "modified",
+      "head_sha256": "57774b82e43c94bc335058c210c752c6ccb5c178409671144b306010361f2074",
+      "worktree_sha256": "4e7e487eaec5357bb131735aa697403ff05502eb497b0a366e0121b1bdcdac96",
+      "worktree_bytes": 1349,
+      "ordinary_diff_sha256": "76cf5ff62c6ac7f3711bd6377526beae969ba304f1c785ab2a1123690a9d611d",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "benchmark/setup.py",
+      "status": "modified",
+      "head_sha256": "4eb8059ef85132a9f6578ba96ba5a197fac407d16fbe80a13dfe8127fb5afc2d",
+      "worktree_sha256": "5576608577c0ab7c5bc42845c895037168d56f3feed0efe054b7011f24015283",
+      "worktree_bytes": 1093,
+      "ordinary_diff_sha256": "37d09f575bf8bacd46e8294757bde0d8c86a3015877eef29262dca6614b5cc83",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "benchmark/uw_benchmark/slam_export.py",
+      "status": "modified",
+      "head_sha256": "4d80e7f8240bbb261496b16a5d637afb07f7595fdc93b2264c21eb702a98f006",
+      "worktree_sha256": "84c00c7bcb56d35eabcc2421d6f4fc984ae62e3669898bca87ae857fb65d38e6",
+      "worktree_bytes": 6109,
+      "ordinary_diff_sha256": "1a600924b4056a101e6005e20322903601c416e5aadac8f48c0f329f56502c3f",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "controller/config/defaults.yaml",
+      "status": "modified",
+      "head_sha256": "0ea9763d76255e54e3fda6629679966e572f04db892ab5e7773330950cf7c70f",
+      "worktree_sha256": "5d835605531769a4fa3b14f70a1c5dcd01809361743ee2c017341e15ffa548bf",
+      "worktree_bytes": 443,
+      "ordinary_diff_sha256": "e20a9465e98b3ae97c3534753cad9446fa55a6f8087b1b3b5bfbd3e023ab9115",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "controller/package.xml",
+      "status": "modified",
+      "head_sha256": "71233efd39ab1c822d308229b82e8837ba5b26b8b59371b426b6bfdc3c9f3ded",
+      "worktree_sha256": "722666d18943a3accdb927b4ccef15b45a74927bcb15954971cfd9277115072c",
+      "worktree_bytes": 856,
+      "ordinary_diff_sha256": "df1de910b61f96b96c93f7d1af11f1dffc6962f7567745dd69075720e8f960dc",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "controller/setup.py",
+      "status": "modified",
+      "head_sha256": "c89785ecf967dd166db80a29630c807a715ed8e36554d8dc8fa4779449624862",
+      "worktree_sha256": "8fad727252fb84109be04ee475b582688ca5de29e77b589b4117c7d6da4038d7",
+      "worktree_bytes": 688,
+      "ordinary_diff_sha256": "68f979936f9ad4b3e513e8de340c9049a5c8b2d3a9174790de7948434b4c9953",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "controller/uw_controller/core.py",
+      "status": "modified",
+      "head_sha256": "f0e840b302f2c4f1fcae940f29cc0567d43c2decfb034c3132938b5cd847371d",
+      "worktree_sha256": "c2388730a750e4e0384d42f4312ff815204a84296d899801f816e4fd8d955e6d",
+      "worktree_bytes": 2671,
+      "ordinary_diff_sha256": "2dc8771cdfd0534c553b7a36c00a564f977fc9a20d5637f4d1c67e4969eda413",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "controller/uw_controller/node.py",
+      "status": "modified",
+      "head_sha256": "f361b35d04994b578bcfda7c96b9bc09c78abfb2408dc7ad82dd5207684d9a4d",
+      "worktree_sha256": "6f5c058700669001dc0e305d1199d57e90ecd385d76048b61e02928daaf7ff59",
+      "worktree_bytes": 17932,
+      "ordinary_diff_sha256": "3041bb4da3d131bdd0ab67e7fc76f67ebcb05a2cc91ecaf97e4e053dc387597c",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "docker/compose.yaml",
+      "status": "modified",
+      "head_sha256": "443d95518afea1d756ddd24a134619814b52bda1ccd98145748ca6193720b3be",
+      "worktree_sha256": "4c53e665da717f55325cda5ebbd64a6f2138c51e13c845ad9d1fde9c4232cbff",
+      "worktree_bytes": 1983,
+      "ordinary_diff_sha256": "dd53be6a943d91331e5d6e611b98895a54364f6e49dd404a637edf3efe74395c",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "guard/package.xml",
+      "status": "modified",
+      "head_sha256": "9ef31dbcd3991db1525b7c33a463f113c181aef1b7474abc2fe3c4fefa58f466",
+      "worktree_sha256": "b4ea9d4fdb3e2d6ffc26fc491bf208cd862ae07d6c52b84f5a72f8958b7adaf7",
+      "worktree_bytes": 800,
+      "ordinary_diff_sha256": "3caecdc8860972733e5258802e28073fd94683ccad1cd25dc2aa8ddf7cde7cb7",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "guard/uw_guard/configuration.py",
+      "status": "modified",
+      "head_sha256": "182dbc782114962c1a3c65ba358c969c34d81be9aa4cf3dc77846f137fe207c0",
+      "worktree_sha256": "d54abd066e41a761b5146bd06e31f0390af712bf6e03f57b7754c72d5165d85d",
+      "worktree_bytes": 1774,
+      "ordinary_diff_sha256": "424d0b9da2a5d092b50a0c59b83872d0aaf7ed704f199bf705321d436b1abe1e",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "guard/uw_guard/contracts.py",
+      "status": "modified",
+      "head_sha256": "40f564ea40282d150379e56da82ced95e4e088407ff8ecc73a7dd783c2678f04",
+      "worktree_sha256": "4236127edbf5566a76b8b97b97e63756f1607d77a1bb33bb7a894c400b3a5c42",
+      "worktree_bytes": 2227,
+      "ordinary_diff_sha256": "99596203fcfe5ac142059ebf4a49117d2f625b511156bb5cb3196920741fd01d",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "guard/uw_guard/node.py",
+      "status": "modified",
+      "head_sha256": "1b32233287abea2f30d85ded2d16f6ab3a9baef8ed15f307f252984f02850819",
+      "worktree_sha256": "9c61d8856934672419ef0ada4a13d8055d7aa8be7ae59a838ea87524d90a24c4",
+      "worktree_bytes": 19982,
+      "ordinary_diff_sha256": "30b225904d1a56145ac8ab51aa4f03452b77b029e452c2501ec6c6cbac57fcfc",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "localization/CMakeLists.txt",
+      "status": "modified",
+      "head_sha256": "5b7cb0f1e4ae96bf4eaaa04229cbf024b1b46326e5498d719c1dec55ca0a9c2d",
+      "worktree_sha256": "cca5fba490b1b6d40939ef3476ff937f3900659fda2faba42d87b3239b105c53",
+      "worktree_bytes": 2826,
+      "ordinary_diff_sha256": "5f047c58bd056d0fc6e2ed8bb401755f2bb3a7ac7035eee818e9cf1aa85419e2",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "localization/package.xml",
+      "status": "modified",
+      "head_sha256": "1b0c3f53a21d845acf41fe85d1e007f8ffe654dfb0b25c5f084a3c73b916900c",
+      "worktree_sha256": "c55739bbe73876ac913ec4e80fdb537bac15da00edb53ca949113512566063df",
+      "worktree_bytes": 1118,
+      "ordinary_diff_sha256": "91b6cd7febe710340ff0c1848b5ea3c8afee261391dc1e9d283937ed90898dce",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "localization/src/openvins_node.cpp",
+      "status": "modified",
+      "head_sha256": "6c2d45aaafb07b9e4699afe7baf8ced05a9600f7e63cd4679dd21f19652fa52d",
+      "worktree_sha256": "da2f436b461533455c1adde3322292daca3cb177fe392f1f69bbf4eb03c4b243",
+      "worktree_bytes": 13564,
+      "ordinary_diff_sha256": "80cfca7decc4e26260683684e9e8baabf8166175beecf947b01afaa8043cec14",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "localization/uw_localization/rtabmap.py",
+      "status": "modified",
+      "head_sha256": "4c510b631d79540324c6e90f3366f8d13c0b66c6763c4930b0a31474256b5b6c",
+      "worktree_sha256": "235a5214440876d9d78b3230691ea9a39ea423c715c153687a5a3c0b4b77d4cb",
+      "worktree_bytes": 2341,
+      "ordinary_diff_sha256": "ccff1e28a7133d0665b2f9db10b51a56d10e23add6d77d3143584e5da8ea9d1b",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "navigation/package.xml",
+      "status": "modified",
+      "head_sha256": "67ec0b15933cde535d15bff970544734f2f4d8125e09443b18fbbe5ac9b0beaa",
+      "worktree_sha256": "b2d44789a94f605c4972c2137063fd32e574869d8c6f6aaad20fabada55fac62",
+      "worktree_bytes": 817,
+      "ordinary_diff_sha256": "c2d8c8f1371d41bb4bc5edc3778dd7f19543a05e31241b485e76f04f3d64adf9",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "navigation/setup.py",
+      "status": "modified",
+      "head_sha256": "1bf55b9ceb77c61e38d54c0eda372f693bf1702f40f9df491752fcdc9bb48aa1",
+      "worktree_sha256": "8c3d8457d88b11f794e02adc27b8506c5e3a642e89338f2b41dd55db3f8cea64",
+      "worktree_bytes": 674,
+      "ordinary_diff_sha256": "63265dc971093c5fb6ccb8fed56e900aec7054efb9280f44c38903e077ae3f9a",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "navigation/uw_navigation/core.py",
+      "status": "modified",
+      "head_sha256": "3a8b19f5d06bd833e9bb9669ca854aa840f688f80c39998cf7fa064773fb3b92",
+      "worktree_sha256": "341039403e6372dda1e922c7ff7d47ea8095dabbfd2603f801afef6d354a6300",
+      "worktree_bytes": 3346,
+      "ordinary_diff_sha256": "d8ce7a0c299fc466b20b639fa6ed29b603ec32786292de14aa4fea76839e2a6f",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "navigation/uw_navigation/node.py",
+      "status": "modified",
+      "head_sha256": "cdb66f951746407a424d8abbf151d545c40b54a932152985237118fbe07aa592",
+      "worktree_sha256": "03f69eedf3b2ad23c4ff583e3c427c75e6b89a6bd9fd155e6090c0b8d6df1dc0",
+      "worktree_bytes": 5432,
+      "ordinary_diff_sha256": "7225424751abaef27ecdc112f5743d1ae67ff1dc9610f92dc0a616c9396d6bb5",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "perception/package.xml",
+      "status": "modified",
+      "head_sha256": "896e8e45cff20d60f18ed5ab638011c70753e98d2dbe24bfed394f0ff20ffc1a",
+      "worktree_sha256": "4739208df0cdcc5e22e53f1e81cf18bc199aacaa9fa0ffa23ff5d43b9464d995",
+      "worktree_bytes": 705,
+      "ordinary_diff_sha256": "982bfe0ef0ee1e36ae1aff26a7cd4d4518fe178106650a900a8643fa6144daa7",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "perception/setup.py",
+      "status": "modified",
+      "head_sha256": "a32e7f79ce986246146d7fb152bf3b8fa44a99e3656a21257f519993390073be",
+      "worktree_sha256": "f7f11db33ce6bd14cf0336dfce94bf3f0cac942176d4af1e6e1a6f2a6d40f6ea",
+      "worktree_bytes": 449,
+      "ordinary_diff_sha256": "edd9c65a6d3910806671305f7fa6346b2ac8095445f821b2259b36c8d43dee5b",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "runtime/uw_runtime/artifacts.py",
+      "status": "modified",
+      "head_sha256": "14f60d26d00e8899979f06c684a82c359ee6052ec107da6ad6a22a5854b0f24c",
+      "worktree_sha256": "d104fd6d5c8cfa4c3cb024b277d09cc612cae483c930fd9fd2473471f7f7c244",
+      "worktree_bytes": 4177,
+      "ordinary_diff_sha256": "0d387c198f10ed74976a1a6ef1a879ca3e1c007e47c76b23ee3a3167918c1f44",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "simulations/package.xml",
+      "status": "modified",
+      "head_sha256": "08dc6d81d387bfb24c820c896fb13717883f0b8b471a7fa9709195826945b2a4",
+      "worktree_sha256": "24b26e1a22172f3e86c37cd093bb16af16e3276638c97c5b59c999533659bcdd",
+      "worktree_bytes": 966,
+      "ordinary_diff_sha256": "0a6c7d157ca22d6e885afb4bee70a1025d64c4be35f712e95c0431ec69c31842",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "simulations/uw_simulations/m2_scene.py",
+      "status": "modified",
+      "head_sha256": "087484445cc471593bbc34e796d2e183a81c83cbb9f7efb7bc87eef6c81fcf09",
+      "worktree_sha256": "6556e7ab5c2d6360a70531643fb8ee1689bf876e8015d742a5cd6ac612cac6e2",
+      "worktree_bytes": 5745,
+      "ordinary_diff_sha256": "9f1e195f58bb0b45150c0d88254f54e7033d1daed71f30952272ec36ef4300d2",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "simulations/uw_simulations/optics.py",
+      "status": "modified",
+      "head_sha256": "c05f06fb5e1ebdd149138dff84d2ff045afebcd7879d2895d47ea62e80c0deb8",
+      "worktree_sha256": "85f30649d0b6bcbbc9b223bf5ece6de473388fe012b208a0407e4e26388fb558",
+      "worktree_bytes": 3371,
+      "ordinary_diff_sha256": "78851e042145972f15ee69efd204f1f2fd904cd79dfc129d36637e5f3b656f34",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "tasks/uw_tasks/node.py",
+      "status": "modified",
+      "head_sha256": "64fbd28cc2d7b73bf1b39c73df3c9cce8166554bc5cad9d9d091a5e08ef41765",
+      "worktree_sha256": "716d32f457f210eb1533ce6cd9079e45ace1c431c4f4a06f5239900b221bc528",
+      "worktree_bytes": 11356,
+      "ordinary_diff_sha256": "e0b90e6e3acbf7925233387546a76113f26d6617de0c1e2aac64858476fb83d7",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "test/test_artifacts.py",
+      "status": "modified",
+      "head_sha256": "cee138b4aab4aaa90c8c18bd3dfbdf414385bd18bb25e7336565fc06177aac77",
+      "worktree_sha256": "9b2739003c8834483c52dd39560c6e0d9cac8c84f25af308ae2f5b29bd66d5d8",
+      "worktree_bytes": 4221,
+      "ordinary_diff_sha256": "5bf15d6f6fd4542defa2e9def8164f88d3ef70c66e8bcf7fd9ec3fcfcbc3f990",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "test/test_module_boundaries.py",
+      "status": "modified",
+      "head_sha256": "08970225d91087694503a3e276fa9e6c706a2603134657e1ac3663c4077505b5",
+      "worktree_sha256": "ed2eeb57feb55df1bfc29988a01cf80b700681f8f399b3ef14767933f747dff3",
+      "worktree_bytes": 8273,
+      "ordinary_diff_sha256": "605edc0d16bb1fc74041380e92f0c1759b277f7c7b352b40f6da73c26348bb16",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "test/test_workspace.py",
+      "status": "modified",
+      "head_sha256": "6db78c21eb18d3c246d0adeed960b278eba89e53731b669aa4831cf762f15c5e",
+      "worktree_sha256": "76a863744f81762629936898f42c0f065584412554655efc65d76e938ce0dd98",
+      "worktree_bytes": 8686,
+      "ordinary_diff_sha256": "93dc0fdf87c8e2c7b3e38946d7994570c12890ad89b628552695b68ec9626b1c",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "tools/uw_workspace/cli.py",
+      "status": "modified",
+      "head_sha256": "c901473d3ef308494799ba418cd201e213df52bcbb6f8a4a7519c26310cce5e8",
+      "worktree_sha256": "42e27a9a4e2a4f07649f409aeabc80828eef121045d9d9c7e736e847cda0ca87",
+      "worktree_bytes": 15708,
+      "ordinary_diff_sha256": "a87bf3398ba75062426c39d2d445bbb0b26839c52550434b3e386b9572aaba9c",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "tools/uw_workspace/environment.py",
+      "status": "modified",
+      "head_sha256": "be4f437eab5042806b5f2e18465845eeff926fad2e571da816d2ed2f820e000b",
+      "worktree_sha256": "d2b7a6fc917b517e96507ab1de207548f1650072f53190b311aab8635cd9eab0",
+      "worktree_bytes": 4177,
+      "ordinary_diff_sha256": "6f61ceee22b9218de2dc61c1c9327d3af3692c01a0676b04b0cd57132bd8c5fd",
+      "patch_included": true,
+      "exclusion_reason": null
+    },
+    {
+      "path": "ui/uw_ui/layouts.py",
+      "status": "modified",
+      "head_sha256": "7c3c2a2a984551f7cb1664fb3718f898ef6c0396ffef253efc3f7953b2a8da4f",
+      "worktree_sha256": "af726183ac615995ba0ddb6a2176727a6988687f4027a13d2491b9a9c72d2a08",
+      "worktree_bytes": 8702,
+      "ordinary_diff_sha256": "c8c469588637f8659b9ca821b3f673a8a65ffaa64effab319bb13b058e2a7992",
+      "patch_included": true,
+      "exclusion_reason": null
+    }
+  ],
+  "source_config_patch": {
+    "path": "Simulation/provenance/stonefish-workspace-local.patch",
+    "bytes": 134490,
+    "sha256": "13d21f62450e4d5cf86e6c2fb8f184487b0e2c5cbba18606c94777c80d9075f0",
+    "included_tracked_paths": 41,
+    "excluded_tracked_paths": [
+      "README.md"
+    ],
+    "format": "git diff --no-ext-diff --no-textconv --binary HEAD -- explicit_source_config_path_allowlist",
+    "utf8_text_only": true,
+    "binary_payloads": false,
+    "size_limit_bytes": 2097152,
+    "preflight": "Ordinary diff, file endpoint UTF-8/no-NUL/no-symlink checks, explicit source/build-config path allowlist, strong credential/private-key/userinfo patterns checked before binary-capable command; final patch contains no binary markers. No added credential-keyword lines were found in the inspected text diff.",
+    "apply_hint": "Obtain the exact HEAD in a separate checkout. Inspect/apply the tracked source/config patch, then copy included_overlay paths into that checkout preserving relative paths/modes. Do not apply over a running dirty workspace."
+  },
+  "untracked_scope_limit": "The10 selected necessary untracked source/config files are included as a small overlay; all remaining untracked/ignored files are excluded. This is not an exhaustive dependency closure.",
+  "required_external_environment": {
+    "workspace_variable": "PELAGOS_STONEFISH_WORKSPACE",
+    "main_base_image": "surfslam:stereo-v2 (override PELAGOS_SIM_BASE_IMAGE)",
+    "planner_base_image": "stonefish-planner:omniplanner (override PELAGOS_NBV_BASE_IMAGE)",
+    "base_image_note": "These are local prepared tags; this small snapshot does not contain Docker image layers or guarantee a public pull source.",
+    "planner_source_cache": {
+      "path": ".cache/omniplanner/src",
+      "packages": [
+        "catkin_simple",
+        "eigen_catkin",
+        "eigen_checks",
+        "gflags_catkin",
+        "glog_catkin",
+        "minkindr",
+        "minkindr_ros"
+      ],
+      "contents_included": false
+    },
+    "assets": {
+      "variable": "PELAGOS_PORTH_ASSETS",
+      "required": "External Porth bundle containing asset.json; installed base also provides /opt/uw/asset-lock.json.",
+      "upstream_lock_hint": "External workspace resources/porth-bundle.lock.json",
+      "contents_included": false
+    },
+    "model_weights": "LAS2/JEPA model payloads excluded. See Deployment/artifacts/locks/weights.json and restore through authorized separate artifact storage."
+  },
+  "source_runtime_limits": [
+    "Current local tracked changes include controller/Guard/navigation behavior; cloning HEAD alone does not reproduce the current working tree.",
+    "Patch plus the10-file overlay preserves selected tracked/untracked local source/config only. Other untracked/ignored files, dependency caches, model weights, Porth assets and prepared base images remain external; no complete environment guarantee.",
+    "No external workspace files, git index, commits, Docker containers, running user task, or project root README were modified."
+  ],
+  "updated_at_utc": "2026-11-02T04:07:42.714678+00:00",
+  "included_overlay": {
+    "directory": "Simulation/external-workspace",
+    "readme": "Simulation/external-workspace/README.md",
+    "files": [
+      {
+        "source_relative_path": "controller/config/jepa_mppi.yaml",
+        "included_overlay": "Simulation/external-workspace/controller/config/jepa_mppi.yaml",
+        "sha256": "d988bfa52a0f0b9d4a6c70fb2c1cae30563d1ab041362a85b0c786d4a9e66c36",
+        "bytes": 626,
+        "mode": "0o664",
+        "reason": "prepare_scene reads this checkpoint/controller configuration."
+      },
+      {
+        "source_relative_path": "controller/uw_controller/checkpoint.py",
+        "included_overlay": "Simulation/external-workspace/controller/uw_controller/checkpoint.py",
+        "sha256": "8c69049847077b24be1f1c6e9f0e28d09a51cb24daab0daf2da38245302b2457",
+        "bytes": 15266,
+        "mode": "0o664",
+        "reason": "Current JEPA controller/checkpoint runtime implementation."
+      },
+      {
+        "source_relative_path": "navigation/uw_navigation/heading.py",
+        "included_overlay": "Simulation/external-workspace/navigation/uw_navigation/heading.py",
+        "sha256": "292578dc542057fbf79f843906a6000411de9057995d295f3bc1cdc5045a61da",
+        "bytes": 1387,
+        "mode": "0o664",
+        "reason": "Local navigation guidance helper; restore with the matching current navigation source."
+      },
+      {
+        "source_relative_path": "runtime/uw_runtime/localization_policy.py",
+        "included_overlay": "Simulation/external-workspace/runtime/uw_runtime/localization_policy.py",
+        "sha256": "bd508178a031db12493b1fff892b59fd2c3d7f4c76dc822cd997002b03637b54",
+        "bytes": 1421,
+        "mode": "0o664",
+        "reason": "Local runtime localization-policy helper used by current workspace adaptations."
+      },
+      {
+        "source_relative_path": "docker/jepa-mppi.Dockerfile",
+        "included_overlay": "Simulation/external-workspace/docker/jepa-mppi.Dockerfile",
+        "sha256": "efbfeb5e8447f3c9fe5e50dc8c6b196e520eef8e8d341d5281a9acfdd5abdc57",
+        "bytes": 1504,
+        "mode": "0o664",
+        "reason": "Local JEPA/base-image build recipe, not an image payload."
+      },
+      {
+        "source_relative_path": "docker/omniplanner.Dockerfile",
+        "included_overlay": "Simulation/external-workspace/docker/omniplanner.Dockerfile",
+        "sha256": "4a3c6fd5dece72cee8ffbc3b39ca810267492fdf2a312c3617f28b8fb3f41f3b",
+        "bytes": 3322,
+        "mode": "0o664",
+        "reason": "Local ROS1 planner/base-image recipe needed to reconstruct the declared planner environment."
+      },
+      {
+        "source_relative_path": "docker/omniplanner-entrypoint.sh",
+        "included_overlay": "Simulation/external-workspace/docker/omniplanner-entrypoint.sh",
+        "sha256": "b411fd94e577e8008a1414a0a1dff22b3261ba1ca33c0b6ed16773d7e821fc82",
+        "bytes": 117,
+        "mode": "0o775",
+        "reason": "Entry script for that optional local planner build recipe."
+      },
+      {
+        "source_relative_path": "docker/omniplanner-base-image.txt",
+        "included_overlay": "Simulation/external-workspace/docker/omniplanner-base-image.txt",
+        "sha256": "4ea5e42666a5bfdbddaefd07430d1d3f119a467282566f9c8e6851ef3095d05e",
+        "bytes": 76,
+        "mode": "0o664",
+        "reason": "Local planner parent-image reference, not a container export."
+      },
+      {
+        "source_relative_path": "vendor/source-lock.jepa-mppi.json",
+        "included_overlay": "Simulation/external-workspace/vendor/source-lock.jepa-mppi.json",
+        "sha256": "3b83a8651f52afe32a37f0849aa9c6ee17e5d327b032f671378468eab333e9fa",
+        "bytes": 1915,
+        "mode": "0o664",
+        "reason": "Local JEPA integration/algorithm source lock; not the model payload."
+      },
+      {
+        "source_relative_path": "vendor/source-lock.omniplanner.json",
+        "included_overlay": "Simulation/external-workspace/vendor/source-lock.omniplanner.json",
+        "sha256": "5d011ee3936bab6675581633d23ae894859c9501fba4493683309bd1f8452c8c",
+        "bytes": 4462,
+        "mode": "0o664",
+        "reason": "ROS1 source dependencies used by the local planner environment."
+      }
+    ],
+    "file_count": 10,
+    "total_bytes": 30096,
+    "contents": "Only the10 previously enumerated untracked source/config/build-lock files, copied byte-for-byte after UTF8/noNUL/no-symlink and credential-pattern checks.",
+    "excluded": "All other untracked files, checkpoints/weights, caches, run/session data, hardware private config and assets remain excluded."
+  }
+}
