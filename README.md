@@ -16,7 +16,7 @@
 
 环境为 Docker / ROS 2 Jazzy，NBV 使用独立 ROS 1 Noetic 容器。构建与操作见 [仿真说明](Simulation/README.md)。
 
-## 实机部署
+## 部署
 
 环境：Ubuntu 22.04、ROS 2 Humble、ZED X/SDK。在仓库根目录执行：
 
@@ -25,11 +25,3 @@
 ./Deployment/run.sh build native
 ./Deployment/run.sh mapping --mapper wavemap --check-only
 ```
-
-## 环境恢复
-
-本仓库为轻量源码快照，不含权重、镜像、地图或运行日志。依赖与外部资源见：
-
-- [第三方源码与本地控制器](TP/README.md)
-- [模型权重路径与 SHA-256](Deployment/artifacts/locks/weights.json)
-- [Stonefish 工作区、Porth 场景与基础镜像](Simulation/README.md)
